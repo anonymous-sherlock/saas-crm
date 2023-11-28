@@ -1,4 +1,4 @@
-import { getUserSubscriptionPlan } from '@/lib/stripe'
+"use client"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,7 +12,8 @@ import Image from 'next/image'
 import { Icons } from './Icons'
 import Link from 'next/link'
 import { Gem } from 'lucide-react'
-import { LogoutLink } from '@kinde-oss/kinde-auth-nextjs/server'
+import { signOut } from 'next-auth/react'
+import { cn } from '@/lib/utils'
 
 interface UserAccountNavProps {
   email: string | undefined
@@ -20,12 +21,11 @@ interface UserAccountNavProps {
   imageUrl: string
 }
 
-const UserAccountNav = async ({
+const UserAccountNav = ({
   email,
   imageUrl,
   name,
 }: UserAccountNavProps) => {
-  const subscriptionPlan = await getUserSubscriptionPlan()
 
   return (
     <DropdownMenu>
@@ -41,6 +41,7 @@ const UserAccountNav = async ({
                   src={imageUrl}
                   alt='profile picture'
                   referrerPolicy='no-referrer'
+                  sizes='150px'
                 />
               </div>
             ) : (
@@ -72,26 +73,22 @@ const UserAccountNav = async ({
         <DropdownMenuSeparator />
 
         <DropdownMenuItem asChild>
-          <Link href='/dashboard'>Dashboard</Link>
+          <Link href='/dashboard' className='cursor-pointer'>Dashboard</Link>
         </DropdownMenuItem>
 
         <DropdownMenuItem asChild>
-          {subscriptionPlan?.isSubscribed ? (
-            <Link href='/dashboard/billing'>
-              Manage Subscription
-            </Link>
-          ) : (
-            <Link href='/pricing'>
-              Upgrade{' '}
-              <Gem className='text-blue-600 h-4 w-4 ml-1.5' />
-            </Link>
-          )}
+
+          <Link href='/pricing' className='cursor-pointer'>
+            Upgrade{' '}
+            <Gem className='text-blue-600 h-4 w-4 ml-1.5' />
+          </Link>
+
         </DropdownMenuItem>
 
         <DropdownMenuSeparator />
 
-        <DropdownMenuItem className='cursor-pointer'>
-            <LogoutLink>Log out</LogoutLink>
+        <DropdownMenuItem className='cursor-pointer' onClick={() => signOut()}>
+          Log out
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

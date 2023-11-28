@@ -1,0 +1,32 @@
+import React, { FC, useState } from "react";
+import { Eye, EyeOff } from "lucide-react";
+
+interface PasswordProps {
+  passwordType: "password" | "text"
+  setPasswordType: Function
+}
+
+const PasswordToggle: FC<PasswordProps> = ({ passwordType, setPasswordType }) => {
+  const togglePassword = () => {
+    if (passwordType === "password") {
+      setPasswordType("text");
+      return;
+    }
+    setPasswordType("password");
+  };
+
+  return (
+    <span
+      className="absolute right-0  top-0 z-10 m-[0px_!important] flex h-12 w-12 cursor-pointer items-center justify-center rounded-lg  bg-gray-300  text-[#112164] ring-gray-700 transition-all duration-200 hover:bg-[#112164] hover:text-white hover:ring-1 hover:ring-[#112164]"
+      onClick={togglePassword}
+    >
+      {passwordType !== "text" ? (
+        <EyeOff className="w-5" />
+      ) : (
+        <Eye className="w-5" />
+      )}
+    </span>
+  );
+};
+
+export default PasswordToggle;

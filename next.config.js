@@ -1,28 +1,25 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  async redirects() {
-    return [
+  images: {
+    minimumCacheTTL: 60,
+    remotePatterns: [
       {
-        source: '/sign-in',
-        destination: '/api/auth/login',
-        permanent: true,
+        protocol: "https",
+        hostname: "*",
+        pathname: "**",
       },
       {
-        source: '/sign-up',
-        destination: '/api/auth/register',
-        permanent: true,
+        protocol: "https",
+        hostname: "lh3.googleusercontent.com",
+        pathname: "**",
       },
-    ]
+      {
+        protocol: "https",
+        hostname: "*source.unsplash.com",
+        pathname: "**",
+      },
+    ],
   },
+};
 
-  webpack: (
-    config,
-    { buildId, dev, isServer, defaultLoaders, webpack }
-  ) => {
-    config.resolve.alias.canvas = false
-    config.resolve.alias.encoding = false
-    return config
-  },
-}
-
-module.exports = nextConfig
+module.exports = nextConfig;

@@ -1,36 +1,32 @@
-import Navbar from '@/components/Navbar'
-import Providers from '@/components/Providers'
-import { cn, constructMetadata } from '@/lib/utils'
-import { Inter } from 'next/font/google'
-import './globals.css'
+import "@/styles/globals.css";
+import { Inter } from "next/font/google";
 
+import { Toaster } from "@/components/ui/toaster";
+
+import Providers from "@/providers/index";
+import { SearchBox } from "@/components/SearchBox";
 import 'react-loading-skeleton/dist/skeleton.css'
 import 'simplebar-react/dist/simplebar.min.css'
-
-import { Toaster } from '@/components/ui/toaster'
-
-const inter = Inter({ subsets: ['latin'] })
-
-export const metadata = constructMetadata()
+import { cn } from "@/lib/utils";
+import dynamic from "next/dynamic";
+const inter = Inter({ subsets: ["latin"] });
 
 export default function RootLayout({
   children,
 }: {
-  children: React.ReactNode
+  children: React.ReactNode;
 }) {
-  return (
-    <html lang='en' className='light'>
-      <Providers>
-        <body
-          className={cn(
-            'min-h-screen font-sans antialiased grainy',
-            inter.className
-          )}>
-          <Toaster />
-          <Navbar />
-          {children}
-        </body>
-      </Providers>
-    </html>
+  const CrispWithNoSSR = dynamic(
+    () => import('@/lib/crisp')
   )
+  return (
+    <html lang="en" suppressHydrationWarning>
+      <body className={cn('h-full font-sans antialiased', inter.className)} >
+        <Providers>{children}</Providers>
+        <Toaster />
+        <SearchBox />
+        <CrispWithNoSSR />
+      </body>
+    </html>
+  );
 }

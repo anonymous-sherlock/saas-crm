@@ -1,18 +1,18 @@
 import Link from 'next/link'
 import MaxWidthWrapper from './MaxWidthWrapper'
 import { buttonVariants } from './ui/button'
-import {
-  LoginLink,
-  RegisterLink,
-  getKindeServerSession,
-} from '@kinde-oss/kinde-auth-nextjs/server'
 import { ArrowRight } from 'lucide-react'
 import UserAccountNav from './UserAccountNav'
 import MobileNav from './MobileNav'
+import logo from "@/assets/logo.png"
+import Image from 'next/image'
+import { getAuthSession } from '@/lib/authOption'
 
-const Navbar = () => {
-  const { getUser } = getKindeServerSession()
-  const user = getUser()
+import { Session } from 'next-auth'
+const Navbar = async () => {
+  const session = await getAuthSession();
+
+
 
   return (
     <nav className='sticky h-14 inset-x-0 top-0 z-30 w-full border-b border-gray-200 bg-white/75 backdrop-blur-lg transition-all'>
@@ -21,13 +21,16 @@ const Navbar = () => {
           <Link
             href='/'
             className='flex z-40 font-semibold'>
-            <span>quill.</span>
+            <span className='flex gap-2 items-center justify-center text-2xl'>
+              <Image src={logo.src} blurDataURL={logo.blurDataURL} alt="Adscrush Logo" width={45} height={45} className='rounded-md' priority />{" Adscrush"}
+            </span>
           </Link>
 
-          <MobileNav isAuth={!!user} />
+
+          {/* <MobileNav isAuth={!!session?.user} /> */}
 
           <div className='hidden items-center space-x-4 sm:flex'>
-            {!user ? (
+            {!session?.user ? (
               <>
                 <Link
                   href='/pricing'
@@ -37,20 +40,23 @@ const Navbar = () => {
                   })}>
                   Pricing
                 </Link>
-                <LoginLink
+                <Link
+
+                  href={"/login"}
                   className={buttonVariants({
                     variant: 'ghost',
                     size: 'sm',
                   })}>
                   Sign in
-                </LoginLink>
-                <RegisterLink
+                </Link>
+                <Link
+                  href={"/register"}
                   className={buttonVariants({
                     size: 'sm',
                   })}>
                   Get started{' '}
                   <ArrowRight className='ml-1.5 h-5 w-5' />
-                </RegisterLink>
+                </Link>
               </>
             ) : (
               <>
@@ -65,12 +71,12 @@ const Navbar = () => {
 
                 <UserAccountNav
                   name={
-                    !user.given_name || !user.family_name
+                    !session.user.name
                       ? 'Your Account'
-                      : `${user.given_name} ${user.family_name}`
+                      : `${session.user.name}`
                   }
-                  email={user.email ?? ''}
-                  imageUrl={user.picture ?? ''}
+                  email={session?.user.email ?? ''}
+                  imageUrl={session?.user.image ?? ''}
                 />
               </>
             )}
