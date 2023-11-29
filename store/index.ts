@@ -1,3 +1,4 @@
+import { FileMetaDetails } from "@/types/fileUpload";
 import { create } from "zustand";
 
 // navbar state
@@ -16,21 +17,11 @@ const useNavbarStore = create<NavbarState>((set) => ({
 
 export default useNavbarStore;
 
-//Image Files array
-type ImageFileStore = {
-  files: File[];
-  setFiles: (newFiles: File[]) => void;
-};
-export const useImageFileStore = create<ImageFileStore>((set) => ({
-  files: [],
-  setFiles: (newFiles) => set({ files: newFiles }),
-}));
-
-
 type ProductImagesDropDown = {
-  images: File[];
+  images: File[]
   setImages: (newImages: File | File[]) => void;
   removeImage: (file: File) => void;
+  removeAll: () => void
 };
 
 export const useProductImages = create<ProductImagesDropDown>((set) => ({
@@ -39,7 +30,42 @@ export const useProductImages = create<ProductImagesDropDown>((set) => ({
     const updatedImages = Array.isArray(newImages) ? [...newImages, ...state.images] : [newImages, ...state.images];
     return { images: updatedImages };
   }),
-  removeImage: (fileToRemove) => set((state) => ({
-    images: state.images.filter((file) => file !== fileToRemove),
-  })),
+  removeImage: (fileToRemove) =>
+    set((state) => {
+      const updatedImages = state.images.filter((file) => file !== fileToRemove);
+      // Remove the corresponding file from useUploadedFileMeta
+      useUploadedFileMeta.getState().removeFile(fileToRemove);
+      return { images: updatedImages };
+    }),
+  removeAll: () => set(() => {
+    useUploadedFileMeta.getState().removeAll()
+    return ({ images: [] })
+  })
 }));
+
+
+type UploadedFileStore = {
+  files: FileMetaDetails[];
+  addFile: (file: FileMetaDetails | FileMetaDetails[]) => void;
+  removeFile: (file: File) => void;
+  removeAll: () => void;
+};
+
+export const useUploadedFileMeta = create<UploadedFileStore>((set) => ({
+  files: [],
+  addFile: (file) => set((state) => ({
+    files: Array.isArray(file)
+      ? [...file, ...state.files,]
+      : [file, ...state.files],
+  })),
+  removeAll: () => set(() => ({ files: [] })),
+  removeFile: (fileToRemove) => set((state) => {
+    const updatedFiles = state.files.filter((file) =>
+      file.originalFileName !== fileToRemove.name && file.fileType !== fileToRemove.type
+      && file.fileSize !== fileToRemove.size
+    );
+    return {
+      files: updatedFiles
+    }
+  })
+}))

@@ -27,12 +27,12 @@ export default async function Page() {
     {
       plan: 'Free',
       tagline: 'For small side projects.',
-      quota: 10,
+      quota: "10k",
       features: [
         {
-          text: '5 pages per PDF',
+          text: '10K leads per projects',
           footnote:
-            'The maximum amount of pages per PDF-file.',
+            'The maximum amount of leads per project.',
         },
         {
           text: '4MB file size limit',
@@ -57,10 +57,10 @@ export default async function Page() {
     {
       plan: 'Pro',
       tagline: 'For larger projects with higher needs.',
-      quota: PLANS.find((p) => p.slug === 'pro')!.quota,
+      quota: "50k",
       features: [
         {
-          text: '25 pages per PDF',
+          text: '50k leads per projects',
           footnote:
             'The maximum amount of pages per PDF-file.',
         },
@@ -142,7 +142,7 @@ export default async function Page() {
                     <div className='flex h-20 items-center justify-center border-b border-t border-gray-200 bg-gray-50'>
                       <div className='flex items-center space-x-1'>
                         <p>
-                          {quota.toLocaleString()} PDFs/mo
+                          {quota.toLocaleString()} Leads/mo
                           included
                         </p>
 

@@ -1,7 +1,7 @@
 import { getFileExtension } from "@/lib/helpers";
 import { z } from "zod";
 
-const singleImageSchema = z.object({
+export const singleImageSchema = z.object({
   name: z.string(),
   size: z.number(),
   type: z.string(),
@@ -60,9 +60,10 @@ export const productFormSchema = z.object({
 
   mediaUrls: z.array(
     z.object({
-      value: z.string().optional().refine((data) => !data || new URL(data), {
-        message: 'Please enter a valid URL.',
-      }),
+      value: z.string().optional().refine((value) => {
+        // Check if the value is a valid URL
+        return !value || /^(ftp|http|https):\/\/[^ "]+$/.test(value);
+      }, { message: "Please enter a valid URL." })
     })
   )
 });

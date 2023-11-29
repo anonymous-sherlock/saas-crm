@@ -12,10 +12,9 @@ import { getAuthSession } from "@/lib/authOption";
 export const appRouter = router({
   authCallback: publicProcedure.query(async () => {
     const session = await getAuthSession()
+    if (!session) throw new TRPCError({ code: 'UNAUTHORIZED' })
+
     const user = session?.user
-    if (!user) {
-      throw new TRPCError({ code: 'UNAUTHORIZED' })
-    }
     if (!user.id || !user.email)
       throw new TRPCError({ code: 'UNAUTHORIZED' })
 

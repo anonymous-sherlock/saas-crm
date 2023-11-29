@@ -17,7 +17,7 @@ import { Input } from "@/components/ui/input";
 import { productCategories } from "@/constants/index";
 import { cn } from "@/lib/utils";
 import { productFormSchema } from "@/schema/productSchema";
-import { useImageFileStore, useProductImages } from "@/store/index";
+import { useProductImages, useUploadedFileMeta } from "@/store/index";
 import { Card, CardContent, CardTitle } from "@/ui/card";
 import {
   Command,
@@ -30,19 +30,19 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from "@/ui/popover";
 import { Textarea } from "@/ui/textarea";
 import { Check, ChevronsUpDown, Trash2 } from "lucide-react";
-import { useId, useState } from "react";
+import { useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
-// import DragAndDrop from "./DragnDrop";
 import { trpc } from "@/app/_trpc/client";
-import { useRouter } from "next/navigation";
+import { TRPCError } from "@trpc/server";
+import { toast } from "../ui/use-toast";
 import DragnDrop from "./DragnDrop";
+import Spinner from "../ui/spinner";
 
 export function ProductForm() {
-  const router = useRouter();
-  const uid = useId()
 
   const [open, setOpen] = useState(false);
-  const { files, setFiles } = useImageFileStore();
+  const { removeAll } = useProductImages();
+  const { files } = useUploadedFileMeta();
   const form = useForm<z.infer<typeof productFormSchema>>({
     resolver: zodResolver(productFormSchema),
     defaultValues: {
@@ -56,50 +56,35 @@ export function ProductForm() {
   });
   const utils = trpc.useUtils();
 
-
-
-  // const { mutateAsync: createProduct, isLoading } = useMutation({
-  //   mutationKey: ["createProduct"],
-  //   mutationFn: async (formData: FormData) => {
-  //     const { data } = await axios.post("/api/product/add", formData);
-  //     return data;
-  //   },
-  //   onError: (err) => {
-  //     if (err instanceof AxiosError) {
-  //       if (err.response?.status === 500) {
-  //         console.log(err);
-  //         return toast({
-  //           title: "Cannot Create Product.",
-  //           description: err.response.data.error,
-  //           variant: "destructive",
-  //         });
-  //       } else if (err.response?.status === 400) {
-  //         return toast({
-  //           title: "Uh oh! Something went wrong.",
-  //           description: "There was a problem with your request",
-  //           variant: "destructive",
-  //         });
-  //       }
-  //     }
-  //     return toast({
-  //       title: "Cannot Create Product.",
-  //       description: "Internal server error",
-  //       variant: "destructive",
-  //     });
-  //   },
-  //   onSuccess: (data) => {
-  //     utils.product.invalidate();
-  //     if (data.success) {
-  //       form.reset();
-  //       setFiles([]);
-  //     }
-  //     return toast({
-  //       variant: "success",
-  //       title: "Product created",
-  //       description: data.message,
-  //     });
-  //   },
-  // });
+  const { mutate: createProduct, isLoading } = trpc.product.add.useMutation({
+    onError: (err) => {
+      if (err instanceof TRPCError && err.code === 'TIMEOUT') {
+        toast({
+          variant: "destructive",
+          title: err.message,
+          description: "There was a problem with your request.",
+        });
+      }
+      return toast({
+        title: "Cannot Create Product.",
+        description: "Uh oh! Something went wrong",
+        variant: "destructive",
+      });
+    },
+    onSuccess: (data) => {
+      if (data.success) {
+        form.reset()
+        form.reset({ productImages: [] });
+        removeAll();
+      }
+      utils.product.invalidate();
+      return toast({
+        variant: "success",
+        title: "Product created",
+        description: data.message,
+      });
+    },
+  });
 
   const { fields, append, remove } = useFieldArray({
     name: "mediaUrls",
@@ -109,7 +94,10 @@ export function ProductForm() {
   // 2. Define a submit handler.
   function onSubmit(values: z.infer<typeof productFormSchema>) {
     console.log(values)
-
+    createProduct({
+      product: values,
+      files: files
+    })
   }
 
   return (
@@ -152,6 +140,7 @@ export function ProductForm() {
                   )}
                 />
               </div>
+
               <div className="flex flex-col md:grid grid-cols-2 gap-4">
                 {/* product category */}
                 <FormField
@@ -261,58 +250,56 @@ export function ProductForm() {
 
               {/* media urls */}
               {fields.map((field, index) => (
-                <>
 
-                  <FormField
-                    control={form.control}
-                    key={uid}
-                    name={`mediaUrls.${index}.value`}
-                    render={({ field }) => (
-                      <FormItem className={cn(index !== 0 && "-mt-6")}>
-                        <div className="flex">
-                          <div className="flex-1">
-                            <FormLabel className={cn(index !== 0 && "sr-only")}>
-                              Media URLs
-                            </FormLabel>
-                            <FormDescription className={cn(index !== 0 && "sr-only")}>
-                              Add links of your Video, youtube, vimeo or any other
-                              source.
-                            </FormDescription>
-                          </div>
-                          {index === 0 ?
-                            <Button type="button" variant="secondary" size="sm" className="mt-2 md:w-1/4 "
-                              onClick={() => append({ value: "" })}>
-                              Add URL
-                            </Button> : null}
+                <FormField
+                  control={form.control}
+                  key={index}
+                  name={`mediaUrls.${index}.value`}
+                  render={({ field }) => (
+                    <FormItem className={cn(index !== 0 && "-mt-6")}>
+                      <div className="flex">
+                        <div className="flex-1">
+                          <FormLabel className={cn(index !== 0 && "sr-only")}>
+                            Media URLs
+                          </FormLabel>
+                          <FormDescription className={cn(index !== 0 && "sr-only")}>
+                            Add links of your Video, youtube, vimeo or any other
+                            source.
+                          </FormDescription>
                         </div>
+                        {index === 0 ?
+                          <Button type="button" variant="secondary" size="sm" className="mt-2 md:w-1/4 "
+                            onClick={() => append({ value: "" })}>
+                            Add URL
+                          </Button> : null}
+                      </div>
 
-                        <FormControl>
-                          <div className="flex gap-2">
-                            <Input
-                              {...field}
-                              className="flex-1"
-                              placeholder="https://youtu.be/cZ25wf..."
-                            />
-                            <Button
-                              type="button"
-                              variant="destructive"
-                              onClick={() => {
-                                if (index !== 0) {
-                                  remove(index);
-                                }
-                              }}
-                              className={cn("w-10 p-[12px]", (index === 0) && "cursor-not-allowed")}
-                              disabled={(index === 0)}
-                            >
-                              <Trash2 />
-                            </Button>
-                          </div>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </>
+                      <FormControl>
+                        <div className="flex gap-2">
+                          <Input
+                            {...field}
+                            className="flex-1"
+                            placeholder="https://youtu.be/cZ25wf..."
+                          />
+                          <Button
+                            type="button"
+                            variant="destructive"
+                            onClick={() => {
+                              if (index !== 0) {
+                                remove(index);
+                              }
+                            }}
+                            className={cn("w-10 p-[12px]", (index === 0) && "cursor-not-allowed")}
+                            disabled={(index === 0)}
+                          >
+                            <Trash2 />
+                          </Button>
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               ))}
 
             </div>
@@ -339,7 +326,13 @@ export function ProductForm() {
               type="submit"
               className={cn("w-full col-span-1")}
             >
-              Add Product
+              {isLoading ? (
+                <>
+                  <Spinner /> Adding Product...
+                </>
+              ) : (
+                "Add Product"
+              )}
             </Button>
           </form>
         </Form>

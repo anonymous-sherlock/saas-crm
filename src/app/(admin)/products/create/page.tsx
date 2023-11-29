@@ -10,7 +10,7 @@ function AddProductsPage() {
     <>
 
       <div className="flex">
-        <div className="flex- w-full">
+        <div className="w-full">
           <ProductForm />
         </div>
       </div>

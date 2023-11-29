@@ -8,21 +8,20 @@ import { useEffect, useState } from 'react'
 import useFileUpload from '@/lib/hooks/useFileUpload'
 import { cn } from '@/lib/utils'
 import { productFormSchema } from '@/schema/productSchema'
-import { useProductImages } from '@/store/index'
+import { useProductImages, useUploadedFileMeta } from '@/store/index'
 import Image from 'next/image'
-import { useRouter } from 'next/navigation'
 import { useDropzone } from 'react-dropzone'
 import { useFormContext } from 'react-hook-form'
-import { object, promise, z } from 'zod'
+import { z } from 'zod'
 
 
 
 
 const UploadDropzone = () => {
-  const router = useRouter()
   const { toast } = useToast()
   const { upload, isError } = useFileUpload();
   const { images, setImages } = useProductImages()
+  const { addFile, files } = useUploadedFileMeta()
 
   const [isUploading, setIsUploading] = useState<boolean>(false)
   const [uploadProgress, setUploadProgress] = useState<number>(0)
@@ -30,20 +29,20 @@ const UploadDropzone = () => {
   const { getValues, setError, register, setValue, } = useFormContext<z.infer<typeof productFormSchema>>();
 
 
-
   useEffect(() => {
-    const validimages = productFormSchema.shape.productImages.safeParse(images)
-    if (!validimages.success === true) {
-      setError("productImages", {
-        type: "manual",
-        message: "You can only upload up to 10 images"
+    const validImages = productFormSchema.shape.productImages.safeParse(images);
+    if (!validImages.success) {
+      setError('productImages', {
+        type: 'manual',
+        message: 'You can only upload up to 10 images',
       });
     } else {
-      setValue("productImages", images, {
-        shouldValidate: true
+      setValue('productImages', images, {
+        shouldValidate: true,
       });
     }
-  }, [getValues, images, setError, setValue]);
+
+  }, [getValues, images, files, setError, setValue]);
 
   const startSimulatedProgress = () => {
     setUploadProgress(0)
@@ -63,14 +62,13 @@ const UploadDropzone = () => {
     accept: {
       'image/*': []
     },
+    disabled: isUploading,
     multiple: true,
     maxFiles: 10,
     maxSize: 2000 * 2000,
     onDrop: async (acceptedFile, fileRejections) => {
 
       if (images.length === 0 || images.length - 1 < 9) {
-        setImages(acceptedFile)
-
         if (fileRejections && fileRejections[0]) {
           return toast({
             title: `${fileRejections[0].file.name} Upload Failed`,
@@ -92,11 +90,15 @@ const UploadDropzone = () => {
           const res = await upload({ files: acceptedFile });
 
           if (!res?.data.files) {
-            console.log("called")
             clearInterval(progressInterval)
             setUploadProgress(95)
             setIsUploading(false)
           }
+          if (res?.data.files) {
+            setImages(acceptedFile);
+            addFile(res?.data.files);
+          }
+
 
           await new Promise((resolve) => setTimeout(resolve, 500));
           clearInterval(progressInterval)
@@ -182,7 +184,6 @@ const UploadDropzone = () => {
 const DragnDrop = () => {
 
   const { images, removeImage } = useProductImages()
-
   return (
     <>
       <UploadDropzone />
@@ -203,7 +204,11 @@ const DragnDrop = () => {
               />
               <span
                 className={cn("absolute right-0 top-2 hidden h-6 w-6 -translate-y-1/2 translate-x-1/2 cursor-pointer items-center justify-center rounded-full bg-destructive text-destructive duration-300 group-hover:flex")}
-                onClick={() => removeImage(image)}>
+                onClick={() => {
+                  removeImage(image)
+                }
+
+                }>
                 <Trash width={"50%"} className='text-destructive!' color='red' />
               </span>
             </div>

@@ -34,7 +34,8 @@
       "@/store/*": ["./store/*"],
       "@/providers/*": ["./providers/*"],
       "@/constants/*": ["./constants/*"],
-      "@/public/*": ["./public/*"]
+      "@/public/*": ["./public/*"],
+      "@/types/*": ["./src/types/*"]
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
