@@ -77,7 +77,7 @@ export const userRouter = router({
     const sendMail = await senActivationEmail({
       name: newUser.name,
       email: newUser.email,
-      verifyTokenUrl: `${process.env.BASE_URL}/api/auth/activate/verify?token=${token.token}`,
+      verifyTokenUrl: `${process.env.NEXT_PUBLIC_BASE_URL}/api/auth/activate/verify?token=${token.token}`,
     });
 
     return {

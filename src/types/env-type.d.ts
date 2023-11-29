@@ -1,6 +1,5 @@
 declare namespace NodeJS {
   export interface ProcessEnv {
-    NODE_ENV: string;
     GOOGLE_CLIENT_ID: string;
     GOOGLE_CLIENT_SECRET: string;
     NEXTAUTH_SECRET: string;
@@ -11,14 +10,10 @@ declare namespace NodeJS {
     EMAIL_SERVER_PASSWORD: string;
     EMAIL_SERVER_PORT: number;
     EMAIL_FROM: string;
-    BASE_URL: string;
-    FTP_HOST: string;
-    FTP_PORT: number;
-    FTP_USER: string;
-    FTP_PASS: string;
-    CDN_Domain: string;
+    NEXT_PUBLIC_BASE_URL: string;
+    RESEND_API_KEY: string;
+    CDN_DOMAIN: string;
     CDN_API_KEY: string;
     CDN_URL: string;
-    RESEND_API_KEY: string;
   }
 }
