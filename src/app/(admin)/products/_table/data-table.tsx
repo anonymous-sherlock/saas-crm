@@ -52,7 +52,6 @@ export function DataTable<TData, TValue>({
     initialData: data as RouterOutputs["product"]["getAll"],
     refetchOnMount: false,
     refetchOnReconnect: false,
-    refetchInterval: 1000,
     refetchOnWindowFocus: true
   }) as { data: TData[] };
 
