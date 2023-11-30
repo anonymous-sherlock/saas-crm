@@ -5,7 +5,7 @@ import GoogleProvider from "next-auth/providers/google";
 
 import { db } from "@/db";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
-import { compare } from "bcryptjs";
+import { compare } from "bcrypt";
 import { AuthError } from "@/exceptions/authError";
 
 function getGoogleCredentials(): { clientId: string; clientSecret: string } {
@@ -31,13 +31,11 @@ export const authOptions: NextAuthOptions = {
   },
   pages: {
     signIn: "/login",
-    verifyRequest: "/verify-user",
-    newUser: "/verify-user",
   },
   providers: [
     GoogleProvider({
       clientId: getGoogleCredentials().clientId,
-      clientSecret: getGoogleCredentials().clientSecret
+      clientSecret: getGoogleCredentials().clientSecret,
     }),
     EmailProvider({
       server: {
@@ -81,18 +79,12 @@ export const authOptions: NextAuthOptions = {
           throw new AuthError("User not found with this email", false);
         }
         if (!user.password) {
-          throw new AuthError(
-            "You have not signed up using your email. Please try social login.",
-            false
-          );
+          throw new AuthError("You have not signed up using your email. Please try social login.", false);
         }
         if (!user.active) {
-          throw new AuthError('Account is not verified', false)
+          throw new AuthError("Account is not verified", false);
         }
-        const isValidPassword = await compare(
-          credentials.password,
-          user.password
-        );
+        const isValidPassword = await compare(credentials.password, user.password);
         if (!isValidPassword) {
           throw new AuthError("Invalid email or password", false);
         }
@@ -101,13 +93,10 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
   callbacks: {
-    async signIn({ user, }) {
-
-
-      return true
+    async signIn({ user }) {
+      return true;
     },
     async session({ token, session }) {
-
       if (token) {
         session.user.id = token.id;
         session.user.name = token.name;
@@ -118,7 +107,6 @@ export const authOptions: NextAuthOptions = {
       return session;
     },
     async jwt({ token, user, trigger, session, profile, account }) {
-
       const dbUser = await db.user.findFirst({
         where: {
           email: token.email!,
@@ -141,8 +129,7 @@ export const authOptions: NextAuthOptions = {
         role: dbUser.role,
       };
     },
-   
   },
 };
 
-export const getAuthSession = () => getServerSession(authOptions)
+export const getAuthSession = () => getServerSession(authOptions);

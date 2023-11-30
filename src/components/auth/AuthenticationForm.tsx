@@ -42,7 +42,7 @@ const AuthenticationForm: FC<AuthFormProps> = ({ isRegister }) => {
         <p className="mt-8">
           Already have an account?{" "}
           <Link
-            href={"/login"}
+            href="/login"
             className="font-semibold text-blue-500 hover:text-blue-700"
           >
             Log in
@@ -52,7 +52,7 @@ const AuthenticationForm: FC<AuthFormProps> = ({ isRegister }) => {
         <p className="mt-8">
           Need an account?{" "}
           <Link
-            href={"/register"}
+            href="/register"
             className="font-semibold text-blue-500 hover:text-blue-700"
           >
             Create an account

@@ -1,10 +1,10 @@
 import { db } from "@/db";
+import { parsePrice } from "@/lib/helpers";
+import { productFormSchema } from "@/schema/productSchema";
+import { privateProcedure, router } from "@/server/trpc";
+import { fileMetaDetailsSchema } from "@/types/fileUpload";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import { privateProcedure, router } from "@/trpc/trpc";
-import { productFormSchema } from "@/schema/productSchema";
-import { parsePrice } from "@/lib/helpers";
-import { fileMetaDetailsSchema } from "@/types/fileUpload";
 
 
 export const productRouter = router({

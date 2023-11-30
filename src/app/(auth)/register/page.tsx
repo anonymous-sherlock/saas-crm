@@ -15,6 +15,7 @@ export default function AuthenticationPage() {
         <Image
           src="https://source.unsplash.com/random"
           alt=""
+          fill
           className="absolute inset-0 z-0 h-full w-full object-cover lg:hidden"
           sizes="1080px"
         />
@@ -27,6 +28,7 @@ export default function AuthenticationPage() {
           <Image
             src="https://source.unsplash.com/random"
             alt=""
+            fill
             className="absolute inset-0 h-full w-full object-cover"
             sizes="1280px"
           />

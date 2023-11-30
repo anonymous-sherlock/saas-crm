@@ -38,20 +38,79 @@ model Session {
   @@index([userId], map: "Session_userId_fkey")
 }
 
+model User {
+  id             String          @id @default(cuid())
+  name           String
+  email          String          @unique
+  emailVerified  DateTime?
+  image          String?
+  role           UserRole        @default(CUSTOMER)
+  password       String?
+  active         Boolean         @default(false)
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  accounts       Account[]
+  activateTokens ActivateToken[]
+  apiKeys        ApiKey[]
+  BearerToken    BearerToken[]
+  campaigns      Campaign[]
+  leads          Lead[]
+  products       Product[]
+  sessions       Session[]
+}
+
+model ActivateToken {
+  id          Int       @id @default(autoincrement())
+  token       String    @unique
+  createdAt   DateTime  @default(now())
+  activatedAt DateTime?
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId], map: "ActivateToken_userId_fkey")
+}
+
+model ApiKey {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  enabled   Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, key, enabled])
+  @@index([userId], map: "ApiKey_userId_fkey")
+}
+
+model BearerToken {
+  id        String    @id @default(cuid())
+  key       String    @unique
+  userId    String
+  active    Boolean   @default(true)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  expiresAt DateTime?
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId], map: "BearerToken_userId_fkey")
+}
+
 model Product {
-  productId   String         @id @default(cuid())
+  productId   String  @id @default(cuid())
   name        String
   description String?
   price       Float
   quantity    Int
   ownerId     String
-  createdAt   DateTime       @default(now())
-  updatedAt   DateTime       @updatedAt
-  category    String?
-  campaign    Campaign[]
-  owner       User           @relation(fields: [ownerId], references: [id], onDelete: Cascade)
-  images      ProductImage[]
-  media       ProductMedia[]
+  category String?
+  campaign Campaign[]
+  owner    User           @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  images   ProductImage[]
+  media    ProductMedia[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([ownerId], map: "Product_ownerId_fkey")
 }
@@ -144,64 +203,6 @@ model Lead {
 
   @@index([campaingId], map: "Lead_leadCampaingId_fkey")
   @@index([userId], map: "Lead_userId_fkey")
-}
-
-model User {
-  id             String          @id @default(cuid())
-  name           String
-  email          String          @unique
-  emailVerified  DateTime?
-  image          String?
-  role           UserRole        @default(CUSTOMER)
-  password       String?
-  active         Boolean         @default(false)
-  createdAt      DateTime        @default(now())
-  updatedAt      DateTime        @updatedAt
-  accounts       Account[]
-  activateTokens ActivateToken[]
-  apiKeys        ApiKey[]
-  BearerToken    BearerToken[]
-  campaigns      Campaign[]
-  leads          Lead[]
-  products       Product[]
-  sessions       Session[]
-}
-
-model ActivateToken {
-  id          Int       @id @default(autoincrement())
-  token       String    @unique
-  createdAt   DateTime  @default(now())
-  activatedAt DateTime?
-  userId      String
-  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([userId], map: "ActivateToken_userId_fkey")
-}
-
-model ApiKey {
-  id        String   @id @default(cuid())
-  key       String   @unique
-  enabled   Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, key, enabled])
-  @@index([userId], map: "ApiKey_userId_fkey")
-}
-
-model BearerToken {
-  id        String    @id @default(cuid())
-  key       String    @unique
-  userId    String
-  active    Boolean   @default(true)
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  expiresAt DateTime?
-  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([userId], map: "BearerToken_userId_fkey")
 }
 
 enum TrafficSourceDefault {

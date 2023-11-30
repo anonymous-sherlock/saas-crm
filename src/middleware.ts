@@ -27,24 +27,15 @@ export default withAuth(
   },
   {
     callbacks: {
-      async authorized() {
-        // This is a work-around for handling redirect on auth pages.
-        // We return true here so that the middleware function above
-        // is always called.
-        return true;
-      },
+      // Simplify the `authorized` callback
+      authorized: () => true,
+    },
+    pages: {
+      signIn: "/login",
     },
   }
 );
 
 export const config = {
-  matcher: [
-    "/((?!api|_next/static|_next/image|images|favicon.ico).*)",
-    "/app/:path*",
-    "/login",
-    "/sign-up",
-    '/auth-callback',
-    "/dashboard/:path*",
-    "/api/:path*",
-  ],
+  matcher: ["/((?!api|_next/static|_next/image|images|favicon.ico).*)", "/login", "/register", "/dashboard/:path*"],
 };

@@ -1,12 +1,12 @@
 import { db } from "@/db";
 import { senActivationEmail } from "@/lib/emails/activation";
 import { registerFormSchema } from "@/schema/authFormSchema";
-import { TRPCError, inferRouterOutputs } from "@trpc/server";
-import { hash } from "bcryptjs";
+import { privateProcedure, publicProcedure, router } from "@/server/trpc";
+import { TRPCError } from "@trpc/server";
+import { hash } from "bcrypt";
 import { randomUUID } from "crypto";
 import { nanoid } from "nanoid";
 import { z } from "zod";
-import { privateProcedure, publicProcedure, router } from "@/trpc/trpc";
 
 export const userRouter = router({
   getProduct: privateProcedure
@@ -15,7 +15,7 @@ export const userRouter = router({
         productId: z.string({
           required_error: "product Id is required to delete a product",
         }),
-      })
+      }),
     )
     .query(async ({ ctx, input }) => {
       const { userId } = ctx;
@@ -37,6 +37,7 @@ export const userRouter = router({
         product,
       };
     }),
+
   add: publicProcedure.input(registerFormSchema).mutation(async ({ input }) => {
     const { name, email, password, confirmPassword } = input;
     const existingUser = await db.user.findUnique({
@@ -74,16 +75,15 @@ export const userRouter = router({
         token: `${randomUUID()}${randomUUID()}`.replace(/-/g, ""),
       },
     });
-    const sendMail = await senActivationEmail({
+    senActivationEmail({
       name: newUser.name,
       email: newUser.email,
-      verifyTokenUrl: `${process.env.NEXT_PUBLIC_BASE_URL}/api/auth/activate/verify?token=${token.token}`,
+      verifyTokenUrl: `${process.env.BASE_URL}/api/auth/activate/verify?token=${token.token}`,
     });
 
     return {
       success: true,
       message: "User created successfully",
-      callback: "/login",
       user: {
         id: newUser.id,
         name: newUser.name,
@@ -112,7 +112,7 @@ export const userRouter = router({
     });
 
     if (!user) {
-      throw new TRPCError({ code: "NOT_FOUND", message: "User not found" })
+      throw new TRPCError({ code: "NOT_FOUND", message: "User not found" });
     }
     return user;
   }),
@@ -132,41 +132,38 @@ export const userRouter = router({
     }
     const existingApiKey = await db.apiKey.findFirst({
       where: { userId: userId, enabled: true },
-    })
+    });
 
     if (existingApiKey) {
       const data = await db.$transaction([
-        db.apiKey.update(
-          {
-            where: { id: existingApiKey.id },
-            data: {
-              enabled: false
-            }
-          }
-        ),
+        db.apiKey.update({
+          where: { id: existingApiKey.id },
+          data: {
+            enabled: false,
+          },
+        }),
 
         db.apiKey.create({
           data: {
             key: nanoid(32),
             enabled: true,
             userId: userId,
-          }
-        })
-      ])
+          },
+        }),
+      ]);
 
-      return { ...data[1] }
+      return { ...data[1] };
     }
     const newApiKey = db.apiKey.create({
       data: {
         key: nanoid(32),
         enabled: true,
         userId: userId,
-      }
-    })
+      },
+    });
 
-    return newApiKey
-  }
-  ),
+    return newApiKey;
+  }),
   generateBearerToken: privateProcedure.mutation(async ({ ctx }) => {
     const { userId } = ctx;
     const user = db.user.findFirst({
@@ -183,41 +180,38 @@ export const userRouter = router({
     }
     const existingBearerToken = await db.bearerToken.findFirst({
       where: { userId: userId, active: true },
-    })
+    });
 
     if (existingBearerToken) {
       const data = await db.$transaction([
-        db.bearerToken.update(
-          {
-            where: { id: existingBearerToken.id },
-            data: {
-              active: false
-            }
-          }
-        ),
+        db.bearerToken.update({
+          where: { id: existingBearerToken.id },
+          data: {
+            active: false,
+          },
+        }),
 
         db.bearerToken.create({
           data: {
             key: `${nanoid(32)}${randomUUID()}${randomUUID()}`.replace(/-/g, ""),
             active: true,
             userId: userId,
-          }
-        })
-      ])
+          },
+        }),
+      ]);
 
-      return { ...data[1] }
+      return { ...data[1] };
     }
     const newBearerKey = db.bearerToken.create({
       data: {
         key: `${nanoid(32)}${randomUUID()}${randomUUID()}`.replace(/-/g, ""),
         active: true,
         userId: userId,
-      }
-    })
+      },
+    });
 
-    return newBearerKey
-  }
-  )
+    return newBearerKey;
+  }),
 });
 
 export type UserRouter = typeof userRouter;

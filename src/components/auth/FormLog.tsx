@@ -65,32 +65,27 @@ export function FormLog({ isRegister }: { isRegister: boolean; }) {
   })
 
   // 2. Define a submit handler.
-  async function onSubmit(data: z.infer<typeof formSchema>) {
+  const onSubmit = async (data: z.infer<typeof formSchema>) => {
     try {
-      if (isRegister === true) {
+      if (isRegister) {
         if ('name' in data && 'confirmPassword' in data) {
           await addUser({ ...data });
         }
       } else {
-        // login logic here
         await handleLogin(data, setLoading, router);
-
       }
     } catch (error) {
-      if (error instanceof TRPCError)
-        toast({
-          variant: "destructive",
-          title: "Error",
-          description: error.message,
-        }); else {
-        toast({
-          variant: "destructive",
-          title: "Error",
-          description: "Something went wrong try again later.",
-        });
-      }
+      handleSubmissionError(error);
     }
-  }
+  };
+  const handleSubmissionError = (error: unknown) => {
+    const errorMessage = error instanceof TRPCError ? error.message : "Something went wrong. Please try again later.";
+    toast({
+      variant: "destructive",
+      title: "Error",
+      description: errorMessage,
+    });
+  };
 
   return (
     <section className=" mt-8 w-full">
@@ -148,8 +143,6 @@ export function FormLog({ isRegister }: { isRegister: boolean; }) {
                   <Input
                     placeholder="Password"
                     {...field}
-                    id=":R3e6qqpcq:-form-item"
-                    aria-describedby=":R3e6qqpcq:-form-item-description"
                     type={passwordType}
                     className="mt-2 h-12 w-full rounded-lg border bg-gray-50 px-4 py-3 ring-primary focus:outline-none focus:ring-1"
                   />

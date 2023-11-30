@@ -26,7 +26,7 @@ import {
 } from "@/ui/table";
 
 import { trpc } from "@/app/_trpc/client";
-import { RouterOutputs } from "@/trpc";
+import { RouterOutputs } from "@/server";
 import { DataTablePagination } from "./data-table-pagination";
 import { DataTableToolbar } from "./data-table-toolbar";
 

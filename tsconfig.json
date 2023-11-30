@@ -22,7 +22,7 @@
       "@/*": ["./src/*"],
       "@/prisma/*": ["./prisma/*"],
       "@/db/*": ["./src/db/*"],
-      "@/trpc/*": ["./src/trpc/*"],
+      "@/server/*": ["./src/server/*"],
       "@/ui/*": ["./src/components/ui/*"],
       "@/components/*": ["./src/components/*"],
       "@/styles/*": ["./src/styles/*"],

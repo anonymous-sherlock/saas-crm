@@ -7,8 +7,8 @@ import google from "@/assets/social/google.svg";
 import { signIn } from "next-auth/react";
 
 const loginWithGoogle = async () => {
-    await signIn("google");
-  };
+  await signIn("google");
+};
 const GoogleSignIn = () => {
   return (
     <Button

@@ -1,11 +1,11 @@
 
 import { db } from "@/db";
+import { generateCampaignCodeID } from "@/lib/utils";
+import { campaignFormSchema } from "@/schema/campaignSchema";
+import { privateProcedure, router } from "@/server/trpc";
 import { CampaignStatus } from "@prisma/client";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import { generateCampaignCodeID } from "@/lib/utils";
-import { campaignFormSchema } from "@/schema/campaignSchema";
-import { privateProcedure, router } from "@/trpc/trpc";
 
 export const campaignRouter = router({
   create: privateProcedure
@@ -123,6 +123,7 @@ export const campaignRouter = router({
         name: true,
         status: true,
         targetCountry: true,
+        createdAt:true,
         product: {
           select: {
             productId: true,
@@ -136,27 +137,7 @@ export const campaignRouter = router({
         },
       },
     });
-    const mappedCampaignsData = campaignsData.map((campaign) => {
-      return {
-        campaignId: campaign.id,
-        campaignCode: campaign.code,
-        campaignName: campaign.name,
-        description: campaign.description,
-        status: campaign.status,
-        targetCountry: campaign.targetCountry,
-        product: {
-          productId: campaign.product?.productId ?? "",
-          name: campaign.product?.name ?? "",
-          description: campaign.product?.description ?? "",
-          price: Number(campaign.product?.price) ?? "",
-          category: campaign.product?.category ?? "",
-          images: campaign.product?.images ?? [], // Add nullish coalescing operator
-          createdAt: campaign.product?.createdAt!,
-        },
-      };
-    });
-
-    return mappedCampaignsData;
+   return campaignsData
   }),
   copyCampaign: privateProcedure
     .input(
