@@ -62,7 +62,7 @@ export const subMenusList: SubMenuTypes[] = [
       {
         id: "2",
         label: "New Campaign",
-        url: "/campaign/create",
+        url: "/campaigns/create",
       },
     ],
   },

@@ -1,6 +1,6 @@
+import { INFINITE_QUERY_LIMIT } from "@/config/infinite-query";
 import { db } from "@/db";
 import { NextRequest, NextResponse } from "next/server";
-
 
 async function getSelectedProduct(selectedId: string | null) {
   if (selectedId) {
@@ -17,41 +17,39 @@ export async function GET(req: NextRequest, res: NextResponse) {
 
   const productName = queryParams.get("name");
   const selectedId = queryParams.get("selectedId");
-  const limit = queryParams.get("limit");
-  const page = queryParams.get("page");
+  const limit = parseInt(queryParams.get("limit") ?? INFINITE_QUERY_LIMIT.toString(), 10);
+  const cursor = queryParams.get("cursor");
 
   try {
     const selectedProduct = await getSelectedProduct(selectedId);
-
-
+    const whereClause = {
+      OR: [{ name: { contains: productName ?? "" } }, { productId: { contains: productName ?? "" } }, { category: { contains: productName ?? "" } }],
+      NOT: { productId: selectedProduct?.productId },
+    };
     const products = await db.product.findMany({
-      where: {
-        OR: [
-          { name: { contains: productName ?? "" } },
-          { productId: { contains: productName ?? "" } },
-          { category: { contains: productName ?? "" } },
-        ],
-        NOT: { productId: selectedProduct?.productId },
+      where: whereClause,
+      include: { images: true },
+      take: limit + 1, // Fetch one extra item to check if there's a next page
+      cursor: cursor ? { productId: cursor } : undefined,
+      orderBy: {
+        createdAt: "desc",
       },
-
-      include: {
-        images: true,
-      },
-      take: parseInt(limit ?? "8", 10),
     });
 
-    if (!products) {
-      return NextResponse.json({ error: "Product not found" }, { status: 404 });
+    let nextCursor: typeof cursor | undefined = undefined;
+
+    if (products.length > limit) {
+      const nextItem = products.pop();
+      nextCursor = nextItem?.productId;
     }
 
-    let productsArray = Object.entries(products).map((e) => e[1]);
-
-    if (selectedProduct) {
-      productsArray = [selectedProduct, ...productsArray].slice(0, parseInt(limit ?? "8", 10));
+    let productsArray = [ ...products];
+    if(selectedProduct){
+      productsArray.unshift(selectedProduct)
     }
-    return NextResponse.json({ data: productsArray }, { status: 200 });
+    return NextResponse.json({ nextCursor, data: productsArray }, { status: 200 });
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return NextResponse.json({ error: "Something went wrong", brief: error }, { status: 500 });
   }
 }

@@ -97,17 +97,17 @@ model BearerToken {
 }
 
 model Product {
-  productId   String  @id @default(cuid())
+  productId   String         @id @default(cuid())
   name        String
   description String?
   price       Float
   quantity    Int
   ownerId     String
-  category String?
-  campaign Campaign[]
-  owner    User           @relation(fields: [ownerId], references: [id], onDelete: Cascade)
-  images   ProductImage[]
-  media    ProductMedia[]
+  category    String?
+  campaign    Campaign[]
+  owner       User           @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  images      ProductImage[]
+  media       ProductMedia[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

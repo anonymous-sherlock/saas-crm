@@ -2,7 +2,7 @@ import { clsx, type ClassValue } from "clsx";
 import { randomUUID } from "crypto";
 import { Metadata } from "next";
 import { twMerge } from "tailwind-merge";
-import favicon from "@/public/favicon.png"
+import favicon from "@/public/favicon.png";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -42,11 +42,9 @@ export function isMacOs() {
   return window.navigator.userAgent.includes("Mac");
 }
 
-export function getProductCategories() { }
+export function getProductCategories() {}
 
-export function formatPrice(price: number) {
-  return new Intl.NumberFormat("en-IN").format(price);
-}
+
 
 export function absoluteUrl(path: string) {
   if (typeof window !== "undefined") return path;
@@ -60,18 +58,36 @@ export function generateCampaignCodeID() {
   const alias = uuid.substring(0, 8);
   return alias;
 }
+export function formatPrice(
+  price: number | string,
+  options: {
+    currency?: "INR" | "USD" | "EUR" | "GBP" | "BDT";
+    notation?: Intl.NumberFormatOptions["notation"];
+  } = {},
+) {
+  const { currency = "USD", notation = "compact" } = options;
+
+  const numericPrice = typeof price === "string" ? parseFloat(price) : price;
+
+  return new Intl.NumberFormat("en-IN", {
+    style: "currency",
+    currency,
+    notation,
+    maximumFractionDigits: 2,
+  }).format(numericPrice);
+}
 
 export function constructMetadata({
   title = "Adscrush - the SaaS for leads management",
   description = "Adscrush CRM is an open-source software to easily manage your hot leads.",
   image = "/favicon.png",
-  noIndex = true
+  noIndex = true,
 }: {
-  title?: string
-  description?: string
-  image?: string
-  icons?: string
-  noIndex?: boolean
+  title?: string;
+  description?: string;
+  image?: string;
+  icons?: string;
+  noIndex?: boolean;
 } = {}): Metadata {
   return {
     title,
@@ -81,24 +97,24 @@ export function constructMetadata({
       description,
       images: [
         {
-          url: image
-        }
-      ]
+          url: image,
+        },
+      ],
     },
     twitter: {
       card: "summary_large_image",
       title,
       description,
       images: [image],
-      creator: "@adscrush"
+      creator: "@adscrush",
     },
     icons: favicon.src,
-    metadataBase: new URL('http://localhost:300'),
+    metadataBase: new URL("http://localhost:300"),
     ...(noIndex && {
       robots: {
         index: false,
-        follow: false
-      }
-    })
-  }
+        follow: false,
+      },
+    }),
+  };
 }

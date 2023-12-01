@@ -1,4 +1,5 @@
 import { db } from "@/db";
+import { senActivationEmail } from "@/lib/emails/activation";
 import { registerFormSchema } from "@/schema/authFormSchema";
 import { privateProcedure, publicProcedure, router } from "@/server/trpc";
 import { TRPCError } from "@trpc/server";
@@ -74,9 +75,16 @@ export const userRouter = router({
         token: `${randomUUID()}${randomUUID()}`.replace(/-/g, ""),
       },
     });
+    await senActivationEmail({
+      name: newUser.name,
+      email: newUser.email,
+      verifyTokenUrl: `${process.env.BASE_URL}/api/auth/activate/verify?token=${token.token}`,
+    });
+
     return {
       success: true,
       message: "User created successfully",
+      callback: "/login",
       user: {
         id: newUser.id,
         name: newUser.name,

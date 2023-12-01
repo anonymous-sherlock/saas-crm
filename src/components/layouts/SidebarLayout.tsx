@@ -9,9 +9,9 @@ export const SidebarLayout = ({ children }: PropsWithChildren) => {
       <Sidebar>
         <UserAvatarDetails />
       </Sidebar>
-      <section className="relative mx-auto w-full flex-1 grainy">
+      <section className="overflow-hidden flex-1 grainy">
         <Header />
-        <main className="mt-0 p-4 overflow-auto">{children}</main>
+        <main className="mt-0 p-4">{children}</main>
       </section>
     </div>
   );

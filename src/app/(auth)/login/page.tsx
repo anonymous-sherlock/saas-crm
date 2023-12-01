@@ -1,14 +1,20 @@
 import AuthenticationForm from "@/components/auth/AuthenticationForm";
+import { getAuthSession } from "@/lib/authOption";
 import { Metadata } from "next";
+import { redirect } from "next/navigation";
 import Image from "next/image";
-
 
 export const metadata: Metadata = {
   title: "Login Your Account",
   description: "Best Advertisers in 2023 — Adscrush",
 };
 
-export default function AuthenticationPage() {
+export default async function LoginPage() {
+  const session = await getAuthSession()
+
+  if (session && session?.user) {
+    redirect("/dashboard")
+  }
 
   return (
     <>

@@ -18,6 +18,7 @@ export default function AuthenticationPage() {
           fill
           className="absolute inset-0 z-0 h-full w-full object-cover lg:hidden"
           sizes="1080px"
+          priority
         />
         <div className="absolute inset-0 z-0 bg-black opacity-50 lg:hidden"></div>
         {/* for desktop */}
@@ -31,6 +32,7 @@ export default function AuthenticationPage() {
             fill
             className="absolute inset-0 h-full w-full object-cover"
             sizes="1280px"
+            priority
           />
           <div className="absolute inset-0 z-0 bg-black opacity-50"></div>
           <p className="absolute left-4 top-4 text-3xl font-extrabold text-white">

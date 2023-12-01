@@ -14,7 +14,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { productCategories } from "@/constants/index";
+import { PRODUCT_CATEGORIES } from "@/constants/index";
 import { cn } from "@/lib/utils";
 import { productFormSchema } from "@/schema/productSchema";
 import { useProductImages, useUploadedFileMeta } from "@/store/index";
@@ -178,13 +178,13 @@ export function ProductForm() {
                               <CommandList>
                                 <CommandEmpty>No results found.</CommandEmpty>
                                 <CommandGroup heading="Categories">
-                                  {productCategories.map((cat, index) => (
+                                  {PRODUCT_CATEGORIES.map((cat, index) => (
                                     <CommandItem
                                       className="my-2  cursor-pointer"
                                       key={index}
-                                      value={cat}
+                                      value={cat.label}
                                       onSelect={() => {
-                                        form.setValue("productCategory", cat);
+                                        form.setValue("productCategory", cat.label);
                                         form.clearErrors("productCategory");
                                         setOpen(false);
                                       }}
@@ -192,12 +192,12 @@ export function ProductForm() {
                                       <Check
                                         className={cn(
                                           "mr-2 h-4 w-4",
-                                          cat === field.value
+                                          cat.value === field.value
                                             ? "opacity-100"
                                             : "opacity-0"
                                         )}
                                       />
-                                      {cat}
+                                      {cat.label}
                                     </CommandItem>
                                   ))}
                                 </CommandGroup>

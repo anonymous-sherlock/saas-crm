@@ -4,11 +4,11 @@ import { cn } from "@/lib/utils";
 import { ProductSearchPayload } from "@/schema/productSchema";
 import { Prisma } from "@prisma/client";
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";
-import { useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import axios from "axios";
-import { Check, RefreshCw } from "lucide-react";
+import { Check, ChevronLeft, ChevronRight, Loader2, RefreshCw, Search } from "lucide-react";
 import Image from "next/image";
-import React, { useState } from "react";
+import React, { useId, useState } from "react";
 import { useFormContext } from "react-hook-form";
 import { Button } from "../ui/button";
 import {
@@ -33,6 +33,7 @@ import notFoundImage from "@/public/product-not-found.jpg"
 
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import Spinner from "../ui/spinner";
+import { Input } from "../ui/input";
 
 
 
@@ -46,42 +47,67 @@ type ProductWithImagesPayload = Prisma.ProductGetPayload<{
 const ProductDropdown = () => {
   const [selectedProduct, setSelectedProduct] = useState<string | null>(null);
   const [searchText, setSearchText] = useState<string | null>("");
-  const debouncedValue = useDebounce(searchText, 500);
+  const [open, setOpen] = useState(false);
+  const [isPopupOpen, setIsPopupOpen] = useState(false);
+  const { setValue, getValues, } = useFormContext();
+
+
+
+  const debouncedValue = useDebounce(searchText, 700);
   const {
-    data: products,
+    data: productSearched,
     isFetching,
     isFetched,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    fetchPreviousPage,
+
 
     refetch,
-  } = useQuery<{ data: ProductWithImagesPayload[] }>({
+  } = useInfiniteQuery<{
+    nextCursor: string,
+    data: ProductWithImagesPayload[]
+  }>({
     queryKey: ["product", debouncedValue,],
-    queryFn: async () => {
+    queryFn: async ({ pageParam }) => {
       const payload: ProductSearchPayload = {
         name: debouncedValue as string,
         selectedId: selectedProduct as string,
+        cursor: pageParam,
+        limit: 5,
       };
       const { data } = await axios.get("/api/search/product", {
         params: payload,
       });
       return data;
     },
-    onError: (err) => { },
+    getNextPageParam: (lastPage) => {
+      return lastPage.nextCursor
+    },
+    keepPreviousData: true,
     enabled: !!debouncedValue,
+
   });
+  const products = productSearched?.pages.flatMap((page) => page.data)
 
-  const { setValue, getValues, } = useFormContext();
-
-  const [open, setOpen] = useState(false);
-  const [isPopupOpen, setIsPopupOpen] = useState(false);
 
   const handlePopupTrigger = () => {
-    refetch();
+    let fetched = false
+    if (!fetched) {
+      refetch()
+
+      console.log("fetched called")
+      fetched = true
+    }
+
     setIsPopupOpen(true);
+
   };
 
   const getProductCategory = () => {
     const selectedProductId = getValues("product");
-    const selectedProduct = products?.data.find(
+    const selectedProduct = products?.find(
       (p) => p.productId === selectedProductId
     );
 
@@ -92,7 +118,7 @@ const ProductDropdown = () => {
 
   const getProductName = () => {
     const selectedProductId = getValues("product");
-    const selectedProduct = products?.data.find(
+    const selectedProduct = products?.find(
       (p) => p.productId === selectedProductId
     );
 
@@ -144,75 +170,76 @@ const ProductDropdown = () => {
         </PopoverTrigger>
         <PopoverContent className="w-full p-0 max-w-[360px] min-w-[340px]">
           <Command className="m-0 h-full w-full p-0">
-            <CommandInput
-              placeholder="Search..."
-              value={searchText ? searchText : ""}
-              onValueChange={(e) => setSearchText(e)}
-
-            />
+            <div className="flex items-center border-b px-3" >
+              <Search className="mr-2 h-4 w-4 shrink-0 opacity-50" />
+              <Input type="text" placeholder="Search here..." className={cn(
+                "flex w-full bg-transparent py-2 text-sm outline-none border-none ring-offset-0 placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50", "focus-visible:ring-0 focus-visible:outline-none  focus-visible:border-none focus-visible:ring-offset-0 focus-visible:bg-transparent")}
+                onChange={(e)=>setSearchText(e.currentTarget.value)} />
+            </div>
             <CommandList>
-              <CommandEmpty>
+              <CommandEmpty className="flex justify-center items-center p-4">
                 {isFetching ? <><Spinner />Fetching Products...</> : "No results found."}
               </CommandEmpty>
               <CommandGroup heading="Products">
                 {isFetched &&
                   products &&
-                  products?.data
-                    ?.sort((a: ProductWithImagesPayload, b: ProductWithImagesPayload) => {
-                      if (a.productId === getValues("product")) {
-                        return -1; // Move a to the beginning
-                      } else if (b.productId === getValues("product")) {
-                        return 1; // Move b to the beginning
-                      }
-                      return 0; // No change in order
-                    }
-                    )
+                  products
                     .map((product: ProductWithImagesPayload, i) => {
                       const isSelected = product.productId === selectedProduct;
 
-                      if (i === products.data.length - 1) {
-                        return (
-                          <CommandItem key={i} className="flex justify-center items-center mx-auto"><Spinner />
-                            load more
-                          </CommandItem>
-                        )
-                      }
                       return (
-                        <CommandItem
-                          key={product.productId}
-                          value={product.productId}
+                        <React.Fragment key={`${product.productId}-${i}`}>
+                          <CommandItem
+                            key={product.productId}
+                            value={product.productId}
 
-                          onSelect={(currentValue) => {
-                            const currentProduct = getValues("product");
-                            const newProduct =
-                              product === currentProduct ? "" : product.productId;
-                            setValue("product", newProduct);
-                            setSelectedProduct(product.productId);
-                            setIsPopupOpen(false);
-                          }}
+                            onSelect={(currentValue) => {
+                              const currentProduct = getValues("product");
+                              const newProduct =
+                                product === currentProduct ? "" : product.productId;
+                              setValue("product", newProduct);
+                              setSelectedProduct(product.productId);
+                              setIsPopupOpen(false);
+                            }}
 
-                          aria-selected={isSelected}
-                          className={cn("flex gap-2 cursor-pointer max-h-16 min-h-16 my-1 hover:bg-none")}
-                        >
-                          <div className="h-4 w-4">
-                            {isSelected && <Check className={cn("w-full h-full font-semibold")} />}
-                          </div>
-                          <Image src={product.images[0].url || notFoundImage.src} alt={product.name} width={30} height={20} sizes="50px" className="rounded-sm"
-                            style={{ width: 30 }}
-                            blurDataURL={notFoundImage.blurDataURL} />
-                          <div className="w-full w-max-[140px] truncate">
-                            <div className="ml-3 flex flex-col w-[calc(100%-10px)]">
-                              <span className="text-sm font-medium text-gray-900">
-                                {product.name}
-                              </span>
-                              <span className="text-sm truncate w-[calc(100%-30px)]">
-                                {product.description}
-                              </span>
+                            className={cn("flex gap-2 cursor-pointer min-h-[40px] my-1 hover:bg-none")}
+                          >
+                            <div className="h-4 w-4">
+                              {isSelected && <Check className={cn("w-full h-full font-semibold")} />}
                             </div>
-                          </div>
-                        </CommandItem>
+                            <Image src={product.images[0].url || notFoundImage.src} alt={product.name} width={40} height={40} sizes="50px" className="w-[40] rounded-sm"
+                              style={{ width: 30 }}
+                              blurDataURL={notFoundImage.blurDataURL} />
+                            <div className="w-full w-max-[140px] truncate">
+                              <div className="ml-3 flex flex-col w-[calc(100%-10px)]">
+                                <span className="text-sm font-medium text-gray-900">
+                                  {product.name}
+                                </span>
+                                <span className="text-sm truncate w-[calc(100%-30px)]">
+                                  {product.description}
+                                </span>
+                              </div>
+                            </div>
+                          </CommandItem>
+
+                          {
+                            products.length - 1 === i ?
+                              <>
+                                {isFetchingNextPage ?
+                                  <CommandItem className="flex justify-center items-center mx-auto gap-2 p-3" disabled><Spinner /></CommandItem> : null}
+                              </>
+                              : null
+
+                          }
+                        </React.Fragment>
                       );
                     })}
+                {/* next page button */}
+                {
+
+                  hasNextPage ? <CommandItem className="flex justify-center items-center mx-auto gap-2" disabled> <Button variant="secondary" onClick={() => fetchNextPage()} className="w-full text-black  p-1 hover:bg-primary/5" disabled={!hasNextPage}>{isFetchingNextPage ? "Loading..." : "Load more"}</Button>
+                  </CommandItem> : null
+                }
               </CommandGroup>
             </CommandList>
           </Command>
@@ -220,9 +247,8 @@ const ProductDropdown = () => {
       </Popover>
 
       <div className="grid grid-cols-2 gap-4">
-        {selectedProduct &&
-          products?.data
-            .find((p) => p.productId === selectedProduct)
+        {selectedProduct && products &&
+          products.find((p) => p.productId === selectedProduct)
             ?.images.slice(0, 2)
             .map((img) => (
               <div

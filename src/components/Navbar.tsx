@@ -1,14 +1,12 @@
+import logo from "@/assets/logo.png"
+import { getAuthSession } from '@/lib/authOption'
+import { ArrowRight } from 'lucide-react'
+import Image from 'next/image'
 import Link from 'next/link'
 import MaxWidthWrapper from './MaxWidthWrapper'
-import { buttonVariants } from './ui/button'
-import { ArrowRight } from 'lucide-react'
 import UserAccountNav from './UserAccountNav'
-import MobileNav from './MobileNav'
-import logo from "@/assets/logo.png"
-import Image from 'next/image'
-import { getAuthSession } from '@/lib/authOption'
+import { buttonVariants } from './ui/button'
 
-import { Session } from 'next-auth'
 const Navbar = async () => {
   const session = await getAuthSession();
 

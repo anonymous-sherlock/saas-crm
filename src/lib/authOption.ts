@@ -27,7 +27,8 @@ export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(db),
   session: {
     strategy: "jwt",
-    maxAge: 60 * 60 * 24 * 30,
+    maxAge: 30 * 24 * 60 * 60, // 30 days
+    updateAge: 24 * 60 * 60, // 24 hours
   },
   pages: {
     signIn: "/login",
@@ -53,18 +54,13 @@ export const authOptions: NextAuthOptions = {
       name: "Credentials",
       credentials: {
         name: {
-          label: "Full name",
           type: "text",
         },
         email: {
-          label: "email:",
           type: "email",
-          placeholder: "email",
         },
         password: {
-          label: "Password",
           type: "password",
-          placeholder: "password",
         },
       },
       async authorize(credentials) {
@@ -76,14 +72,14 @@ export const authOptions: NextAuthOptions = {
         });
 
         if (!user) {
-          throw new AuthError("User not found with this email", false);
+          throw new AuthError("Invalid Credentials", false);
         }
         if (!user.password) {
           throw new AuthError("You have not signed up using your email. Please try social login.", false);
         }
-        if (!user.active) {
-          throw new AuthError("Account is not verified", false);
-        }
+        // if (!user.active) {
+        //   throw new AuthError("Account is not verified", false);
+        // }
         const isValidPassword = await compare(credentials.password, user.password);
         if (!isValidPassword) {
           throw new AuthError("Invalid email or password", false);
@@ -93,9 +89,6 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
   callbacks: {
-    async signIn({ user }) {
-      return true;
-    },
     async session({ token, session }) {
       if (token) {
         session.user.id = token.id;
@@ -129,7 +122,21 @@ export const authOptions: NextAuthOptions = {
         role: dbUser.role,
       };
     },
+    async redirect({ url, baseUrl }) {
+      try {
+        const callbacksUrl = new URL(url).searchParams.get("callbackUrl");
+        if (callbacksUrl) {
+          return `${baseUrl}${callbacksUrl}`;
+        }
+      } catch (error) {
+        console.error("Invalid URL:", url);
+        return baseUrl;
+      }
+      const dashboardUrl = `${baseUrl}/dashboard`;
+      return dashboardUrl;
+    },
   },
+  debug: true,
 };
 
 export const getAuthSession = () => getServerSession(authOptions);

@@ -16,6 +16,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { toast } from "@/components/ui/use-toast";
+import { toast as hotToast } from "react-hot-toast";
 import { Button, buttonVariants } from "@/ui/button";
 import {
   DropdownMenu,
@@ -90,6 +91,13 @@ export function DataTableRowActions<TData>({
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-[160px]">
               <DropdownMenuItem className="cursor-pointer">Edit</DropdownMenuItem>
+              <DropdownMenuItem className="cursor-pointer" 
+                onClick={()=>{
+                  navigator.clipboard.writeText(product.productId.toString());
+                  hotToast.success('Successfully copied product ID')
+
+                }}
+              >Copy Product ID</DropdownMenuItem>
               <DropdownMenuSeparator />
               <AlertDialogTrigger asChild>
                 <DropdownMenuItem className="text-red-600 cursor-pointer" disabled={isLoading}>

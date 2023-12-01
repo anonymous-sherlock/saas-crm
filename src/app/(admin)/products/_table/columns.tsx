@@ -80,14 +80,14 @@ export const columns: ColumnDef<ProductList>[] = [
       <DataTableColumnHeader column={column} title="Product Images" />
     ),
     cell: ({ row }) => (
-      <div className="w-[50px] truncate">
+      <div className="w-[25px] truncate p-1">
         {row.original.images[0]?.url ? (
           <Image
             src={row.original.images[0]?.url.toString() || notFoundImage.src}
             alt={row.original.name}
             width={50}
             height={50}
-            className="rounded-md"
+            className="w-[20px] rounded-md"
             style={{ width: "auto" }}
             blurDataURL={notFoundImage.blurDataURL}
           />
@@ -124,7 +124,7 @@ export const columns: ColumnDef<ProductList>[] = [
       return (
         <div className="flex items-center max-w-[180px] ">
           <span className="line-clamp-1 leading-7 whitespace-pre-line mr-1 ">
-            {moment(cell.createdAt).format("MMM D, [-] hh:mm A")}
+            {moment(cell.createdAt).format("DD, MMM [-] hh:mm A")}
           </span>
         </div>
       );
