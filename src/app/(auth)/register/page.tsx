@@ -17,8 +17,9 @@ export default function AuthenticationPage() {
           alt=""
           fill
           className="absolute inset-0 z-0 h-full w-full object-cover lg:hidden"
-          sizes="1080px"
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           priority
+          quality={80}
         />
         <div className="absolute inset-0 z-0 bg-black opacity-50 lg:hidden"></div>
         {/* for desktop */}
@@ -31,7 +32,8 @@ export default function AuthenticationPage() {
             alt=""
             fill
             className="absolute inset-0 h-full w-full object-cover"
-            sizes="1280px"
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            quality={80}
             priority
           />
           <div className="absolute inset-0 z-0 bg-black opacity-50"></div>

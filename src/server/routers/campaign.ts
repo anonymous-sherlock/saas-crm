@@ -39,7 +39,7 @@ export const campaignRouter = router({
           callCenterTeamSize,
           leadsRequirements,
           targetCountry,
-          targetGender: targetGender === "female" ? "Female" : "Male",
+          targetGender: targetGender === "Female" ? "Female" : "Male",
           trafficSource: trafficSource,
           workingDays,
           workingHours,

@@ -1,4 +1,3 @@
-
 import { z } from "zod";
 import { workingDayOptions } from "@/constants/time";
 export enum TrafficSourceDefault {
@@ -10,40 +9,27 @@ export enum TrafficSourceDefault {
 }
 
 export const campaignFormSchema = z.object({
-  campaignName: z
-    .string({
-      required_error: "Campaign name is required.",
-    })
-    .nonempty({
-      message: "Campaign name is required.",
-    })
-    .min(2, {
-      message: "Campaign name must be at least 2 characters.",
-    }),
+  campaignName: z.string().min(1, { message: "Campaign name is required." }).min(3, {
+    message: "Campaign name must be at least 3 characters.",
+  }),
   campaignDescription: z.string().optional(),
   // Leads Requirement
   leadsRequirements: z
-    .string({
-      required_error: "Daily leads requirements are required",
-    })
-    .nonempty({
-      message: "Daily leads requirements are required.",
-    })
+    .string()
+    .min(1, { message: "Daily leads requirements are required." })
     .refine((value) => /^\d+$/.test(value), {
       message: "Daily leads requirements must be a valid number.",
     }),
 
-  product: z
-    .string({ required_error: "Product is required to create a campaign" })
-    .nonempty({
-      message: "Product is required to create a campaign.",
-    }),
+  product: z.string({ required_error: "Product is required to create a campaign" }).min(1, {
+    message: "Product is required to create a campaign.",
+  }),
   // working Hours
   workingHours: z.object({
-    startTime: z.string().nonempty({
+    startTime: z.string().min(1, {
       message: "Start time is required.",
     }),
-    endTime: z.string().nonempty({
+    endTime: z.string().min(1, {
       message: "End time is required.",
     }),
   }),
@@ -53,7 +39,7 @@ export const campaignFormSchema = z.object({
       .string({
         required_error: "Start day is required",
       })
-      .nonempty({
+      .min(1, {
         message: "Start day is required.",
       })
       .refine((value) => workingDayOptions.includes(value), {
@@ -63,7 +49,7 @@ export const campaignFormSchema = z.object({
       .string({
         required_error: "End day is required",
       })
-      .nonempty({
+      .min(1, {
         message: "End day is required.",
       })
       .refine((value) => workingDayOptions.includes(value), {
@@ -72,9 +58,8 @@ export const campaignFormSchema = z.object({
   }),
   // Call Center Team size
   callCenterTeamSize: z
-    .string({
-      required_error: "Call center team size is required",
-    })
+    .string()
+    .min(1, { message: "Call center team size is required" })
     .refine((value) => value !== "0", {
       message: "Call center team size cannot be empty or 0.",
     })
@@ -87,7 +72,7 @@ export const campaignFormSchema = z.object({
     .string({
       required_error: "Target country is Required",
     })
-    .nonempty({
+    .min(1, {
       message: "Target country is Required.",
     }),
   // target region
@@ -101,46 +86,39 @@ export const campaignFormSchema = z.object({
     }),
 
   // Target Age
-  targetAge: z.object({
-    min: z
-      .string({
-        required_error: "Minimum age is required",
-      })
-      .refine(
-        (value) => {
-          const parsedValue = parseInt(value, 10);
-          return !isNaN(parsedValue) && parsedValue >= 18 && parsedValue <= 65;
-        },
-        { message: "Minimum age must be between 18 and 65." }
-      ),
-    max: z
-      .string({
-        required_error: "Maximum age is required",
-      })
-      .refine(
-        (value) => {
-          const parsedValue = parseInt(value, 10);
-          return !isNaN(parsedValue) && parsedValue >= 18 && parsedValue <= 65;
-        },
-        { message: "Maximum age must be between 18 and 65." }
-      ),
-  }).refine(
-    (data) => {
-      const min = parseInt(data.min, 10);
-      const max = parseInt(data.max, 10);
-      return (
-        !isNaN(min) &&
-        !isNaN(max) &&
-        min >= 18 &&
-        max <= 65 &&
-        max >= min
-      );
-    },
-    { message: "Maximum age must be between 18 and 65 and not less than Minimum age." }
-  ),
+  targetAge: z
+    .object({
+      min: z
+        .string()
+        .min(1, { message: "Minimum age is required" })
+        .refine(
+          (value) => {
+            const parsedValue = parseInt(value, 10);
+            return !isNaN(parsedValue) && parsedValue >= 18 && parsedValue <= 65;
+          },
+          { message: "Minimum age must be between 18 and 65." },
+        ),
+      max: z
+        .string()
+        .min(1, { message: "Maximum age is required" })
+        .refine(
+          (value) => {
+            const parsedValue = parseInt(value, 10);
+            return !isNaN(parsedValue) && parsedValue >= 18 && parsedValue <= 65;
+          },
+          { message: "Maximum age must be between 18 and 65." },
+        ),
+    })
+    .refine(
+      (data) => {
+        const min = parseInt(data.min, 10);
+        const max = parseInt(data.max, 10);
+        return !isNaN(min) && !isNaN(max) && min >= 18 && max <= 65 && max >= min;
+      },
+      { message: "Maximum age must be between 18 and 65 and not less than Minimum age." },
+    ),
 
-
-  targetGender: z.enum(["male", "female"]),
+  targetGender: z.enum(["Male", "Female"]),
   trafficSource: z.nativeEnum(TrafficSourceDefault),
 });
 
