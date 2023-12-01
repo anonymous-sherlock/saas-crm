@@ -136,7 +136,7 @@ export const authOptions: NextAuthOptions = {
       return dashboardUrl;
     },
   },
-  debug: true,
+  // debug: true,
 };
 
 export const getAuthSession = () => getServerSession(authOptions);
