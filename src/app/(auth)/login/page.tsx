@@ -1,7 +1,5 @@
 import AuthenticationForm from "@/components/auth/AuthenticationForm";
-import { getAuthSession } from "@/lib/authOption";
 import { Metadata } from "next";
-import { redirect } from "next/navigation";
 import Image from "next/image";
 
 export const metadata: Metadata = {
@@ -10,11 +8,6 @@ export const metadata: Metadata = {
 };
 
 export default async function LoginPage() {
-  const session = await getAuthSession()
-
-  if (session && session?.user) {
-    redirect("/dashboard")
-  }
 
   return (
     <>
@@ -25,8 +18,9 @@ export default async function LoginPage() {
           alt=""
           className="absolute inset-0 z-0 h-full w-full object-cover lg:hidden"
           fill
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           priority
-          sizes="1080px"
+          quality={80}
         />
         <div className="absolute inset-0 z-0 bg-black opacity-50 lg:hidden"></div>
         {/* for desktop */}
@@ -39,7 +33,9 @@ export default async function LoginPage() {
             alt=""
             className="absolute inset-0 h-full w-full object-cover"
             fill
-            sizes="1080px"
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            priority
+            quality={80}
           />
           <div className="absolute inset-0 z-0 bg-black opacity-50"></div>
           <p className="absolute left-4 top-4 text-3xl font-extrabold text-white">

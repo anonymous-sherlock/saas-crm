@@ -26,7 +26,7 @@ const Providers: FC<LayoutProps> = ({ children }) => {
   return (
     <trpc.Provider client={trpcClient} queryClient={queryClient}>
       <QueryClientProvider client={queryClient}>
-        <SessionProvider>{children}</SessionProvider>
+        <SessionProvider refetchWhenOffline={false}>{children}</SessionProvider>
       </QueryClientProvider>
     </trpc.Provider>
   );

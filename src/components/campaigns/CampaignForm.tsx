@@ -70,7 +70,6 @@ const CampaignForm = () => {
   const {
     mutateAsync: createCampaign,
     isLoading,
-    isSuccess,
   } = trpc.campaign.create.useMutation({
     onError: (err) => {
       if (err instanceof AxiosError) {
@@ -105,10 +104,10 @@ const CampaignForm = () => {
           <form
             onSubmit={form.handleSubmit(onSubmit)}
             method="post"
-            className="grid grid-cols-5 items-start gap-8 space-y-4 "
+            className="flex flex-col md:grid sm:grid-cols-1 lg:grid-cols-5 items-start md:gap-8 space-y-4 "
           >
-            <div className="col-span-3 flex w-full flex-col gap-6">
-              <div className="grid grid-cols-2 gap-4 gap-y-6">
+            <div className="md:col-span-3 flex w-full flex-col gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 gap-y-6">
                 <FormField
                   control={form.control}
                   name="campaignName"
@@ -220,7 +219,7 @@ const CampaignForm = () => {
                           <SelectGroup>
                             <SelectLabel>Target Gender</SelectLabel>
                             <Separator className="my-2" />
-                            {["male", "female"].map((value) => (
+                            {["Male", "Female"].map((value) => (
                               <SelectItem
                                 key={value}
                                 value={value}
@@ -237,7 +236,9 @@ const CampaignForm = () => {
                   )}
                 />
                 {/* target age field */}
+
                 <AgeFields />
+
               </div>
 
               {/* product description */}
@@ -261,7 +262,7 @@ const CampaignForm = () => {
               />
             </div>
 
-            <div className="col-span-2 !mt-0 flex flex-col gap-4 gap-y-6">
+            <div className=" w-full md:col-span-3 lg:col-span-2 !mt-0 flex flex-col gap-4 gap-y-6">
               {/* Working Hours */}
               <WorkingHours />
               <FormField
@@ -281,7 +282,7 @@ const CampaignForm = () => {
             <Button
               type="submit"
               disabled={isLoading}
-              className={cn("w-full col-span-1")}
+              className={cn("w-full  col-span-3")}
             >
               {isLoading ? (
                 <>

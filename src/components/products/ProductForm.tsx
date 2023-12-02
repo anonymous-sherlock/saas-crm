@@ -325,6 +325,7 @@ export function ProductForm() {
             <Button
               type="submit"
               className={cn("w-full col-span-1")}
+              disabled={isLoading}
             >
               {isLoading ? (
                 <>

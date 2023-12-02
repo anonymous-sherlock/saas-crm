@@ -1,5 +1,4 @@
 import { db } from "@/db";
-import { senActivationEmail } from "@/lib/emails/activation";
 import { registerFormSchema } from "@/schema/authFormSchema";
 import { privateProcedure, publicProcedure, router } from "@/server/trpc";
 import { TRPCError } from "@trpc/server";
@@ -9,37 +8,8 @@ import { nanoid } from "nanoid";
 import { z } from "zod";
 
 export const userRouter = router({
-  getProduct: privateProcedure
-    .input(
-      z.object({
-        productId: z.string({
-          required_error: "product Id is required to delete a product",
-        }),
-      }),
-    )
-    .query(async ({ ctx, input }) => {
-      const { userId } = ctx;
-      const { productId } = input;
-      const product = await db.product.findMany({
-        where: {
-          ownerId: userId,
-          productId: productId,
-        },
-      });
-      if (!product)
-        throw new TRPCError({
-          code: "NOT_FOUND",
-          message: "Product not found",
-        });
-
-      return {
-        success: "true",
-        product,
-      };
-    }),
-
   add: publicProcedure.input(registerFormSchema).mutation(async ({ input }) => {
-    const { name, email, password, confirmPassword } = input;
+    const { name, email, password } = input;
     const existingUser = await db.user.findUnique({
       where: {
         email: email,
@@ -64,27 +34,15 @@ export const userRouter = router({
         },
         BearerToken: {
           create: {
-            key: nanoid(12),
+            key: `${nanoid(32)}${randomUUID()}${randomUUID()}`.replace(/-/g, ""),
           },
         },
       },
-    });
-    const token = await db.activateToken.create({
-      data: {
-        userId: newUser.id,
-        token: `${randomUUID()}${randomUUID()}`.replace(/-/g, ""),
-      },
-    });
-    await senActivationEmail({
-      name: newUser.name,
-      email: newUser.email,
-      verifyTokenUrl: `${process.env.BASE_URL}/api/auth/activate/verify?token=${token.token}`,
     });
 
     return {
       success: true,
       message: "User created successfully",
-      callback: "/login",
       user: {
         id: newUser.id,
         name: newUser.name,
@@ -212,6 +170,34 @@ export const userRouter = router({
     });
 
     return newBearerKey;
+  }),
+  getProduct: privateProcedure
+  .input(
+    z.object({
+      productId: z.string({
+        required_error: "product Id is required to delete a product",
+      }),
+    }),
+  )
+  .query(async ({ ctx, input }) => {
+    const { userId } = ctx;
+    const { productId } = input;
+    const product = await db.product.findMany({
+      where: {
+        ownerId: userId,
+        productId: productId,
+      },
+    });
+    if (!product)
+      throw new TRPCError({
+        code: "NOT_FOUND",
+        message: "Product not found",
+      });
+
+    return {
+      success: "true",
+      product,
+    };
   }),
 });
 

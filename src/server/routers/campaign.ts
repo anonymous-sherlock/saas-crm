@@ -1,4 +1,3 @@
-
 import { db } from "@/db";
 import { generateCampaignCodeID } from "@/lib/utils";
 import { campaignFormSchema } from "@/schema/campaignSchema";
@@ -8,11 +7,35 @@ import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
 export const campaignRouter = router({
+  get: privateProcedure.input(z.object({ camapaingId: z.string() })).query(async ({ ctx, input }) => {
+    const { userId } = ctx;
+    const { camapaingId } = input;
+
+    const campaign = await db.campaign.findFirst({
+      where: {
+        id: camapaingId,
+        userId: userId,
+      },
+      include: {
+        targetRegion: true,
+        product: true,
+        _count: {
+          select: {
+            leads: true,
+          },
+        },
+      },
+    });
+
+    if (!campaign) throw new TRPCError({ code: "NOT_FOUND", message: "Campaign not Found" });
+
+    return campaign;
+  }),
   create: privateProcedure
     .input(
       z.object({
         campaign: campaignFormSchema,
-      })
+      }),
     )
     .mutation(async ({ ctx, input }) => {
       const { userId } = ctx;
@@ -76,7 +99,7 @@ export const campaignRouter = router({
           required_error: "Campaign Id is required to update a campaign status",
         }),
         campaignStatus: z.nativeEnum(CampaignStatus),
-      })
+      }),
     )
     .mutation(async ({ ctx, input }) => {
       const { userId } = ctx;
@@ -123,7 +146,7 @@ export const campaignRouter = router({
         name: true,
         status: true,
         targetCountry: true,
-        createdAt:true,
+        createdAt: true,
         product: {
           select: {
             productId: true,
@@ -137,7 +160,7 @@ export const campaignRouter = router({
         },
       },
     });
-   return campaignsData
+    return campaignsData;
   }),
   copyCampaign: privateProcedure
     .input(
@@ -145,7 +168,7 @@ export const campaignRouter = router({
         campaignId: z.string({
           required_error: "Campaign Id is required to copy a campaign",
         }),
-      })
+      }),
     )
     .mutation(async ({ ctx, input }) => {
       const { userId } = ctx;
@@ -178,12 +201,12 @@ export const campaignRouter = router({
           workingHours: JSON.stringify(campaign.workingHours),
           productId: campaign.productId,
           userId: campaign.userId,
-        }
-      })
+        },
+      });
 
       return {
         success: "true",
-        copiedCampaign
+        copiedCampaign,
       };
     }),
   deleteCampaign: privateProcedure
@@ -194,7 +217,7 @@ export const campaignRouter = router({
             required_error: "Campaign Id is required to delete a campaign",
           })
           .array(),
-      })
+      }),
     )
     .mutation(async ({ ctx, input }) => {
       const { userId } = ctx;

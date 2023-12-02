@@ -1,8 +1,9 @@
+import CampaignDashboard from '@/components/campaigns/CampaignDashboard'
 import React from 'react'
 
 function CampaignsPage() {
   return (
-    <div>CampaignsPage</div>
+    <CampaignDashboard />
   )
 }
 

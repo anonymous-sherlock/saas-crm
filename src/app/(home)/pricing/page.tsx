@@ -19,7 +19,7 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 
-export default async function Page() {
+export default async function PricingPage() {
   const session = await getAuthSession()
   const user = session?.user
 

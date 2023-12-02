@@ -1,17 +1,14 @@
-import { getAuthSession } from "@/lib/authOption";
-import { db } from "@/db";
-import { Session } from "next-auth";
-import { notFound } from "next/navigation";
-import ImageSlider from '@/components/ImageSlider'
-import MaxWidthWrapper from "@/components/MaxWidthWrapper";
-import { Check, Shield } from "lucide-react";
-import { Button, buttonVariants } from "@/components/ui/button";
-import { cn, formatPrice } from "@/lib/utils";
-import { PRODUCT_CATEGORIES } from "@/constants/index";
-import { Card, CardContent } from "@/components/ui/card";
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-import Link from "next/link";
+import ImageSlider from '@/components/ImageSlider';
 import { Badge } from "@/components/ui/badge";
+import { buttonVariants } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { PRODUCT_CATEGORIES } from "@/constants/index";
+import { db } from "@/db";
+import { cn, formatPrice } from "@/lib/utils";
+import { Check } from "lucide-react";
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import "server-only";
 
 interface PageProps {
   params: {
@@ -20,6 +17,7 @@ interface PageProps {
 }
 
 export default async function Page({ params }: PageProps) {
+
   const product = await db.product.findFirst({
     where: {
       productId: params.productId

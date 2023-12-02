@@ -1,23 +1,23 @@
 "use client";
 import { useDebounce } from "@/lib/hooks/use-debounce";
 import { cn } from "@/lib/utils";
+import notFoundImage from "@/public/product-not-found.jpg";
 import { ProductSearchPayload } from "@/schema/productSchema";
 import { Prisma } from "@prisma/client";
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import axios from "axios";
-import { Check, ChevronLeft, ChevronRight, Loader2, RefreshCw, Search } from "lucide-react";
+import { Check, Search } from "lucide-react";
 import Image from "next/image";
-import React, { useId, useState } from "react";
+import React, { useState } from "react";
 import { useFormContext } from "react-hook-form";
 import { Button } from "../ui/button";
 import {
   Command,
   CommandEmpty,
   CommandGroup,
-  CommandInput,
   CommandItem,
-  CommandList,
+  CommandList
 } from "../ui/command";
 import {
   DropdownMenu,
@@ -29,11 +29,12 @@ import {
   DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
-import notFoundImage from "@/public/product-not-found.jpg"
 
+import { campaignFormSchema } from "@/schema/campaignSchema";
+import { z } from "zod";
+import { Input } from "../ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import Spinner from "../ui/spinner";
-import { Input } from "../ui/input";
 
 
 
@@ -49,7 +50,7 @@ const ProductDropdown = () => {
   const [searchText, setSearchText] = useState<string | null>("");
   const [open, setOpen] = useState(false);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
-  const { setValue, getValues, } = useFormContext();
+  const { setValue, getValues,clearErrors } = useFormContext<z.infer<typeof campaignFormSchema>>();
 
 
 
@@ -61,7 +62,6 @@ const ProductDropdown = () => {
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
-    fetchPreviousPage,
 
 
     refetch,
@@ -126,12 +126,12 @@ const ProductDropdown = () => {
   };
 
   return (
-    <section>
+    <>
       {/* product dropdown */}
 
       <Popover open={isPopupOpen} onOpenChange={setIsPopupOpen}>
         <PopoverTrigger asChild onClick={handlePopupTrigger}>
-          <div className="mb-4 mt-2 flex w-full flex-col items-start justify-between rounded-md border px-4 py-3 sm:flex-row sm:items-center">
+          <div className="mb-4 mt-2 flex w-full items-start justify-between rounded-md border px-4 py-3 sm:flex-row sm:items-center">
             <p className="text-sm font-medium leading-none flex justify-start items-center">
               <span className="mr-2 rounded-md bg-primary px-2 py-1 text-xs text-primary-foreground flex-grow flex-shrink-0">
                 {getProductCategory()}
@@ -196,10 +196,11 @@ const ProductDropdown = () => {
                             onSelect={(currentValue) => {
                               const currentProduct = getValues("product");
                               const newProduct =
-                                product === currentProduct ? "" : product.productId;
+                                product.productId === currentProduct ? "" : product.productId;
                               setValue("product", newProduct);
                               setSelectedProduct(product.productId);
                               setIsPopupOpen(false);
+                              clearErrors("product")
                             }}
 
                             className={cn("flex gap-2 cursor-pointer min-h-[40px] my-1 hover:bg-none")}
@@ -246,14 +247,14 @@ const ProductDropdown = () => {
         </PopoverContent>
       </Popover>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-2 gap-4 mt-0 sm:mt-2">
         {selectedProduct && products &&
           products.find((p) => p.productId === selectedProduct)
             ?.images.slice(0, 2)
             .map((img) => (
               <div
                 key={img.id}
-                className="relative w-full h-40 mt-4 rounded-md inline-block bg-gray-100 border-gray-300 border-2"
+                className="relative w-full h-40 mt-2 rounded-md inline-block bg-gray-100 border-gray-300 border-2"
               >
                 <Image
                   fill
@@ -266,7 +267,7 @@ const ProductDropdown = () => {
             ))}
       </div>
 
-    </section>
+    </>
   );
 };
 

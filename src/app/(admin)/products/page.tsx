@@ -1,5 +1,5 @@
 import "server-only";
-import { serverClient } from "@/app/_trpc/server";
+import { server } from "@/app/_trpc/server";
 import { buttonVariants } from "@/components/ui/button";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { getAuthSession } from "@/lib/authOption";
@@ -14,7 +14,7 @@ export default async function ProductPage() {
   if(!session) redirect("/login")
 
   
-  const products = await serverClient.product.getAll();
+  const products = await server.product.getAll();
 
   return (
     <div className="">

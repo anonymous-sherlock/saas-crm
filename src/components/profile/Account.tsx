@@ -1,5 +1,5 @@
 "use client"
-import { serverClient } from '@/app/_trpc/server'
+import { server } from '@/app/_trpc/server'
 import {
   Form,
   FormField,
@@ -18,7 +18,7 @@ import { Separator } from '../ui/separator'
 import { toast } from '../ui/use-toast'
 
 interface AccountProps {
-  user: Awaited<ReturnType<(typeof serverClient)["user"]["get"]>>
+  user: Awaited<ReturnType<(typeof server)["user"]["get"]>>
 }
 
 import { zodResolver } from '@hookform/resolvers/zod'

@@ -1,4 +1,11 @@
 "use client"
+import { Gem } from 'lucide-react'
+import { signOut } from 'next-auth/react'
+import Image from 'next/image'
+import Link from 'next/link'
+import { Icons } from './Icons'
+import { Avatar, AvatarFallback } from './ui/avatar'
+import { Button } from './ui/button'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -6,14 +13,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from './ui/dropdown-menu'
-import { Button } from './ui/button'
-import { Avatar, AvatarFallback } from './ui/avatar'
-import Image from 'next/image'
-import { Icons } from './Icons'
-import Link from 'next/link'
-import { Gem } from 'lucide-react'
-import { signOut } from 'next-auth/react'
-import { cn } from '@/lib/utils'
 
 interface UserAccountNavProps {
   email: string | undefined

@@ -53,9 +53,6 @@ export const authOptions: NextAuthOptions = {
     CredentialsProvider({
       name: "Credentials",
       credentials: {
-        name: {
-          type: "text",
-        },
         email: {
           type: "email",
         },
@@ -136,7 +133,7 @@ export const authOptions: NextAuthOptions = {
       return dashboardUrl;
     },
   },
-  // debug: true,
+  debug: true,
 };
 
 export const getAuthSession = () => getServerSession(authOptions);
