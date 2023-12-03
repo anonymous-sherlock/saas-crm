@@ -8,12 +8,15 @@ import Skeleton from "react-loading-skeleton";
 import { Badge } from "../ui/badge";
 import { buttonVariants } from "../ui/button";
 import { DeleteCampaign } from "./DeleteCampaign";
+import { CAMPAIGN_STATUS } from "@/constants/index";
 
 
 const CampaignDashboard = () => {
 
   const { data: campaigns, isLoading } = trpc.campaign.getAll.useQuery();
-  
+
+
+
   return (
     <main className="mx-auto max-w-7xl md:p-2">
       <div className="mt-8 flex flex-col items-start justify-between gap-4 border-b border-gray-200 pb-5 sm:flex-row sm:items-center sm:gap-0">
@@ -35,7 +38,25 @@ const CampaignDashboard = () => {
                     <div className="flex-1 truncate">
                       <div className="flex items-center space-x-3">
                         <h3 className="truncate text-md font-medium text-zinc-900">{campaign.name}</h3>
-                        <Badge variant="default" className={cn("inline-flex flex-shrink-0 items-center rounded-full !bg-green-50 px-1.5 py-0.5 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20")} >{campaign.status}</Badge>
+                        <Badge variant="default" className={cn("inline-flex flex-shrink-0 items-center rounded-full px-1.5 py-0.5 text-xs font-medium ring-1 ring-inset",
+                          campaign.status && CAMPAIGN_STATUS.find((s) => s.value === campaign.status)?.color?.textColor,
+                          campaign.status && CAMPAIGN_STATUS.find((s) => s.value === campaign.status)?.color?.bgColor,
+                          campaign.status && CAMPAIGN_STATUS.find((s) => s.value === campaign.status)?.color?.ringColor
+                        )} >
+                          {(() => {
+                            const status = CAMPAIGN_STATUS.find((status) => status.value === campaign.status);
+                            if (status) {
+                              const IconComponent = status.icon;
+                              return (
+                                <>
+                                  {IconComponent && <IconComponent className="inline-block mr-1.5 h-3 w-3" />}
+                                  <span>{status.label}</span>
+                                </>
+                              )
+                            }
+                            return campaign.status
+                          })()}
+                        </Badge>
                       </div>
                     </div>
                   </div>
@@ -49,7 +70,7 @@ const CampaignDashboard = () => {
 
                   <div className="flex items-center gap-2">
                     <BarChart2 className="h-4 w-4" />
-                    2
+                    {campaign._count.leads ?? 0}
                   </div>
                   <DeleteCampaign campaignId={campaign.id} />
                 </div>
@@ -62,7 +83,7 @@ const CampaignDashboard = () => {
         <div className="mt-16 flex flex-col items-center gap-2">
           <Ghost className="h-8 w-8 text-zinc-800" />
           <h3 className="font-semibold text-xl">Pretty empty around here</h3>
-          <p>Let&apos;s upload your first PDF.</p>
+          <p>Let&apos;s create your first campaign.</p>
         </div>
       )}
     </main>

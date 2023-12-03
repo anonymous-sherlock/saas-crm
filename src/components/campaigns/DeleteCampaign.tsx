@@ -12,7 +12,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Button, buttonVariants } from "@/components/ui/button";
-import { toast } from "@/components/ui/use-toast";
+import { toast as hotToast } from "react-hot-toast";
 import { AxiosError } from "axios";
 import { Loader2, Trash } from "lucide-react";
 
@@ -25,29 +25,21 @@ export function DeleteCampaign({ campaignId }: DeleteCampaignProps) {
   const utils = trpc.useUtils();
 
   const { mutateAsync: deleteCampaign, isLoading: isDeletingCampaign } = trpc.campaign.deleteCampaign.useMutation({
-    onError: (err) => {
-      if (err instanceof AxiosError) {
-        if (err.response?.status === 500) {
-          return toast({
-            title: "Cannot Delete Campaign.",
-            description: "",
-            variant: "destructive",
-          });
-        }
-      }
-    },
     onSuccess: (data) => {
-      toast({
-        title: `${data.deletedCampaign.count} Campaign Deleted succesfully`,
-        description: "",
-        variant: "success",
-      });
       utils.campaign.getAll.invalidate()
     },
   })
 
   function handleCampaignDelete() {
-    deleteCampaign({ campaignIds: [campaignId] });
+    hotToast.promise(
+      deleteCampaign({ campaignIds: [campaignId] }),
+			{
+				loading: 'Deleting campaign...',
+				success: "Campaign deleted successfully!",
+				error: "Could not delete campaign.",
+			}
+		);
+
   }
   return (
     <>

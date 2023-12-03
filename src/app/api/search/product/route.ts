@@ -1,5 +1,6 @@
 import { INFINITE_QUERY_LIMIT } from "@/config/infinite-query";
 import { db } from "@/db";
+import { getAuthSession } from "@/lib/authOption";
 import { NextRequest, NextResponse } from "next/server";
 
 async function getSelectedProduct(selectedId: string | null) {
@@ -13,8 +14,10 @@ async function getSelectedProduct(selectedId: string | null) {
 }
 
 export async function GET(req: NextRequest, res: NextResponse) {
-  const queryParams = req.nextUrl.searchParams;
+  const session = await getAuthSession();
+  const user = session?.user;
 
+  const queryParams = req.nextUrl.searchParams;
   const productName = queryParams.get("name");
   const selectedId = queryParams.get("selectedId");
   const limit = parseInt(queryParams.get("limit") ?? INFINITE_QUERY_LIMIT.toString(), 10);
@@ -27,7 +30,10 @@ export async function GET(req: NextRequest, res: NextResponse) {
       NOT: { productId: selectedProduct?.productId },
     };
     const products = await db.product.findMany({
-      where: whereClause,
+      where: {
+        ownerId: user?.id,
+        ...whereClause,
+      },
       include: { images: true },
       take: limit + 1, // Fetch one extra item to check if there's a next page
       cursor: cursor ? { productId: cursor } : undefined,
@@ -43,9 +49,9 @@ export async function GET(req: NextRequest, res: NextResponse) {
       nextCursor = nextItem?.productId;
     }
 
-    let productsArray = [ ...products];
-    if(selectedProduct){
-      productsArray.unshift(selectedProduct)
+    let productsArray = [...products];
+    if (selectedProduct) {
+      productsArray.unshift(selectedProduct);
     }
     return NextResponse.json({ nextCursor, data: productsArray }, { status: 200 });
   } catch (error) {

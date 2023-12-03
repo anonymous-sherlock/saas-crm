@@ -40,7 +40,7 @@ export default async function PricingPage() {
             'The maximum file size of a single PDF file.',
         },
         {
-          text: 'Mobile-friendly interface',
+          text: 'A/B Mobile-Testing',
         },
         {
           text: 'Higher-quality responses',
@@ -70,7 +70,7 @@ export default async function PricingPage() {
             'The maximum file size of a single PDF file.',
         },
         {
-          text: 'Mobile-friendly interface',
+          text: 'A/B Mobile-Testing',
         },
         {
           text: 'Higher-quality responses',
@@ -214,7 +214,7 @@ export default async function PricingPage() {
                       {plan === 'Free' ? (
                         <Link
                           href={
-                            user ? '/dashboard' : '/sign-in'
+                            user ? '/dashboard' : '/register'
                           }
                           className={buttonVariants({
                             className: 'w-full',
@@ -227,7 +227,7 @@ export default async function PricingPage() {
                         <UpgradeButton />
                       ) : (
                         <Link
-                          href='/sign-in'
+                          href='/login'
                           className={buttonVariants({
                             className: 'w-full',
                           })}>

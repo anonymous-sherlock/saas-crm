@@ -1,20 +1,20 @@
+import CrispChatOpen from "@/components/CrispChatOpen";
 import {
-  Activity,
   CiCreditCard1,
   HelpCircle,
   HiOutlineUser,
-  LifeBuoy,
-  Settings,
+  LifeBuoy
 } from "@/components/Icons";
+import { UserAvatar } from "@/components/layouts/UserAvatar";
 import SignOutButton from "@/components/ui/SignOutButton";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import {
   HoverCard,
   HoverCardContent,
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
 import { Separator } from "@/components/ui/separator";
-import { UserAvatar } from "@/components/layouts/UserAvatar";
 import { getAuthSession } from "@/lib/authOption";
 import { generateInitialFromName } from "@/lib/utils";
 import Link from "next/link";
@@ -63,7 +63,7 @@ export const UserProfileHover = async () => {
         <ul className="" aria-labelledby="user-menu-button">
           <li>
             <Link
-              href="#"
+              href="/user/profile"
               className="m-1 flex items-center justify-start gap-2 rounded-sm p-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-600 dark:hover:text-white"
             >
               <HiOutlineUser size={16} className="mr-2 text-gray-400" />
@@ -72,14 +72,14 @@ export const UserProfileHover = async () => {
           </li>
           <li>
             <Link
-              href="#"
+              href="/biling"
               className="m-1 flex items-center justify-start gap-2 rounded-sm p-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-600 dark:hover:text-white"
             >
               <CiCreditCard1 size={16} className="mr-2 text-gray-400" />
               Billing
             </Link>
           </li>
-          <li>
+          {/* <li>
             <Link
               href="#"
               className="m-1 flex items-center justify-start gap-2 rounded-sm p-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-600 dark:hover:text-white "
@@ -87,8 +87,8 @@ export const UserProfileHover = async () => {
               <Settings size={16} className="mr-2 text-gray-400" />
               Settings
             </Link>
-          </li>
-          <li>
+          </li> */}
+          {/* <li>
             <Link
               href="#"
               className="m-1 flex items-center justify-start gap-2 rounded-sm p-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-600 dark:hover:text-white "
@@ -96,9 +96,9 @@ export const UserProfileHover = async () => {
               <Activity size={16} className="mr-2 text-gray-400" />
               Activity Log
             </Link>
-          </li>
+          </li> */}
           <Separator className="my-1" />
-          <li>
+          {/* <li>
             <Link
               href="#"
               className="m-1 flex items-center justify-start gap-2 rounded-sm p-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-600 dark:hover:text-white "
@@ -106,15 +106,9 @@ export const UserProfileHover = async () => {
               <LifeBuoy size={16} className="mr-2 text-gray-400" />
               Support
             </Link>
-          </li>
+          </li> */}
           <li>
-            <Link
-              href="#"
-              className="m-1 flex items-center justify-start gap-2 rounded-sm p-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-600 dark:hover:text-white "
-            >
-              <HelpCircle size={16} className="mr-2 text-gray-400" />
-              Help
-            </Link>
+            <CrispChatOpen />
           </li>
           <Separator className="my-1" />
           <li className="mx-1">

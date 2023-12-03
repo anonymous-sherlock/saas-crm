@@ -1,3 +1,7 @@
+import { CampaignStatus } from "@prisma/client";
+import { CheckCircledIcon, CrossCircledIcon, StopwatchIcon } from "@radix-ui/react-icons";
+import { CircleIcon } from "lucide-react";
+
 type ProductCategory = {
   label: string;
   value: string;
@@ -58,4 +62,57 @@ export const PRODUCT_CATEGORIES: ProductCategory[] = [
   { label: "Anti-aging cosmetics", value: "AntiAgingCosmetics" as const },
   { label: "Allergy", value: "Allergy" as const },
   { label: "Alcoholism", value: "Alcoholism" as const },
+];
+type CampaignStatusProp = {
+  label: string;
+  value: CampaignStatus;
+  icon?: React.ComponentType<{ className?: string }>;
+  color?: {
+    textColor: string;
+    bgColor: string;
+    ringColor: string;
+  };
+};
+
+export const CAMPAIGN_STATUS: CampaignStatusProp[] = [
+  {
+    label: "On Hold",
+    value: "OnHold",
+    icon: CircleIcon,
+    color: {
+      textColor: "text-yellow-700",
+      bgColor: "!bg-yellow-50",
+      ringColor: "ring-yellow-600/20",
+    },
+  },
+  {
+    label: "In Progress",
+    value: "InProgress",
+    icon: StopwatchIcon,
+    color: {
+      textColor: "text-green-700",
+      bgColor: "!bg-green-50",
+      ringColor: "ring-green-600/20",
+    },
+  },
+  {
+    value: "Done",
+    label: "Done",
+    icon: CheckCircledIcon,
+    color: {
+      textColor: "text-green-700",
+      bgColor: "!bg-green-50",
+      ringColor: "ring-green-600/20",
+    },
+  },
+  {
+    value: "Canceled",
+    label: "Canceled",
+    icon: CrossCircledIcon,
+    color: {
+      textColor: "text-red-700",
+      bgColor: "!bg-red-50",
+      ringColor: "ring-red-600/20",
+    },
+  },
 ];

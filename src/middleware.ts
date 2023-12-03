@@ -25,7 +25,7 @@ export default withAuth(
       authorized: ({ req, token }) => {
         const pathname = req.nextUrl.pathname;
 
-        const protectedRoutes = ["/user", "/dashboard"];
+        const protectedRoutes = ["/user", "/dashboard", "/leads"];
         if (!!token === false && protectedRoutes.includes(pathname)) {
           return false;
         }

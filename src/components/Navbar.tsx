@@ -6,10 +6,10 @@ import Link from 'next/link'
 import MaxWidthWrapper from './MaxWidthWrapper'
 import UserAccountNav from './UserAccountNav'
 import { buttonVariants } from './ui/button'
+import MobileNav from "./MobileNav"
 
 const Navbar = async () => {
   const session = await getAuthSession();
-
 
 
   return (
@@ -25,7 +25,7 @@ const Navbar = async () => {
           </Link>
 
 
-          {/* <MobileNav isAuth={!!session?.user} /> */}
+          <MobileNav isAuth={!!session?.user} />
 
           <div className='hidden items-center space-x-4 sm:flex'>
             {!session?.user ? (

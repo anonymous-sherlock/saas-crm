@@ -4,17 +4,20 @@ import { ArrowRight, Menu } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useEffect, useState } from 'react'
+import { Button } from './ui/button'
+import { signOut } from 'next-auth/react'
 
 const MobileNav = ({ isAuth }: { isAuth: boolean }) => {
-  const [isOpen, setOpen] = useState<boolean>(false)
 
+  const [isOpen, setOpen] = useState<boolean>(false)
   const toggleOpen = () => setOpen((prev) => !prev)
 
   const pathname = usePathname()
 
   useEffect(() => {
     if (isOpen) toggleOpen()
-  }, [pathname, isOpen])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pathname])
 
   const closeOnCurrent = (href: string) => {
     if (pathname === href) {
@@ -38,10 +41,10 @@ const MobileNav = ({ isAuth }: { isAuth: boolean }) => {
                   <li>
                     <Link
                       onClick={() =>
-                        closeOnCurrent('/sign-up')
+                        closeOnCurrent('/register')
                       }
                       className='flex items-center w-full font-semibold text-green-600'
-                      href='/sign-up'>
+                      href='/register'>
                       Get started
                       <ArrowRight className='ml-2 h-5 w-5' />
                     </Link>
@@ -50,10 +53,10 @@ const MobileNav = ({ isAuth }: { isAuth: boolean }) => {
                   <li>
                     <Link
                       onClick={() =>
-                        closeOnCurrent('/sign-in')
+                        closeOnCurrent('/login')
                       }
                       className='flex items-center w-full font-semibold'
-                      href='/sign-in'>
+                      href='/login'>
                       Sign in
                     </Link>
                   </li>
@@ -83,11 +86,11 @@ const MobileNav = ({ isAuth }: { isAuth: boolean }) => {
                   </li>
                   <li className='my-3 h-px w-full bg-gray-300' />
                   <li>
-                    <Link
+                    <Button
                       className='flex items-center w-full font-semibold'
-                      href='/'>
+                      onClick={() => signOut()}>
                       Sign out
-                    </Link>
+                    </Button>
                   </li>
                 </>
               )}

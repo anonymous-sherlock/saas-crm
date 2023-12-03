@@ -140,6 +140,11 @@ export const campaignRouter = router({
         createdAt: "desc",
       },
       select: {
+        _count: {
+          select: {
+            leads: true,
+          },
+        },
         id: true,
         code: true,
         description: true,

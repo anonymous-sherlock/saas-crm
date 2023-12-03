@@ -262,7 +262,7 @@ const CampaignForm = () => {
               />
             </div>
 
-            <div className=" w-full md:col-span-3 lg:col-span-2 !mt-0 flex flex-col gap-4 gap-y-6">
+            <div className=" w-full md:col-span-3 lg:col-span-2  flex flex-col gap-4 gap-y-6">
               {/* Working Hours */}
               <WorkingHours />
               <FormField
