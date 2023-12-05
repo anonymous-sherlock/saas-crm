@@ -5,7 +5,6 @@ import { format } from "date-fns";
 import { BarChart2, Ghost, Plus } from "lucide-react";
 import Link from "next/link";
 import Skeleton from "react-loading-skeleton";
-import { Badge } from "../ui/badge";
 import { buttonVariants } from "../ui/button";
 import { DeleteCampaign } from "./DeleteCampaign";
 import { CAMPAIGN_STATUS } from "@/constants/index";
@@ -25,7 +24,7 @@ const CampaignDashboard = () => {
         <Link href="/campaigns/create" className={cn(buttonVariants({ variant: "default" }), "rounded-full")}>Create Campaign</Link>
       </div>
 
-      {/* display all user files */}
+      {/* display all user ccampaign */}
       {campaigns && campaigns?.length !== 0 ? (
         <ul className="mt-8 grid grid-cols-1 gap-6 divide-y divide-zinc-200 md:grid-cols-2 lg:grid-cols-3">
           {campaigns
@@ -38,7 +37,7 @@ const CampaignDashboard = () => {
                     <div className="flex-1 truncate">
                       <div className="flex items-center space-x-3">
                         <h3 className="truncate text-md font-medium text-zinc-900">{campaign.name}</h3>
-                        <Badge variant="default" className={cn("inline-flex flex-shrink-0 items-center rounded-full px-1.5 py-0.5 text-xs font-medium ring-1 ring-inset",
+                        <span className={cn("inline-flex flex-shrink-0 items-center rounded-full px-1.5 py-0.5 text-xs font-medium ring-1 ring-inset",
                           campaign.status && CAMPAIGN_STATUS.find((s) => s.value === campaign.status)?.color?.textColor,
                           campaign.status && CAMPAIGN_STATUS.find((s) => s.value === campaign.status)?.color?.bgColor,
                           campaign.status && CAMPAIGN_STATUS.find((s) => s.value === campaign.status)?.color?.ringColor
@@ -56,7 +55,7 @@ const CampaignDashboard = () => {
                             }
                             return campaign.status
                           })()}
-                        </Badge>
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -68,10 +67,12 @@ const CampaignDashboard = () => {
                     {format(new Date(campaign.createdAt), "MMM dd, yyyy")}
                   </div>
 
-                  <div className="flex items-center gap-2">
-                    <BarChart2 className="h-4 w-4" />
-                    {campaign._count.leads ?? 0}
-                  </div>
+                  <Link href={`/leads/${campaign.code}`} >
+                    <div className="flex items-center gap-2">
+                      <BarChart2 className="h-4 w-4" />
+                      {campaign._count.leads ?? 0}
+                    </div>
+                  </Link>
                   <DeleteCampaign campaignId={campaign.id} />
                 </div>
               </li>

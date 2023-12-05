@@ -18,14 +18,16 @@
     --muted-foreground: 215.4 16.3% 46.9%;
     --accent: 210 40% 96.1%;
     --accent-foreground: 222.2 47.4% 11.2%;
-    --destructive: 0 86% 97%; /* custom value */
-    --destructive-foreground: 0 74% 42%; /* custom value */
+    --destructive: 0 86% 97%;
+    /* custom value */
+    --destructive-foreground: 0 74% 42%;
+    /* custom value */
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
     --ring: 221.2 83.2% 53.3%;
     --radius: 0.5rem;
   }
- 
+
   .dark {
     --background: 222.2 84% 4.9%;
     --foreground: 210 40% 98%;
@@ -53,6 +55,7 @@
   * {
     @apply border-border;
   }
+
   body {
     @apply bg-background text-foreground;
   }
@@ -85,13 +88,16 @@
   * {
     @apply border-border;
   }
+
   body {
     @apply bg-background text-foreground;
   }
 }
+
 .box {
   @apply p-5 rounded-md bg-white shadow-md;
 }
+
 .link {
   @apply p-2.5 flex rounded-md gap-6 items-center md:cursor-pointer cursor-default duration-300 font-medium;
 }

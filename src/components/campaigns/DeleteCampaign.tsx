@@ -39,7 +39,6 @@ export function DeleteCampaign({ campaignId }: DeleteCampaignProps) {
 				error: "Could not delete campaign.",
 			}
 		);
-
   }
   return (
     <>

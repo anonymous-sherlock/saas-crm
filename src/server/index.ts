@@ -1,10 +1,11 @@
 import { getAuthSession } from "@/lib/authOption";
-import { TRPCError, inferRouterOutputs } from "@trpc/server";
+import { TRPCError, inferRouterInputs, inferRouterOutputs } from "@trpc/server";
 import { campaignRouter } from "./routers/campaign";
 import { leadRouter } from "./routers/lead";
 import { productRouter } from "./routers/product";
 import { userRouter } from "./routers/user";
 import { publicProcedure, router } from "./trpc";
+import { inferReactQueryProcedureOptions } from "@trpc/react-query";
 
 export const appRouter = router({
   authCallback: publicProcedure.query(async () => {
@@ -23,4 +24,6 @@ export const appRouter = router({
 });
 
 export type AppRouter = typeof appRouter;
+export type ReactQueryOptions = inferReactQueryProcedureOptions<AppRouter>;
+export type RouterInputs = inferRouterInputs<AppRouter>;
 export type RouterOutputs = inferRouterOutputs<AppRouter>;

@@ -23,7 +23,6 @@ export const LeadsFormSchema = z.object({
 
 export const LeadValidator = z.object({
     campaignCode: z.string(),
-    userId: z.string().optional(),
     data: z.object({
         name: z.string(),
         phone: z.string(),

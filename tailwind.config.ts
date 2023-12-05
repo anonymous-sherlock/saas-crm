@@ -1,12 +1,7 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   darkMode: ["class"],
-  content: [
-    './pages/**/*.{ts,tsx}',
-    './components/**/*.{ts,tsx}',
-    './app/**/*.{ts,tsx}',
-    './src/**/*.{ts,tsx}',
-	],
+  content: ["./pages/**/*.{ts,tsx}", "./components/**/*.{ts,tsx}", "./app/**/*.{ts,tsx}", "./src/**/*.{ts,tsx}", "./constants/**/*.{ts,tsx}"],
   theme: {
     container: {
       center: true,
@@ -65,12 +60,19 @@ module.exports = {
           from: { height: "var(--radix-accordion-content-height)" },
           to: { height: 0 },
         },
+        "custom-ping": {
+          "75%,to": {
+            transform: "scale(1.75)",
+            opacity: 0,
+          },
+        },
       },
       animation: {
+        "custom-ping": "custom-ping 2s cubic-bezier(0,0,.2,1) infinite",
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
       },
     },
   },
   plugins: [require("tailwindcss-animate"), require("@tailwindcss/typography")],
-}
+};

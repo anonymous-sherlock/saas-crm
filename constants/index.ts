@@ -1,4 +1,4 @@
-import { CampaignStatus } from "@prisma/client";
+import { CampaignStatus, LeadStatus } from "@prisma/client";
 import { CheckCircledIcon, CrossCircledIcon, StopwatchIcon } from "@radix-ui/react-icons";
 import { CircleIcon } from "lucide-react";
 
@@ -108,6 +108,60 @@ export const CAMPAIGN_STATUS: CampaignStatusProp[] = [
   {
     value: "Canceled",
     label: "Canceled",
+    icon: CrossCircledIcon,
+    color: {
+      textColor: "text-red-700",
+      bgColor: "!bg-red-50",
+      ringColor: "ring-red-600/20",
+    },
+  },
+];
+
+type LeadStatusProp = {
+  label: string;
+  value: LeadStatus;
+  icon?: React.ComponentType<{ className?: string }>;
+  color?: {
+    textColor: string;
+    bgColor: string;
+    ringColor: string;
+  };
+};
+
+export const LEADS_STATUS: LeadStatusProp[] = [
+  {
+    label: "On Hold",
+    value: "OnHold",
+    icon: CircleIcon,
+    color: {
+      textColor: "text-yellow-700",
+      bgColor: "!bg-yellow-50",
+      ringColor: "ring-yellow-600/20",
+    },
+  },
+  {
+    label: "Paid",
+    value: "Paid",
+    icon: StopwatchIcon,
+    color: {
+      textColor: "text-green-700",
+      bgColor: "!bg-green-50",
+      ringColor: "ring-green-600/20",
+    },
+  },
+  {
+    label: "Approved",
+    value: "Approved",
+    icon: CheckCircledIcon,
+    color: {
+      textColor: "text-green-700",
+      bgColor: "!bg-green-50",
+      ringColor: "ring-green-600/20",
+    },
+  },
+  {
+    label: "Trashed",
+    value: "Trashed",
     icon: CrossCircledIcon,
     color: {
       textColor: "text-red-700",

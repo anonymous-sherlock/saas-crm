@@ -1,15 +1,14 @@
 import { db } from "@/db";
-import { LeadsFormSchema, LeadsPayload } from "@/schema/LeadSchema";
+import { LeadsFormSchema } from "@/schema/LeadSchema";
+import { privateProcedure, router } from "@/server/trpc";
 import { LeadStatus } from "@prisma/client";
 import { TRPCError } from "@trpc/server";
-import axios from "axios";
 import { z } from "zod";
-import { privateProcedure, router } from "@/server/trpc";
 
 export const leadRouter = router({
-  getAll: privateProcedure.query(async ({ ctx, input }) => {
+  getAll: privateProcedure.query(async ({ ctx }) => {
     const { userId } = ctx;
-    const Leads = await db.lead.findMany({
+    const leads = await db.lead.findMany({
       orderBy: {
         createdAt: "desc",
       },
@@ -20,19 +19,22 @@ export const leadRouter = router({
         campaign: {
           select: {
             name: true,
+            code: true,
+            id: true,
           },
         },
       },
     });
-    return Leads;
+    return leads;
   }),
   getCampaignLeads: privateProcedure
     .input(
       z.object({
         campaignId: z.string(),
-      })
+      }),
     )
     .query(async ({ ctx, input }) => {
+      console.log(ctx);
       const { userId } = ctx;
       const { campaignId } = input;
 
@@ -44,14 +46,6 @@ export const leadRouter = router({
           userId,
           campaingId: campaignId,
         },
-        include: {
-          campaign: {
-            select: {
-              name: true,
-              id: true,
-            },
-          },
-        },
       });
       return leads;
     }),
@@ -62,7 +56,7 @@ export const leadRouter = router({
           required_error: "Lead id is required to update a lead",
         }),
         leadStatus: z.nativeEnum(LeadStatus),
-      })
+      }),
     )
     .mutation(async ({ ctx, input }) => {
       const { userId } = ctx;
@@ -101,7 +95,7 @@ export const leadRouter = router({
             required_error: "Lead Id is required to delete a Lead",
           })
           .array(),
-      })
+      }),
     )
     .mutation(async ({ ctx, input }) => {
       const { userId } = ctx;
@@ -139,34 +133,33 @@ export const leadRouter = router({
   add: privateProcedure.input(LeadsFormSchema).mutation(async ({ ctx, input }) => {
     const { userId } = ctx;
     const { name, phone, address, campaignCode } = input;
-    const userApiKey = await db.apiKey.findFirst({
+
+    const campaign = await db.campaign.findUnique({
       where: {
         userId,
-        enabled: true,
+        code: campaignCode,
       },
     });
-    if (!userApiKey) {
-      throw new TRPCError({
-        code: "FORBIDDEN",
-        message: "Api Key not Found Please generate a new key from profile",
-      });
-    }
-    const payload: LeadsPayload = {
-      campaignCode,
+
+    if (!campaign) throw new TRPCError({ code: "NOT_FOUND", message: "Campaign not found" });
+    const newLead = await db.lead.create({
       data: {
         name,
         phone,
-        address,
-      },
-    };
-
-    const { data } = await axios.post("/api/v1/order/leads/", payload, {
-      headers: {
-        API_Key: userApiKey.key,
+        address: address ?? "",
+        country: "india",
+        ip: "fdf",
+        region: "test",
+        state: "heelo",
+        userId,
+        campaingId: campaign.id,
       },
     });
 
-    return data;
+    return {
+      success: true,
+      lead: newLead,
+    };
   }),
 });
 
