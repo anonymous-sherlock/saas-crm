@@ -1,10 +1,14 @@
 import { getAuthSession } from "@/lib/authOption";
 import { TRPCError, initTRPC } from "@trpc/server";
 import superjson from "superjson";
+import { FetchCreateContextFnOptions } from "@trpc/server/adapters/fetch";
+
 import { ZodError } from "zod";
 
-export const createTRPCContext = async (opts: { req?: Request }) => {
-  
+export const createTRPCContext = async (opts: FetchCreateContextFnOptions) => {
+  console.log(opts);
+  const req = opts.req;
+  return { req };
 };
 
 const t = initTRPC.context<typeof createTRPCContext>().create({
@@ -34,7 +38,6 @@ const isAuth = middleware(async (opts) => {
     ctx: {
       userId: user.id,
       user,
-     
     },
   });
 });

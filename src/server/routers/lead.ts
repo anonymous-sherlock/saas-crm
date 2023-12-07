@@ -1,4 +1,6 @@
 import { db } from "@/db";
+import { determineLeadStatus } from "@/lib/helpers";
+import { getIpInfo } from "@/lib/helpers/getIpInfo";
 import { LeadsFormSchema } from "@/schema/LeadSchema";
 import { privateProcedure, router } from "@/server/trpc";
 import { LeadStatus } from "@prisma/client";
@@ -131,7 +133,7 @@ export const leadRouter = router({
     }),
 
   add: privateProcedure.input(LeadsFormSchema).mutation(async ({ ctx, input }) => {
-    const { userId } = ctx;
+    const { userId, req } = ctx;
     const { name, phone, address, campaignCode } = input;
 
     const campaign = await db.campaign.findUnique({
@@ -142,17 +144,28 @@ export const leadRouter = router({
     });
 
     if (!campaign) throw new TRPCError({ code: "NOT_FOUND", message: "Campaign not found" });
+    const userIp = req.headers.get("x-forwarded-for") || req.headers.get("x-real-ip");
+    const ipInfo = await getIpInfo(userIp);
+
+    const existingLead = await db.lead.findFirst({
+      where: {
+        OR: [
+          { phone: phone }
+        ]
+      },
+    });
     const newLead = await db.lead.create({
       data: {
         name,
         phone,
-        address: address ?? "",
-        country: "india",
-        ip: "fdf",
-        region: "test",
-        state: "heelo",
+        address: address || "",
+        country: ipInfo.country || "",
+        ip: ipInfo.ip,
+        region: ipInfo.region || "",
+        state: ipInfo.region || "",
         userId,
         campaingId: campaign.id,
+        status: existingLead ? "Trashed" : determineLeadStatus({ name, phone })
       },
     });
 
