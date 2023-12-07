@@ -5,15 +5,19 @@ import Skeleton from 'react-loading-skeleton'
 import { ScrollArea, ScrollBar } from '../ui/scroll-area'
 import { columns } from './_table/columns'
 import { DataTable } from './_table/data-table'
+import { RouterOutputs } from '@/server'
 
 interface LeadsDashboardProps {
+  Leads: RouterOutputs["lead"]["getAll"]
 }
 
-const LeadsDashboard = ({ }: LeadsDashboardProps) => {
+const LeadsDashboard = ({ Leads: InitialLeads }: LeadsDashboardProps) => {
 
   const { data: Leads, isLoading } = trpc.lead.getAll.useQuery(undefined, {
+    initialData: InitialLeads,
     refetchOnMount: false,
-    refetchOnWindowFocus: false
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false
   }
   )
   return (

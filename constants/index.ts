@@ -6,6 +6,7 @@ type ProductCategory = {
   label: string;
   value: string;
 };
+
 export const PRODUCT_CATEGORIES: ProductCategory[] = [
   { label: "Body Care", value: "BodyCare" as const },
   { label: "Amulets", value: "Amulets" as const },
@@ -63,15 +64,19 @@ export const PRODUCT_CATEGORIES: ProductCategory[] = [
   { label: "Allergy", value: "Allergy" as const },
   { label: "Alcoholism", value: "Alcoholism" as const },
 ];
-type CampaignStatusProp = {
+
+export type StatusType = {
   label: string;
-  value: CampaignStatus;
+  value: CampaignStatus | LeadStatus;
   icon?: React.ComponentType<{ className?: string }>;
   color?: {
     textColor: string;
     bgColor: string;
     ringColor: string;
   };
+};
+export type CampaignStatusProp = StatusType & {
+  value: CampaignStatus;
 };
 
 export const CAMPAIGN_STATUS: CampaignStatusProp[] = [
@@ -117,15 +122,8 @@ export const CAMPAIGN_STATUS: CampaignStatusProp[] = [
   },
 ];
 
-type LeadStatusProp = {
-  label: string;
+export type LeadStatusProp = StatusType & {
   value: LeadStatus;
-  icon?: React.ComponentType<{ className?: string }>;
-  color?: {
-    textColor: string;
-    bgColor: string;
-    ringColor: string;
-  };
 };
 
 export const LEADS_STATUS: LeadStatusProp[] = [

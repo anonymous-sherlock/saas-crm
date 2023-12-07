@@ -1,8 +1,6 @@
 import { SubMenuTypes } from "@/types";
-import { Wallet2 } from "lucide-react";
 import { BsPerson } from "react-icons/bs";
 import { MdDashboard, MdLeaderboard } from "react-icons/md";
-import { PiFilesDuotone } from "react-icons/pi";
 import { RiBuilding3Line } from "react-icons/ri";
 import { SlSettings } from "react-icons/sl";
 import { TbReportAnalytics } from "react-icons/tb";

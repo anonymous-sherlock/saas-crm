@@ -27,7 +27,7 @@ export const Breadcrumbs = ({ separator }: BreadCrumbProps) => {
         Overview
       </h2>
       <nav>
-        <ol className="flex items-center gap-2">
+        <ol className="flex items-center gap-2 flex-wrap">
           <li>
             <Link className="font-medium hover:text-primary" href="/">
               Home /

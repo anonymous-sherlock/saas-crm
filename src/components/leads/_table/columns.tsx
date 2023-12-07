@@ -4,16 +4,16 @@ import { ColumnDef } from "@tanstack/react-table";
 
 import { Checkbox } from "@/ui/checkbox";
 
+import { CustomBadge } from "@/components/CustomBadge";
+import TooltipComponent from "@/components/tooltip-component";
+import { LEADS_STATUS } from "@/constants/index";
 import { cn } from "@/lib/utils";
 import {
   LeadStatus
 } from "@prisma/client";
+import moment from "moment";
 import { DataTableColumnHeader } from "./data-table-column-header";
 import { DataTableRowActions } from "./data-table-row-actions";
-import moment from "moment";
-import { Badge } from "@/components/ui/badge";
-import { LEADS_STATUS } from "@/constants/index";
-import TooltipComponent from "@/components/tooltip-component";
 export type Lead = {
   id: string;
   ip: string;
@@ -74,11 +74,12 @@ export const columns: ColumnDef<Lead>[] = [
     ),
     cell: ({ row }) => (
       <div className="truncate">
-        <TooltipComponent message={`${row.original.campaign.code} - ${row.original.campaign.name}`}>
-        {`${row.original.campaign.code} - ${row.original.campaign.name.substring(0,8)}`}
-
+        <TooltipComponent delayDuration={300} message={`${row.original.campaign.code} - ${row.original.campaign.name}`}>
+          <span className="cursor-default">
+            {`${row.original.campaign.code} - ${row.original.campaign.name.substring(0, 8)}`}
+          </span>
         </TooltipComponent>
-        </div>
+      </div>
     ),
     filterFn: (row, id, value) => {
       return row.original.campaign.code.includes(row.getValue(id))
@@ -211,19 +212,8 @@ export const columns: ColumnDef<Lead>[] = [
             "flex w-[100px] items-center",
             status.value === "Trashed" ? "text-red-500" : status.value === "Approved" ? "text-green-600" : ""
           )}
-        ><span className={cn("rounded-full inline-flex flex-shrink-0 items-center px-1.5 py-0.5 text-xs font-medium ring-1 ring-inset",
-          status && LEADS_STATUS.find((s) => s.value === status.value)?.color?.textColor,
-          status && LEADS_STATUS.find((s) => s.value === status.value)?.color?.bgColor,
-          status && LEADS_STATUS.find((s) => s.value === status.value)?.color?.ringColor
-        )}>
-            {status.icon && (
-              <status.icon
-                className={cn(
-                  "mr-2 h-4 w-4 font-bold",)}
-              />
-            )}
-            {status.label}</span>
-          <span></span>
+        >
+          <CustomBadge badgeValue={status.value} status={LEADS_STATUS} />
         </div>
       );
     },

@@ -8,6 +8,7 @@ import Skeleton from "react-loading-skeleton";
 import { buttonVariants } from "../ui/button";
 import { DeleteCampaign } from "./DeleteCampaign";
 import { CAMPAIGN_STATUS } from "@/constants/index";
+import { CustomBadge } from "../CustomBadge";
 
 
 const CampaignDashboard = () => {
@@ -37,25 +38,7 @@ const CampaignDashboard = () => {
                     <div className="flex-1 truncate">
                       <div className="flex items-center space-x-3">
                         <h3 className="truncate text-md font-medium text-zinc-900">{campaign.name}</h3>
-                        <span className={cn("inline-flex flex-shrink-0 items-center rounded-full px-1.5 py-0.5 text-xs font-medium ring-1 ring-inset",
-                          campaign.status && CAMPAIGN_STATUS.find((s) => s.value === campaign.status)?.color?.textColor,
-                          campaign.status && CAMPAIGN_STATUS.find((s) => s.value === campaign.status)?.color?.bgColor,
-                          campaign.status && CAMPAIGN_STATUS.find((s) => s.value === campaign.status)?.color?.ringColor
-                        )} >
-                          {(() => {
-                            const status = CAMPAIGN_STATUS.find((status) => status.value === campaign.status);
-                            if (status) {
-                              const IconComponent = status.icon;
-                              return (
-                                <>
-                                  {IconComponent && <IconComponent className="inline-block mr-1.5 h-3 w-3" />}
-                                  <span>{status.label}</span>
-                                </>
-                              )
-                            }
-                            return campaign.status
-                          })()}
-                        </span>
+                        <CustomBadge badgeValue={campaign.status} status={CAMPAIGN_STATUS} />
                       </div>
                     </div>
                   </div>

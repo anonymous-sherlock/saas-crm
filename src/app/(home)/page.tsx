@@ -56,7 +56,7 @@ export default async function Home() {
                     quality={100}
                     blurDataURL={dashboardImage.blurDataURL}
                     priority
-                    className="rounded-md bg-white p-2 sm:p-8 md:p-20 shadow-2xl ring-1 ring-gray-900/10"
+                    className="rounded-md bg-white p-1 sm:p-0 shadow-2xl ring-1 ring-gray-900/10"
                   />
                 </div>
               </div>

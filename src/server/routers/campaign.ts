@@ -131,7 +131,9 @@ export const campaignRouter = router({
       };
     }),
   getAll: privateProcedure.query(async ({ ctx }) => {
-    const { userId } = ctx;
+    const { userId, } = ctx;
+
+ 
     const campaignsData = await db.campaign.findMany({
       where: {
         userId: userId,
