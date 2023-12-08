@@ -88,24 +88,11 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async session({ token, session }) {
       if (token) {
-        if (token.impersonatedUserId) {
-          const impersonatedUser = await db.user.findFirst({
-            where: { id: token.impersonatedUserId },
-          });
-          if (impersonatedUser) {
-            session.user.id = impersonatedUser.id;
-            session.user.name = impersonatedUser.name;
-            session.user.email = impersonatedUser.email;
-            session.user.image = impersonatedUser.image;
-            session.user.role = impersonatedUser.role;
-          }
-        } else {
-          session.user.id = token.id;
-          session.user.name = token.name;
-          session.user.email = token.email;
-          session.user.image = token.picture;
-          session.user.role = token.role;
-        }
+        session.user.id = token.id;
+        session.user.name = token.name;
+        session.user.email = token.email;
+        session.user.image = token.picture;
+        session.user.role = token.role;
       }
       return session;
     },

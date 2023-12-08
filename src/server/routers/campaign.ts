@@ -4,7 +4,6 @@ import { campaignFormSchema } from "@/schema/campaignSchema";
 import { privateProcedure, router } from "@/server/trpc";
 import { CampaignStatus } from "@prisma/client";
 import { TRPCError } from "@trpc/server";
-import SuperJSON from "superjson";
 import { z } from "zod";
 
 export const campaignRouter = router({

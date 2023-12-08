@@ -6,7 +6,7 @@ import Image from "next/image";
 import dashboardImage from "@/public/dashboard-preview.jpg";
 import fileUploadPreview from "@/public/file-upload-preview.jpg";
 
-export default async function Home() {
+export default function Home() {
   return (
     <>
       <MaxWidthWrapper className="mb-12 mt-28 sm:mt-40 flex flex-col items-center justify-center text-center">
