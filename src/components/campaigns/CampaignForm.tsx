@@ -14,7 +14,7 @@ import {
 import { z } from "zod";
 import { Input } from "../ui/input";
 import { Textarea } from "../ui/textarea";
-
+import { toast as hotToast } from "react-hot-toast"
 import { trpc } from "@/app/_trpc/client";
 import { cn } from "@/lib/utils";
 import {
@@ -39,6 +39,7 @@ import AgeFields from "./AgeFields";
 import CountryRegion from "./CountryRegion";
 import ProductDropdown from "./ProductDropdown";
 import WorkingHours from "./WorkingHours";
+import { useRouter } from "next/navigation";
 
 const CampaignForm = () => {
   const form = useForm<z.infer<typeof campaignFormSchema>>({
@@ -66,34 +67,30 @@ const CampaignForm = () => {
       targetRegion: [],
     },
   });
+
+  const router = useRouter()
   const utils = trpc.useUtils();
   const {
     mutateAsync: createCampaign,
     isLoading,
   } = trpc.campaign.create.useMutation({
-    onError: (err) => {
-      if (err instanceof AxiosError) {
-        if (err.response?.status === 500) {
-          return toast({
-            title: "Cannot Create Campaign.",
-            description: "",
-            variant: "destructive",
-          });
-        }
-      }
-    },
+
     onSuccess: (data) => {
-      utils.campaign.getAll.invalidate();
-      toast({
-        title: `Campaign created`,
-        description: `${data.campaign.name} campaign created succesfully`,
-        variant: "success",
-      });
-      form.reset();
+      utils.campaign.getAll.invalidate()
+      form.reset()
+      router.push(`/campaigns/${data.campaign.id}`)
     },
   });
   async function onSubmit(values: z.infer<typeof campaignFormSchema>) {
-    createCampaign({ campaign: values });
+
+    hotToast.promise(
+      createCampaign({ campaign: values }),
+      {
+        loading: 'Creating campaign...',
+        success: "Campaign created successfully!",
+        error: "Could not create campaign.",
+      }
+    );
   }
 
   return (

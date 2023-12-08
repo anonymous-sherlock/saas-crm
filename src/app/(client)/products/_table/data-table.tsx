@@ -65,8 +65,9 @@ export function DataTable<TData, TValue>({
       columnFilters,
       globalFilter,
     },
-
     enableRowSelection: true,
+    enableGlobalFilter:true,
+    onGlobalFilterChange: setGlobalFilter,
     onRowSelectionChange: setRowSelection,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,

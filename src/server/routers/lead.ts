@@ -36,7 +36,6 @@ export const leadRouter = router({
       }),
     )
     .query(async ({ ctx, input }) => {
-      console.log(ctx);
       const { userId } = ctx;
       const { campaignId } = input;
 

@@ -6,7 +6,6 @@ import { FetchCreateContextFnOptions } from "@trpc/server/adapters/fetch";
 import { ZodError } from "zod";
 
 export const createTRPCContext = async (opts: FetchCreateContextFnOptions) => {
-  console.log(opts);
   const req = opts.req;
   return { req };
 };

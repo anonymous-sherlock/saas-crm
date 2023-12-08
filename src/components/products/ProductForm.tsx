@@ -1,8 +1,8 @@
 "use client";
-
 import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
+import { z } from "zod";
 
+import { trpc } from "@/app/_trpc/client";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -17,6 +17,7 @@ import { Input } from "@/components/ui/input";
 import { PRODUCT_CATEGORIES } from "@/constants/index";
 import { cn } from "@/lib/utils";
 import { productFormSchema } from "@/schema/productSchema";
+import { RouterOutputs } from "@/server";
 import { useProductImages, useUploadedFileMeta } from "@/store/index";
 import { Card, CardContent, CardTitle } from "@/ui/card";
 import {
@@ -30,47 +31,53 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from "@/ui/popover";
 import { Textarea } from "@/ui/textarea";
 import { Check, ChevronsUpDown, Trash2 } from "lucide-react";
+import { redirect, useRouter } from "next/navigation";
 import { useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
-import { trpc } from "@/app/_trpc/client";
-import { TRPCError } from "@trpc/server";
-import { toast } from "../ui/use-toast";
-import DragnDrop from "./DragnDrop";
+import { toast as hotToast } from "react-hot-toast";
 import Spinner from "../ui/spinner";
+import DragnDrop from "./DragnDrop";
 
-export function ProductForm() {
+type ProductFormProps = {
+  edit: true;
+  product: RouterOutputs["product"]["get"];
+} | {
+  edit: false;
+  product?: RouterOutputs["product"]["get"];
+};
+
+export function ProductForm({ edit, product }: ProductFormProps) {
 
   const [open, setOpen] = useState(false);
   const { removeAll } = useProductImages();
   const { files } = useUploadedFileMeta();
+  const router = useRouter()
+
+
+  const mediaUrl = product?.media.map((media) => {
+    if (media.url) {
+      return {
+        value: media.url
+      }
+    }
+  })
   const form = useForm<z.infer<typeof productFormSchema>>({
     resolver: zodResolver(productFormSchema),
     defaultValues: {
-      productName: "",
-      productPrice: "",
-      productDescription: "",
-      productQuantity: "",
+      productId: product?.name || "",
+      productName: product?.name || "",
+      productPrice: product?.price.toString() || "",
+      productDescription: product?.description || "",
+      productQuantity: product?.quantity.toString() || "",
       productImages: [],
-      mediaUrls: [{ value: "" }],
+      mediaUrls: mediaUrl && mediaUrl.length > 0 ? mediaUrl : [{ value: "" }],
+      productCategory: product?.category || ""
     },
   });
   const utils = trpc.useUtils();
 
-  const { mutate: createProduct, isLoading } = trpc.product.add.useMutation({
-    onError: (err) => {
-      if (err instanceof TRPCError && err.code === 'TIMEOUT') {
-        toast({
-          variant: "destructive",
-          title: err.message,
-          description: "There was a problem with your request.",
-        });
-      }
-      return toast({
-        title: "Cannot Create Product.",
-        description: "Uh oh! Something went wrong",
-        variant: "destructive",
-      });
-    },
+  const { mutateAsync: createProduct, isLoading } = trpc.product.add.useMutation({
+
     onSuccess: (data) => {
       if (data.success) {
         form.reset()
@@ -78,14 +85,14 @@ export function ProductForm() {
         removeAll();
       }
       utils.product.invalidate();
-      return toast({
-        variant: "success",
-        title: "Product created",
-        description: data.message,
-      });
     },
   });
-
+  const { mutateAsync: updateProduct, isLoading: isUpdatingProduct } = trpc.product.update.useMutation({
+    onSuccess: () => {
+      utils.product.invalidate();
+      router.push("/products",)
+    },
+  });
   const { fields, append, remove } = useFieldArray({
     name: "mediaUrls",
     control: form.control,
@@ -93,16 +100,32 @@ export function ProductForm() {
 
   // 2. Define a submit handler.
   function onSubmit(values: z.infer<typeof productFormSchema>) {
-    console.log(values)
-    createProduct({
-      product: values,
-      files: files
-    })
+    if (edit === true) {
+      hotToast.promise(
+        updateProduct({ product: values, files: files, productId: product.productId }),
+        {
+          loading: 'Updating Product...',
+          success: "product updated Sucessfully!",
+          error: "Could not update product.",
+        }
+      );
+    }
+    else {
+
+      hotToast.promise(
+        createProduct({ product: values, files: files }),
+        {
+          loading: 'Adding Product...',
+          success: (data) => `${data.message}`,
+          error: "Could not Add product.",
+        }
+      );
+    }
   }
 
   return (
     <Card className="bg-white p-6">
-      <CardTitle>Add a Product</CardTitle>
+      <CardTitle>{edit === true ? "Update Product" : "Add a Product"}</CardTitle>
       <CardContent className="mt-8 w-full p-0">
         <Form {...form}>
           <form
@@ -313,9 +336,9 @@ export function ProductForm() {
                 name="productImages"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Add Product Images</FormLabel>
+                    <FormLabel>Upload Product Images</FormLabel>
                     <FormControl>
-                      <DragnDrop />
+                      <DragnDrop productImages={product?.images} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -325,14 +348,14 @@ export function ProductForm() {
             <Button
               type="submit"
               className={cn("w-full col-span-1")}
-              disabled={isLoading}
+              disabled={isLoading || isUpdatingProduct}
             >
-              {isLoading ? (
+              {isLoading || isUpdatingProduct ? (
                 <>
-                  <Spinner /> Adding Product...
+                  <Spinner />{edit === true ? "Updating Product..." : "Adding Product..."}
                 </>
               ) : (
-                "Add Product"
+                edit === true ? "Update Product" : "Add Product"
               )}
             </Button>
           </form>

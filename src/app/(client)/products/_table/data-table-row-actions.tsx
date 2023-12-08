@@ -30,6 +30,7 @@ import { AxiosError } from "axios";
 import { useRouter } from "next/navigation";
 import { productRowSchema } from "./schema";
 import Spinner from "@/components/ui/spinner";
+import Link from "next/link";
 
 interface DataTableRowActionsProps<TData> {
   row: Row<TData>;
@@ -90,7 +91,8 @@ export function DataTableRowActions<TData>({
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-[160px]">
-              <DropdownMenuItem className="cursor-pointer">Edit</DropdownMenuItem>
+              <DropdownMenuItem className="cursor-pointer"><Link href={`/products/${product.productId}/edit`} className="w-full">Edit</Link></DropdownMenuItem>
+              <DropdownMenuItem className="cursor-pointer"><Link href={`/products/${product.productId}`} className="w-full">View Product</Link></DropdownMenuItem>
               <DropdownMenuItem className="cursor-pointer" 
                 onClick={()=>{
                   navigator.clipboard.writeText(product.productId.toString());

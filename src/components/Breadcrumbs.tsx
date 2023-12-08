@@ -4,12 +4,11 @@ import { usePathname, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 type BreadCrumbProps = {
-
   separator?: ReactNode,
-
 }
 export const Breadcrumbs = ({ separator }: BreadCrumbProps) => {
-  const pathname = usePathname().substring(1);
+  const path = usePathname();
+  const pathname = path.substring(1);
   const pathNames = pathname.split('/').filter(path => path)
 
 

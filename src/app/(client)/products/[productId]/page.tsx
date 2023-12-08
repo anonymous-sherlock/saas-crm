@@ -1,12 +1,11 @@
 import ImageSlider from '@/components/ImageSlider';
 import { Badge } from "@/components/ui/badge";
-import { buttonVariants } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { PRODUCT_CATEGORIES } from "@/constants/index";
 import { db } from "@/db";
 import { cn, formatPrice } from "@/lib/utils";
 import { Check } from "lucide-react";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import "server-only";
 
@@ -50,11 +49,9 @@ export default async function Page({ params }: PageProps) {
             <p className="text-muted-foreground">
             </p>
           </div>
-          <Link
-            href="/products/create"
-            className={buttonVariants({ size: "sm", variant: "outline" })}>
-            Add a Product
-          </Link>
+          <Button variant="secondary">
+            Edit Product
+          </Button>
         </div>
 
         {/* product details section */}

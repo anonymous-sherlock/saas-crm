@@ -15,6 +15,7 @@ export default async function CampaginStatsPage({ params }: { params: { campaign
       return <CampaignStats campaign={campaign} user={session.user} />
     }
   } catch (error) {
+    console.log(error)
     return notFound()
   }
 }

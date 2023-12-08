@@ -9,6 +9,7 @@ export const singleImageSchema = z.object({
 });
 
 export const productFormSchema = z.object({
+  productId: z.string().optional(),
   productName: z.string().min(1, { message: "Product name is required." }).min(2, { message: "Product name must be at least 2 characters." }),
   productPrice: z
     .string({ required_error: "Product price is required." })
@@ -41,7 +42,7 @@ export const productFormSchema = z.object({
 
   productImages: z
     .array(singleImageSchema)
-    .refine((files) => files.length > 0, { message: "Add At least one product image." })
+    // .refine((files) => files.length > 0, { message: "Add At least one product image." })
     .refine(
       (files) => {
         // For example, you can check file types, sizes, or other criteria.
@@ -89,7 +90,6 @@ export const deleteProduct = z.object({
     required_error: "product id is required",
   }),
 });
-export type DeleteProductPayload = z.infer<typeof deleteProduct>;
 
 // product searhc payload
 export const productSearch = z.object({
@@ -105,5 +105,5 @@ export const productSearch = z.object({
   cursor: z.string(),
 });
 export type ProductFormPayload = z.infer<typeof productFormSchema>;
-
+export type DeleteProductPayload = z.infer<typeof deleteProduct>;
 export type ProductSearchPayload = z.infer<typeof productSearch>;

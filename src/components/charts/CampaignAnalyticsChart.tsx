@@ -48,7 +48,7 @@ export const CampaignAnalyticsChart = ({ campaignId }: CampaignAnalyticsChartPro
 
   return (
     <>
-      <div className='flex justify-between items-center mb-2'>
+      <div className='flex flex-col md:flex-row gap-2 items-start justify-between md:items-center mb-2'>
         <p className="font-medium">Compare Leads Performance</p>
         <DatePickerWithRange />
       </div>

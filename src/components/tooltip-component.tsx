@@ -9,7 +9,7 @@ import {
 } from './ui/tooltip';
 interface TooltipComponentProps extends TooltipPrimitive.TooltipProps {
 	children: React.ReactNode;
-	message: string;
+	message: string | React.ReactNode;
 }
 
 const TooltipComponent: React.FC<TooltipComponentProps> = ({ children, message, ...props }) => {

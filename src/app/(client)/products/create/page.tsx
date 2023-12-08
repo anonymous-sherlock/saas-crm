@@ -11,7 +11,7 @@ function AddProductsPage() {
 
       <div className="flex">
         <div className="w-full">
-          <ProductForm />
+          <ProductForm edit={false} />
         </div>
       </div>
     </>

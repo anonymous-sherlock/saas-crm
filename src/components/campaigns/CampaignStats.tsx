@@ -3,7 +3,7 @@ import { trpc } from '@/app/_trpc/client'
 import { CAMPAIGN_STATUS } from '@/constants/index'
 import { cn } from '@/lib/utils'
 import { RouterOutputs } from '@/server'
-import { ChevronLeft, HelpCircle } from 'lucide-react'
+import { ChevronLeft, HelpCircle, Info } from 'lucide-react'
 import { Session } from 'next-auth'
 import Link from 'next/link'
 import Skeleton from 'react-loading-skeleton'
@@ -15,6 +15,8 @@ import TooltipComponent from '../tooltip-component'
 import { buttonVariants } from '../ui/button'
 import { Card, CardContent } from '../ui/card'
 import { CampaignActionDropDown } from './CampaignActionDropDown'
+import { HoverCard, HoverCardContent, HoverCardTrigger } from '../ui/hover-card'
+
 
 interface CampaignStatsProps {
   campaign: RouterOutputs["campaign"]["get"]
@@ -61,15 +63,23 @@ export const CampaignStats = ({ campaign: InitialCampaignData, user }: CampaignS
       <div className='tremor-Grid-root grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-4'>
         <Card className='p-4'>
           <CardContent className={cn("p-2")}>
-            <div className='flex items-center gap-3'>
-              <p className="font-medium text-lg text-muted-foreground flex items-center gap-2">Impressions
-                <TooltipComponent message='Total Impressions' delayDuration={300}>
+            <div className='flex items-center gap-3 mb-2'>
+              <p className="font-medium text-lg text-muted-foreground flex items-center gap-2">Overview
+                <TooltipComponent message='Campaign Overview' delayDuration={300}>
                   <HelpCircle className='w-4 h-4 text-muted-foreground' />
                 </TooltipComponent>
               </p>
             </div>
 
-            <Skeleton height={50} className="my-4" count={1} />
+            <div className='text-sm my-2'>
+              Traffic Source - <span className='font-medium'>{campaign.trafficSource}</span>
+            </div>
+            <div className='text-sm my-2'>
+              Leads Requirements - <span className='font-medium'>{campaign.leadsRequirements} / Day</span>
+            </div>
+            <div className='text-sm my-2'>
+              Call Center Team Size - <span className='font-medium'>{campaign.callCenterTeamSize}</span>
+            </div>
 
           </CardContent>
         </Card>
@@ -91,15 +101,47 @@ export const CampaignStats = ({ campaign: InitialCampaignData, user }: CampaignS
 
         <Card className='p-4'>
           <CardContent className={cn("p-2")}>
-            <div className='flex items-center gap-3'>
-              <p className="font-medium text-lg text-muted-foreground flex items-center gap-2">Conversions
-                <TooltipComponent message='Total Conversions' delayDuration={300}>
+            <div className='flex items-center gap-3 mb-2'>
+              <p className="font-medium text-lg text-muted-foreground flex items-center gap-2">Targeting
+                <TooltipComponent message='Targeting' delayDuration={300}>
                   <HelpCircle className='w-4 h-4 text-muted-foreground' />
                 </TooltipComponent>
               </p>
             </div>
 
-            <Skeleton height={50} className="my-4" count={1} />
+            <div className='text-sm my-2'>
+              Country - <span className='font-medium'>{campaign.targetCountry}</span>
+            </div>
+            <div className='text-sm flex gap-1 items-center my-2'>
+              Region - <span className='font-medium truncate'>{campaign.targetRegion[0]?.regionName}</span>
+              {campaign.targetRegion.length > 1 ?
+                <HoverCard openDelay={400}>
+                  <HoverCardTrigger>
+                    <Info className='w-4 h-4 text-muted-foreground ml-2' />
+                  </HoverCardTrigger>
+                  <HoverCardContent>
+                    {
+                      campaign.targetRegion.map((reg, index) => (
+                        <span key={reg.id}>
+                          {reg.regionName}
+                          {index < campaign.targetRegion.length - 1 ? ', ' : '.'}
+                        </span>
+                      ))
+                    }
+                  </HoverCardContent>
+                </HoverCard>
+                : null
+              }
+
+
+            </div>
+
+            <div className='text-sm flex gap-1 items-center my-2'>
+              Age - <span className='font-medium'>{campaign.targetAge.min}  to {campaign.targetAge.max}</span>
+
+
+            </div>
+
           </CardContent>
         </Card>
 
@@ -109,7 +151,7 @@ export const CampaignStats = ({ campaign: InitialCampaignData, user }: CampaignS
 
 
       <Card className='p-6 mt-8'>
-        <CardContent>
+        <CardContent className={cn("p-2")}>
           <CampaignAnalyticsChart campaignId={campaign.id} />
         </CardContent>
       </Card>

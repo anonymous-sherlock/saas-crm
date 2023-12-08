@@ -4,6 +4,7 @@ import { campaignFormSchema } from "@/schema/campaignSchema";
 import { privateProcedure, router } from "@/server/trpc";
 import { CampaignStatus } from "@prisma/client";
 import { TRPCError } from "@trpc/server";
+import SuperJSON from "superjson";
 import { z } from "zod";
 
 export const campaignRouter = router({
@@ -28,8 +29,12 @@ export const campaignRouter = router({
     });
 
     if (!campaign) throw new TRPCError({ code: "NOT_FOUND", message: "Campaign not Found" });
+    const parsedTargetAge: TargetAge = campaign.targetAge as TargetAge;
 
-    return campaign;
+    return {
+      ...campaign,
+      targetAge: parsedTargetAge,
+    };
   }),
   create: privateProcedure
     .input(
@@ -131,9 +136,7 @@ export const campaignRouter = router({
       };
     }),
   getAll: privateProcedure.query(async ({ ctx }) => {
-    const { userId, } = ctx;
-
- 
+    const { userId } = ctx;
     const campaignsData = await db.campaign.findMany({
       where: {
         userId: userId,

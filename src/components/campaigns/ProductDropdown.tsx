@@ -208,7 +208,7 @@ const ProductDropdown = () => {
                             <div className="h-4 w-4">
                               {isSelected && <Check className={cn("w-full h-full font-semibold")} />}
                             </div>
-                            <Image src={product.images[0].url || notFoundImage.src} alt={product.name} width={40} height={40} sizes="50px" className="w-[40] rounded-sm"
+                            <Image src={product.images[0]?.url || notFoundImage.src} alt={product.name} width={40} height={40} sizes="50px" className="w-[40] rounded-sm"
                               style={{ width: 30 }}
                               blurDataURL={notFoundImage.blurDataURL} />
                             <div className="w-full w-max-[140px] truncate">
@@ -258,7 +258,7 @@ const ProductDropdown = () => {
               >
                 <Image
                   fill
-                  src={encodeURI(img.url)}
+                  src={encodeURI(img?.url)}
                   alt="Selected Product"
                   sizes="(max-width: 768px) 100vw, (max-width: 1200px) 40vw, 10vw"
                   className="absolute object-contain mr-auto inset-0"
