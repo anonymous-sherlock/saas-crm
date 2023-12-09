@@ -133,7 +133,7 @@ export const authOptions: NextAuthOptions = {
       return dashboardUrl;
     },
   },
-  debug: true,
+  debug: process.env.NODE_ENV === "development" ? true : false,
 };
 
 export const getAuthSession = () => getServerSession(authOptions);

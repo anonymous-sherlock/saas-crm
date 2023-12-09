@@ -11,7 +11,7 @@ import { cn } from "@/lib/utils";
 import {
   LeadStatus
 } from "@prisma/client";
-import moment from "moment";
+import { formatDistanceToNow } from "date-fns";
 import { DataTableColumnHeader } from "./data-table-column-header";
 import { DataTableRowActions } from "./data-table-row-actions";
 export type Lead = {
@@ -185,7 +185,7 @@ export const columns: ColumnDef<Lead>[] = [
       return (
         <div className="flex items-center max-w-[180px] ">
           <span className="truncate mr-1 ">
-            {moment(row.original.createdAt).startOf('minute').fromNow()}
+            {formatDistanceToNow(row.original.createdAt, { addSuffix: true })}
           </span>
         </div>
       );

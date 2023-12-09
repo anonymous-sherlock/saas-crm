@@ -4,13 +4,13 @@ import {
   HoverCardContent,
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
+import notFoundImage from "@/public/product-not-found.jpg";
 import { Product, ProductImage } from "@prisma/client";
+import { format } from "date-fns";
 import { CalendarIcon, HelpCircle } from "lucide-react";
 import Image from "next/image";
-import { FC } from "react";
-import moment from "moment";
 import Link from "next/link";
-import notFoundImage from "@/public/product-not-found.jpg"
+import { FC } from "react";
 
 type ProductInfoHoverProps = {
   product: Pick<
@@ -57,7 +57,7 @@ export const ProductInfoHover: FC<ProductInfoHoverProps> = ({ product }) => {
             <div className="flex items-center pt-2">
               <CalendarIcon className="mr-2 h-4 w-4 opacity-70" />{" "}
               <span className="text-xs text-muted-foreground">
-                Uploaded {moment(product.createdAt).format("LL").toString()}
+                Uploaded {format(product.createdAt, 'MMMM dd, yyyy')}
               </span>
             </div>
           </div>

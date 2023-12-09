@@ -1,16 +1,15 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
-
+import notFoundImage from "@/public/product-not-found.jpg";
 import { Checkbox } from "@/ui/checkbox";
 import { Product, ProductImage } from "@prisma/client";
+import { format } from "date-fns";
+import Image from "next/image";
+import Link from "next/link";
 import { DataTableColumnHeader } from "./data-table-column-header";
 import { DataTableRowActions } from "./data-table-row-actions";
 import { ProductInfoHover } from "./product-info-hover";
-import moment from "moment";
-import Image from "next/image";
-import Link from "next/link";
-import notFoundImage from "@/public/product-not-found.jpg"
 export type ProductList = Product & {
   images: ProductImage[];
 };
@@ -119,12 +118,10 @@ export const columns: ColumnDef<ProductList>[] = [
       <DataTableColumnHeader column={column} title="Uploaded On" />
     ),
     cell: ({ row }) => {
-      const cell = row.original;
-
       return (
         <div className="flex items-center max-w-[180px] ">
           <span className="line-clamp-1 leading-7 whitespace-pre-line mr-1 ">
-            {moment(cell.createdAt).format("DD, MMM [-] hh:mm A")}
+            {format(row.original.createdAt, 'dd, MMM - hh:mm a')}
           </span>
         </div>
       );

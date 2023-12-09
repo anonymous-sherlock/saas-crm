@@ -7,7 +7,6 @@ import MaxWidthWrapper from './MaxWidthWrapper'
 import UserAccountNav from './UserAccountNav'
 import { buttonVariants } from './ui/button'
 import MobileNav from "./MobileNav"
-
 const Navbar = async () => {
   const session = await getAuthSession();
 

@@ -118,3 +118,8 @@ export function constructMetadata({
     }),
   };
 }
+
+
+export function calculatePercentage(previousValue: number, currentValue: number): number {
+  return ((currentValue - previousValue) / previousValue) * 100;
+}

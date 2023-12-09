@@ -6,6 +6,8 @@ import Image from "next/image";
 import dashboardImage from "@/public/dashboard-preview.jpg";
 import fileUploadPreview from "@/public/file-upload-preview.jpg";
 
+export const dynamic = 'force-static'
+
 export default function Home() {
   return (
     <>
