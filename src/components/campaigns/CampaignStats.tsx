@@ -94,7 +94,15 @@ export const CampaignStats = ({ campaign: InitialCampaignData, user }: CampaignS
               </p>
               <CustomBadge badgeValue={campaign.status} status={CAMPAIGN_STATUS} />
             </div>
-            <Skeleton height={50} className="my-4" count={1} />
+            <div className='text-sm my-2'>
+              Product - <span className='font-medium truncate'>{campaign.product?.name}</span>
+            </div>
+            <div className='text-sm my-2'>
+              Product Price - <span className='font-medium truncate'>{campaign.product?.price}</span>
+            </div>
+            <div className='text-sm my-2'>
+              Product Category - <span className='font-medium truncate'>{campaign.product?.category}</span>
+            </div>
           </CardContent>
         </Card>
 

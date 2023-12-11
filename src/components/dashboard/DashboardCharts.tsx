@@ -9,6 +9,9 @@ import {
   XAxis,
   YAxis
 } from "recharts";
+import ChartCampaignSelect from './ChartCampaignSelect';
+import { trpc } from '@/app/_trpc/client';
+import Skeleton from 'react-loading-skeleton';
 interface DashboardChartsProps {
 
 }
@@ -27,10 +30,20 @@ const data = [
 
 export const DashboardCharts: FC<DashboardChartsProps> = ({ }) => {
 
+  const { data, isLoading } = trpc.analytics.get2CampaignAnalytics.useQuery({ campaignId1: "", })
+
+  if (isLoading || !data) {
+    return <Skeleton height={400} className="my-4" count={1} />
+  }
+
+  const c1name = data[0].c1.name ?? "Campaign 1" as string
+  const c2name = data[0].c2.name ?? "Campaign 2" as string
+
   return (
     <>
       <div className='flex flex-col md:flex-row gap-2 items-start justify-between md:items-center mb-2'>
         <p className="font-medium">Compare Campaign Performance</p>
+        <ChartCampaignSelect />
       </div>
 
       {/* charts start here */}
@@ -54,8 +67,8 @@ export const DashboardCharts: FC<DashboardChartsProps> = ({ }) => {
               <YAxis fontSize={12} />
               <CartesianGrid strokeDasharray="3 3" />
               <Tooltip formatter={(value, name, props) => [value, name]} />
-              <Area type="monotone" name="Campaign 1" dataKey="c1.total" stroke="#8884d8" fillOpacity={1} fill="url(#c1.total)" />
-              <Area type="monotone" name="Campaign 2" dataKey="c2.total" stroke="#82ca9d" fillOpacity={1} fill="url(#c2.total)" />
+              <Area type="monotone" name={c1name} dataKey="c1.total" stroke="#8884d8" fillOpacity={1} fill="url(#c1.total)" />
+              <Area type="monotone" name={c2name} dataKey="c2.total" stroke="#82ca9d" fillOpacity={1} fill="url(#c2.total)" />
             </AreaChart>
           </ResponsiveContainer>
         </div>

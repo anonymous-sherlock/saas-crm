@@ -44,8 +44,6 @@ export function isMacOs() {
 
 export function getProductCategories() {}
 
-
-
 export function absoluteUrl(path: string) {
   if (typeof window !== "undefined") return path;
   if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}${path}`;
@@ -119,7 +117,10 @@ export function constructMetadata({
   };
 }
 
-
 export function calculatePercentage(previousValue: number, currentValue: number): number {
+  if (previousValue === 0) {
+    // Handle division by zero or initial value being zero
+    return currentValue === 0 ? 0 : 100;
+  }
   return ((currentValue - previousValue) / previousValue) * 100;
 }

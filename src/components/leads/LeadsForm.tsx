@@ -33,7 +33,7 @@ const LeadsForm: FC<LeadsFormProps> = ({ campaignCode}) => {
     onSuccess: (data) => {
       setLeadModelOpen(false)
       utils.lead.getCampaignLeads.invalidate()
-      utils.analytics.getCampaignAnalytics.invalidate({ campaignId: data.lead.campaingId})
+      utils.analytics.getCampaignAnalytics.invalidate({ campaignId: data.lead.campaignId})
     }
   })
   async function onSubmit(values: z.infer<typeof LeadsFormSchema>) {

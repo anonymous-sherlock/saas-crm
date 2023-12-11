@@ -45,7 +45,7 @@ export const leadRouter = router({
         },
         where: {
           userId,
-          campaingId: campaignId,
+          campaignId: campaignId,
         },
       });
       return leads;
@@ -163,7 +163,7 @@ export const leadRouter = router({
         region: ipInfo.region || "",
         state: ipInfo.region || "",
         userId,
-        campaingId: campaign.id,
+        campaignId: campaign.id,
         status: existingLead ? "Trashed" : determineLeadStatus({ name, phone })
       },
     });

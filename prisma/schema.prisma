@@ -197,12 +197,12 @@ model Lead {
   status     LeadStatus @default(OnHold)
   createdAt  DateTime   @default(now())
   updatedAt  DateTime   @updatedAt
-  campaingId String
+  campaignId String
   userId     String?
-  campaign   Campaign   @relation(fields: [campaingId], references: [id], onDelete: Cascade)
+  campaign   Campaign   @relation(fields: [campaignId], references: [id], onDelete: Cascade)
   user       User?      @relation(fields: [userId], references: [id])
 
-  @@index([campaingId], map: "Lead_leadCampaingId_fkey")
+  @@index([campaignId], map: "Lead_leadCampaingId_fkey")
   @@index([userId], map: "Lead_userId_fkey")
 }
 

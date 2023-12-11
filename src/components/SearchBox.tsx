@@ -1,14 +1,12 @@
 "use client";
 
-import * as React from "react";
 import {
-  CalendarIcon,
   EnvelopeClosedIcon,
-  FaceIcon,
   GearIcon,
   PersonIcon,
-  RocketIcon,
+  RocketIcon
 } from "@radix-ui/react-icons";
+import * as React from "react";
 
 import {
   CommandDialog,
@@ -21,8 +19,14 @@ import {
   CommandShortcut,
 } from "@/components/ui/command";
 
+import { subMenusList } from "@/constants/MenuItems";
+import { CircleIcon } from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+
 export function SearchBox() {
   const [open, setOpen] = React.useState(false);
+  const router = useRouter()
 
   React.useEffect(() => {
     const down = (e: KeyboardEvent) => {
@@ -36,6 +40,11 @@ export function SearchBox() {
     return () => document.removeEventListener("keydown", down);
   }, []);
 
+  const runCommand = React.useCallback((command: () => unknown) => {
+    setOpen(false)
+    command()
+  }, [])
+
   return (
     <>
       <CommandDialog open={open} onOpenChange={setOpen}>
@@ -43,14 +52,20 @@ export function SearchBox() {
         <CommandList>
           <CommandEmpty>No results found.</CommandEmpty>
           <CommandGroup heading="Suggestions">
-            <CommandItem>
-              <CalendarIcon className="mr-2 h-4 w-4" />
-              <span>Calendar</span>
-            </CommandItem>
-            <CommandItem>
-              <FaceIcon className="mr-2 h-4 w-4" />
-              <span>Search Emoji</span>
-            </CommandItem>
+            {subMenusList.map((group) => (
+              group.menus.map((menu) => {
+                return (
+                  <CommandItem key={menu.id}
+                    onSelect={() => {
+                      runCommand(() => router.push(menu.url))
+                    }}
+                  >
+                    <CircleIcon className="w-[12px] h-[12px] mr-2" />
+                    <Link href={menu.url}>{menu.label}</Link>
+                  </CommandItem>
+                )
+              })
+            ))}
             <CommandItem>
               <RocketIcon className="mr-2 h-4 w-4" />
               <span>Launch</span>
@@ -62,11 +77,6 @@ export function SearchBox() {
               <PersonIcon className="mr-2 h-4 w-4" />
               <span>Profile</span>
               <CommandShortcut>⌘P</CommandShortcut>
-            </CommandItem>
-            <CommandItem>
-              <EnvelopeClosedIcon className="mr-2 h-4 w-4" />
-              <span>Mail</span>
-              <CommandShortcut>⌘B</CommandShortcut>
             </CommandItem>
             <CommandItem>
               <GearIcon className="mr-2 h-4 w-4" />

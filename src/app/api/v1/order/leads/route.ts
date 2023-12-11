@@ -36,7 +36,7 @@ export async function POST(req: NextRequest, res: NextResponse) {
 
     const newLead = await db.lead.create({
       data: {
-        campaingId: campaign.id,
+        campaignId: campaign.id,
         ip: ipInfo.ip,
         country: ipInfo.country_name || "",
         name: name,
