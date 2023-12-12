@@ -17,19 +17,20 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 import { cn } from "@/lib/utils"
-import { RouterInputs, RouterOutputs } from "@/server"
+import { RouterOutputs } from "@/server"
+import { useDashboardChartStore } from "@/store/dashboard"
 import { MoveRight } from "lucide-react"
+import Skeleton from "react-loading-skeleton"
 
 type ChartCampaignSelectProps = {
-  compareCampaign?: ({ }: RouterInputs["analytics"]["get2CampaignAnalytics"]) => void
 }
 
-export function ChartCampaignSelect({ compareCampaign }: ChartCampaignSelectProps) {
+export function ChartCampaignSelect({ }: ChartCampaignSelectProps) {
   const [open, setOpen] = React.useState(false)
   const [secondOpen, setSecondOpen] = React.useState(false)
-  const [firstCampaign, setFirstCampaign] = React.useState<string>("")
-  const [secondCampaign, setSecondCampaign] = React.useState<string>("")
   const [campaigns, setCampaigns] = React.useState<RouterOutputs["analytics"]["getCampaignName"]>()
+
+  const { firstCampaignId, secondCampaignId, setFirstCampaignId, setSecondCampaignId } = useDashboardChartStore()
 
 
   const { data, isLoading, isFetched } = trpc.analytics.getCampaignName.useQuery(undefined, {
@@ -39,12 +40,18 @@ export function ChartCampaignSelect({ compareCampaign }: ChartCampaignSelectProp
   })
 
 
+
+
+
   React.useEffect(() => {
     if (data) {
       setCampaigns(data)
     }
   }, [data])
 
+  if(isLoading || !data){
+    return <Skeleton height={40} className="m-0" width={425} count={1} />
+  }
 
   return (
     <>
@@ -59,8 +66,8 @@ export function ChartCampaignSelect({ compareCampaign }: ChartCampaignSelectProp
               className="w-[200px] justify-between"
             >
               <span className="truncate">
-                {firstCampaign
-                  ? campaigns && campaigns.find((campaign) => campaign.id === firstCampaign)?.name
+                {firstCampaignId
+                  ? campaigns && campaigns.find((campaign) => campaign.id === firstCampaignId)?.name
                   : "Select Campaign..."}
               </span>
 
@@ -73,15 +80,15 @@ export function ChartCampaignSelect({ compareCampaign }: ChartCampaignSelectProp
               <CommandEmpty>No framework found.</CommandEmpty>
               <CommandGroup>
                 {
-                  campaigns && campaigns.filter(campaign => campaign.id !== secondCampaign).map((campaign) => (
+                  campaigns && campaigns.filter(campaign => campaign.id !== secondCampaignId).map((campaign) => (
                     <CommandItem
                       key={campaign.id}
                       value={campaign.id}
                       onSelect={(currentValue) => {
-                        if (currentValue === firstCampaign) {
-                          setFirstCampaign("");
+                        if (currentValue === firstCampaignId) {
+                          setFirstCampaignId("");
                         } else {
-                          setFirstCampaign(currentValue);
+                          setFirstCampaignId(currentValue);
                         }
                         setOpen(false)
                       }}
@@ -90,7 +97,7 @@ export function ChartCampaignSelect({ compareCampaign }: ChartCampaignSelectProp
                       <CheckIcon
                         className={cn(
                           "ml-auto h-4 w-4",
-                          firstCampaign === campaign.id ? "opacity-100" : "opacity-0"
+                          firstCampaignId === campaign.id ? "opacity-100" : "opacity-0"
                         )}
                       />
                     </CommandItem>
@@ -112,8 +119,8 @@ export function ChartCampaignSelect({ compareCampaign }: ChartCampaignSelectProp
               className="w-[200px] justify-between"
             >
               <span className="truncate">
-                {secondCampaign
-                  ? campaigns && campaigns.find((campaign) => campaign.id === secondCampaign)?.name
+                {secondCampaignId
+                  ? campaigns && campaigns.find((campaign) => campaign.id === secondCampaignId)?.name
                   : "Select Campaign..."}
               </span>
               <CaretSortIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
@@ -125,15 +132,15 @@ export function ChartCampaignSelect({ compareCampaign }: ChartCampaignSelectProp
               <CommandEmpty>No framework found.</CommandEmpty>
               <CommandGroup>
                 {
-                  campaigns && campaigns.filter(campaign => campaign.id !== firstCampaign).map((campaign) => (
+                  campaigns && campaigns.filter(campaign => campaign.id !== firstCampaignId).map((campaign) => (
                     <CommandItem
                       key={campaign.id}
                       value={campaign.id}
                       onSelect={(currentValue) => {
-                        if (currentValue === secondCampaign) {
-                          setSecondCampaign("");
+                        if (currentValue === secondCampaignId) {
+                          setSecondCampaignId("");
                         } else {
-                          setSecondCampaign(currentValue);
+                          setSecondCampaignId(currentValue);
                         }
                         setSecondOpen(false)
                       }}
@@ -142,7 +149,7 @@ export function ChartCampaignSelect({ compareCampaign }: ChartCampaignSelectProp
                       <CheckIcon
                         className={cn(
                           "ml-auto h-4 w-4",
-                          secondCampaign === campaign.id ? "opacity-100" : "opacity-0"
+                          secondCampaignId === campaign.id ? "opacity-100" : "opacity-0"
                         )}
                       />
                     </CommandItem>

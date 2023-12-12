@@ -1,9 +1,9 @@
-import {DashboardCharts} from '@/components/dashboard/DashboardCharts';
+import { DashboardCharts } from '@/components/dashboard/DashboardCharts';
 import OverviewCard from '@/components/dashboard/OverviewCard';
 import { Card, CardContent } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import { type Metadata } from 'next';
-import React, { Suspense } from 'react'
+import { Suspense } from 'react';
 
 export const metadata: Metadata = {
     title: "Adscrush | Dashboard",

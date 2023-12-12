@@ -144,7 +144,7 @@ export const analyticsRouter = router({
         campaignId2: z.string().optional(),
       }),
     )
-    .query(async ({ ctx, input }) => {
+    .mutation(async ({ ctx, input }) => {
       let { campaignId1, campaignId2 } = input;
       let campaignName1: string | undefined, campaignName2: string | undefined;
 

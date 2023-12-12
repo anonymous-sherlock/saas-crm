@@ -25,8 +25,10 @@ const Providers: FC<LayoutProps> = ({ children }) => {
         }),
         httpBatchLink({
           url: absoluteUrl("/api/trpc"),
+          AbortController: typeof window !== 'undefined' ? window.AbortController : undefined,
         }),
       ],
+
     })
   )
 
