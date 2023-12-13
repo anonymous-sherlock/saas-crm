@@ -1,4 +1,5 @@
 import { SubMenuTypes } from "@/types";
+import { UserRoundCog } from "lucide-react";
 import { BsPerson } from "react-icons/bs";
 import { MdDashboard, MdLeaderboard } from "react-icons/md";
 import { RiBuilding3Line } from "react-icons/ri";
@@ -8,7 +9,6 @@ import { TbReportAnalytics } from "react-icons/tb";
 export const Menus = [
   { label: "Dashboard", icon: MdDashboard, url: "/dashboard" },
   { label: "Leads", icon: MdLeaderboard, url: "/leads", gap: true },
-
 ];
 export const singleMenu = [
   {
@@ -31,8 +31,21 @@ export const singleMenu = [
 
 export const subMenusList: SubMenuTypes[] = [
   {
+    name: "admin",
+    label: "Admin",
+    icon: UserRoundCog ,
+    menus: [
+      {
+        id: "1",
+        label: "All Users",
+        url: "/admin/userslist",
+      },
+    ],
+    isAdmin: true,
+  },
+  {
     name: "Products",
-    label:"product",
+    label: "product",
     icon: RiBuilding3Line,
     menus: [
       {
@@ -49,7 +62,7 @@ export const subMenusList: SubMenuTypes[] = [
   },
   {
     name: "analytics",
-    label:"campaign",
+    label: "campaign",
     icon: TbReportAnalytics,
     menus: [
       {

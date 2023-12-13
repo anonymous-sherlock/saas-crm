@@ -37,6 +37,8 @@ const isAuth = middleware(async (opts) => {
     ctx: {
       userId: user.id,
       user,
+      actor: user.actor,
+      isImpersonating: user.isImpersonating
     },
   });
 });

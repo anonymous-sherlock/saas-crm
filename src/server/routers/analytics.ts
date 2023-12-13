@@ -13,6 +13,7 @@ export const analyticsRouter = router({
       }),
     )
     .query(async ({ input, ctx }) => {
+      const { actor, isImpersonating, userId } = ctx
       const now = new Date();
       const oneDayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
 
@@ -22,8 +23,8 @@ export const analyticsRouter = router({
             gte: new Date(oneDayAgo.getTime()),
             lt: new Date(now.getTime()),
           },
-          userId: ctx.userId,
-          campaignId:input.campaignId
+          userId: isImpersonating ? actor.userId : userId,
+          campaignId: input.campaignId
         },
         orderBy: {
           createdAt: "desc",
@@ -60,7 +61,7 @@ export const analyticsRouter = router({
     }),
 
   getDashboardAnalytics: privateProcedure.query(async ({ ctx }) => {
-    const userId = ctx.userId;
+    const { actor, isImpersonating, userId } = ctx
     const now = new Date();
 
     // Calculate start and end of the current day
@@ -75,18 +76,18 @@ export const analyticsRouter = router({
     const weekEnd = endOfWeek(now);
 
     const [leadsCount, todaysLeads, newCustomersCount, weeklyLeads, monthlyLeads] = await db.$transaction([
-      db.lead.count({ where: { userId } }),
-      db.lead.count({ where: { userId, createdAt: { gte: dayStart, lt: dayEnd } } }),
+      db.lead.count({ where: { userId: isImpersonating ? actor.userId : userId } }),
+      db.lead.count({ where: { userId: isImpersonating ? actor.userId : userId, createdAt: { gte: dayStart, lt: dayEnd } } }),
       db.lead.findMany({
-        where: { userId, createdAt: { gte: monthStart } },
+        where: { userId: isImpersonating ? actor.userId : userId, createdAt: { gte: monthStart } },
         distinct: ["phone"],
         select: {
           id: true,
         },
       }),
-      db.lead.count({ where: { userId, createdAt: { gte: weekStart, lt: weekEnd } } }),
+      db.lead.count({ where: { userId: isImpersonating ? actor.userId : userId, createdAt: { gte: weekStart, lt: weekEnd } } }),
 
-      db.lead.count({ where: { userId: userId, createdAt: { gte: monthStart } } }),
+      db.lead.count({ where: { userId: isImpersonating ? actor.userId : userId, createdAt: { gte: monthStart } } }),
     ]);
 
     // prev month
@@ -95,7 +96,7 @@ export const analyticsRouter = router({
 
     const newCustomersCountPreviousMonth = await db.lead.findMany({
       where: {
-        userId,
+        userId: isImpersonating ? actor.userId : userId,
         createdAt: {
           gte: prevMonthStart,
           lt: prevMonthEnd,
@@ -124,9 +125,10 @@ export const analyticsRouter = router({
   }),
 
   getCampaignName: privateProcedure.query(async ({ ctx }) => {
+    const { userId, actor, isImpersonating } = ctx
     const campaign = await db.campaign.findMany({
       where: {
-        userId: ctx.userId,
+        userId: isImpersonating ? actor.userId : userId,
       },
       select: {
         name: true,
@@ -146,6 +148,7 @@ export const analyticsRouter = router({
     )
     .mutation(async ({ ctx, input }) => {
       let { campaignId1, campaignId2 } = input;
+      const { actor, isImpersonating, userId } = ctx
       let campaignName1: string | undefined, campaignName2: string | undefined;
 
       const now = new Date();
@@ -155,7 +158,7 @@ export const analyticsRouter = router({
       if (!campaignId1 && !campaignId2) {
         const campaigns = await db.campaign.findMany({
           where: {
-            userId: ctx.userId,
+            userId: isImpersonating ? actor.userId : userId,
           },
           orderBy: {
             createdAt: "desc",
@@ -179,7 +182,7 @@ export const analyticsRouter = router({
             lt: new Date(now.getTime()),
           },
           campaignId: campaignId1,
-          userId: ctx.userId,
+          userId: isImpersonating ? actor.userId : userId,
         },
         orderBy: {
           createdAt: "desc",
@@ -203,7 +206,7 @@ export const analyticsRouter = router({
             lt: new Date(now.getTime()),
           },
           campaignId: campaignId2,
-          userId: ctx.userId,
+          userId: isImpersonating ? actor.userId : userId,
         },
         orderBy: {
           createdAt: "desc",

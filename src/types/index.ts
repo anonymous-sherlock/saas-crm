@@ -1,3 +1,4 @@
+import { LucideIcon } from "lucide-react";
 import { IconType } from "react-icons";
 
 export interface newUserResponse extends Response {
@@ -25,6 +26,7 @@ interface MenuItem {
 export interface SubMenuTypes {
   name: string;
   label: string;
-  icon: IconType;
+  icon: IconType | LucideIcon;
   menus: MenuItem[];
+  isAdmin?: boolean
 }

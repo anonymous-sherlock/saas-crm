@@ -12,14 +12,14 @@ export const searchRouter = router({
       })
     )
     .query(async ({ ctx, input }) => {
-      const { userId } = ctx;
+      const { userId, actor, isImpersonating } = ctx;
       const { cursor } = input;
       const limit = input.limit ?? INFINITE_QUERY_LIMIT;
 
       const products = await db.product.findMany({
         take: limit + 1,
         where: {
-          ownerId: userId,
+          ownerId: isImpersonating ? actor.userId : userId,
         },
         orderBy: {
           createdAt: "desc",

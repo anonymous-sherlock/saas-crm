@@ -13,17 +13,20 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from './ui/dropdown-menu'
+import { Session } from 'next-auth'
 
 interface UserAccountNavProps {
   email: string | undefined
   name: string
   imageUrl: string
+  user: Session["user"]
 }
 
 const UserAccountNav = ({
   email,
   imageUrl,
   name,
+  user
 }: UserAccountNavProps) => {
 
   return (

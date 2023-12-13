@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation'
 import Link from "next/link";
 import { SubMenuTypes } from "@/types";
 import { cn } from "@/lib/utils";
+import { useSession } from "next-auth/react";
 
 interface SubMenuProps {
   data: SubMenuTypes;
@@ -14,6 +15,7 @@ interface SubMenuProps {
 const SubMenu: React.FC<SubMenuProps> = ({ data }) => {
   const pathname = usePathname();
   const [subMenuOpen, setSubMenuOpen] = useState<Boolean>(false);
+
   useEffect(() => {
     const matchLabel = pathname.match(data.label.toLowerCase());
     setSubMenuOpen(!!matchLabel);
@@ -42,17 +44,23 @@ const SubMenu: React.FC<SubMenuProps> = ({ data }) => {
         }
         className="flex h-0 flex-col pl-14 text-[0.8rem] font-normal overflow-hidden"
       >
-        {data.menus?.map((menu) => (
-          <li key={menu.id} className={cn("hover:text-blue-600 hover:font-medium", pathname.endsWith(menu.url) && "text-blue-600 bg-slate-100 rounded-md")}>
+        {
+          data.isAdmin
+        }
+        {data.menus?.map((menu) => {
+          return (
 
-            <Link
-              href={menu.url}
-              className="link !bg-transparent capitalize"
-            >
-              {menu.label}
-            </Link>
-          </li>
-        ))}
+            <li key={menu.id} className={cn("hover:text-blue-600 hover:font-medium", pathname.endsWith(menu.url) && "text-blue-600 bg-slate-100 rounded-md")}>
+
+              <Link
+                href={menu.url}
+                className="link !bg-transparent capitalize"
+              >
+                {menu.label}
+              </Link>
+            </li>
+          )
+        })}
       </motion.ul>
     </>
   );

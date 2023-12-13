@@ -74,6 +74,7 @@ const Navbar = async () => {
                   }
                   email={session?.user.email ?? ''}
                   imageUrl={session?.user.image ?? ''}
+                  user={session.user}
                 />
               </>
             )}

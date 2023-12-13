@@ -9,13 +9,13 @@ import { z } from "zod";
 
 export const leadRouter = router({
   getAll: privateProcedure.query(async ({ ctx }) => {
-    const { userId } = ctx;
+    const { userId, isImpersonating, actor } = ctx;
     const leads = await db.lead.findMany({
       orderBy: {
         createdAt: "desc",
       },
       where: {
-        userId: userId,
+        userId: isImpersonating ? actor.userId : userId,
       },
       include: {
         campaign: {
@@ -36,7 +36,7 @@ export const leadRouter = router({
       }),
     )
     .query(async ({ ctx, input }) => {
-      const { userId } = ctx;
+      const { userId, isImpersonating, actor } = ctx;
       const { campaignId } = input;
 
       const leads = await db.lead.findMany({
@@ -44,7 +44,7 @@ export const leadRouter = router({
           createdAt: "desc",
         },
         where: {
-          userId,
+          userId: isImpersonating ? actor.userId : userId,
           campaignId: campaignId,
         },
       });
@@ -60,11 +60,11 @@ export const leadRouter = router({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const { userId } = ctx;
+      const { userId, isImpersonating, actor } = ctx;
       const { leadId, leadStatus } = input;
       const lead = await db.lead.findFirst({
         where: {
-          userId: userId,
+          userId: isImpersonating ? actor.userId : userId,
           id: leadId,
         },
       });
@@ -76,7 +76,7 @@ export const leadRouter = router({
       }
       const updatedLead = await db.lead.update({
         where: {
-          userId: userId,
+          userId: isImpersonating ? actor.userId : userId,
           id: leadId,
         },
         data: {
@@ -99,11 +99,11 @@ export const leadRouter = router({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const { userId } = ctx;
+      const { userId, isImpersonating, actor } = ctx;
       const { leadIds } = input;
       const leads = await db.lead.findMany({
         where: {
-          userId: userId,
+          userId: isImpersonating ? actor.userId : userId,
           id: {
             in: leadIds,
           },
@@ -117,7 +117,7 @@ export const leadRouter = router({
 
       const deletedLead = await db.lead.deleteMany({
         where: {
-          userId: userId,
+          userId: isImpersonating ? actor.userId : userId,
           id: {
             in: leadIds,
           },
@@ -132,12 +132,12 @@ export const leadRouter = router({
     }),
 
   add: privateProcedure.input(LeadsFormSchema).mutation(async ({ ctx, input }) => {
-    const { userId, req } = ctx;
+    const { userId, req, actor, isImpersonating } = ctx;
     const { name, phone, address, campaignCode } = input;
 
     const campaign = await db.campaign.findUnique({
       where: {
-        userId,
+        userId: isImpersonating ? actor.userId : userId,
         code: campaignCode,
       },
     });
@@ -162,7 +162,7 @@ export const leadRouter = router({
         ip: ipInfo.ip,
         region: ipInfo.region || "",
         state: ipInfo.region || "",
-        userId,
+        userId: isImpersonating ? actor.userId : userId,
         campaignId: campaign.id,
         status: existingLead ? "Trashed" : determineLeadStatus({ name, phone })
       },

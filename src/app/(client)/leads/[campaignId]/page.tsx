@@ -15,10 +15,12 @@ export default async function LeadsPage({
 
   const session = await getAuthSession()
   if (!session) redirect("/login")
+
+  const { user: { actor, isImpersonating, } } = session
   const campaign = await db.campaign.findFirst({
     where: {
       code: params.codeID,
-      userId: session.user.id
+      userId: isImpersonating ? actor.userId : session.user.id
     },
     select: {
       name: true,

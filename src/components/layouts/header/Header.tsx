@@ -11,7 +11,6 @@ import { ArrowRight } from "lucide-react";
 
 export async function Header() {
   const session = await getAuthSession();
-
   return (
     <React.Fragment>
       <nav className="sticky z-99 lg:z-50 left-0 top-0  w-full justify-between border-gray-200 bg-white/95 backdrop-blur-sm before:shadow-[-2px_3px_90px_-20px_rgb(0_0_0_/_25%)] dark:bg-gray-900">
@@ -72,6 +71,7 @@ export async function Header() {
                     }
                     email={session?.user.email ?? ''}
                     imageUrl={session?.user.image ?? ''}
+                    user={session.user}
                   />
                 </>
               )}

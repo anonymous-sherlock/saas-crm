@@ -86,13 +86,16 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
   callbacks: {
-    async session({ token, session }) {
+    async session({ token, session, }) {
       if (token) {
         session.user.id = token.id;
         session.user.name = token.name;
         session.user.email = token.email;
         session.user.image = token.picture;
         session.user.role = token.role;
+        session.user.actor = token.actor;
+        session.user.isImpersonating = token.isImpersonating
+
       }
       return session;
     },
@@ -103,6 +106,7 @@ export const authOptions: NextAuthOptions = {
         },
       });
       if (trigger === "update") {
+        // console.log("updated", session)
         return { ...token, ...session.user };
       }
 
@@ -117,7 +121,10 @@ export const authOptions: NextAuthOptions = {
         email: dbUser.email,
         picture: dbUser.image,
         role: dbUser.role,
+        isImpersonating: token.isImpersonating,
+        actor: token.actor
       };
+
     },
     async redirect({ url, baseUrl }) {
       try {

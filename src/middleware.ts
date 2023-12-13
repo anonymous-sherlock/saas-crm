@@ -19,6 +19,14 @@ export default withAuth(
         return NextResponse.redirect(new URL("/dashboard", req.url));
       }
     }
+
+    if (pathname.startsWith("/admin")) {
+      if (isAuth) {
+        if (token.role !== "ADMIN")
+          return NextResponse.redirect(new URL("/dashboard", req.url));
+      }
+    }
+
   },
   {
     callbacks: {

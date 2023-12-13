@@ -20,11 +20,16 @@ export default function RootLayout({
   const CrispWithNoSSR = dynamic(
     () => import('@/lib/crisp')
   )
+  const ImpersonatingUser = dynamic(
+    () => import('@/components/ImpersonatingUser')
+  )
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={cn('h-full font-sans antialiased', inter.className)} >
+      <body className={cn('h-full font-sans antialiased relative', inter.className)} >
         <div><HotToast position="top-center" reverseOrder={false} /></div>
-        <Providers>{children}</Providers>
+        <Providers>{children}
+          <ImpersonatingUser />
+        </Providers>
         <Toaster />
         <SearchBox />
         <CrispWithNoSSR />

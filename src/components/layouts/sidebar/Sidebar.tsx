@@ -13,8 +13,11 @@ import Image from "next/image";
 import Link from "next/link";
 import { useMediaQuery } from "react-responsive";
 import { usePathname } from "next/navigation";
+import { useSession } from "next-auth/react";
 
 const Sidebar = ({ children }: PropsWithChildren) => {
+  const { data: session, status, } = useSession()
+
   const isTabletMid = useMediaQuery({ query: "(max-width: 768px)" });
   const { open, setOpen, setIsTabletMid } = useNavbarStore();
   const pathname = usePathname();
@@ -109,11 +112,17 @@ const Sidebar = ({ children }: PropsWithChildren) => {
                   <small className="mb-2 inline-block pl-3 text-slate-500">
                     Products
                   </small>
-                  {subMenusList?.map((menu, index) => (
-                    <div key={index} className="flex flex-col gap-1">
-                      <SubMenu data={menu} />
-                    </div>
-                  ))}
+                  {subMenusList?.map((menu, index,) => {
+                    if (menu.isAdmin && status !== "unauthenticated" && session?.user.role !== "ADMIN") {
+                      return null
+                    }
+                    return (
+                      <div key={index} className="flex flex-col gap-1">
+                        <SubMenu data={menu} />
+                      </div>
+                    )
+                  }
+                  )}
                 </div>
               )}
               {singleMenu.map((menu, index) => (

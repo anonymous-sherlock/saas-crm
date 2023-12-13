@@ -8,13 +8,13 @@ import { z } from "zod";
 
 export const campaignRouter = router({
   get: privateProcedure.input(z.object({ camapaingId: z.string() })).query(async ({ ctx, input }) => {
-    const { userId } = ctx;
+    const { userId, isImpersonating, actor } = ctx;
     const { camapaingId } = input;
 
     const campaign = await db.campaign.findFirst({
       where: {
         id: camapaingId,
-        userId: userId,
+        userId: isImpersonating ? actor.userId : userId,
       },
       include: {
         targetRegion: true,
@@ -42,7 +42,7 @@ export const campaignRouter = router({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const { userId } = ctx;
+      const { userId, isImpersonating, actor } = ctx;
       const {
         campaignName,
         campaignDescription,
@@ -81,7 +81,7 @@ export const campaignRouter = router({
           code: campaignCode,
           user: {
             connect: {
-              id: userId,
+              id: isImpersonating ? actor.userId : userId,
             },
           },
           product: {
@@ -106,11 +106,11 @@ export const campaignRouter = router({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const { userId } = ctx;
+      const { userId, isImpersonating, actor } = ctx;
       const { campaignId, campaignStatus } = input;
       const campaign = await db.campaign.findFirst({
         where: {
-          userId: userId,
+          userId: isImpersonating ? actor.userId : userId,
           id: campaignId,
         },
       });
@@ -122,7 +122,7 @@ export const campaignRouter = router({
       }
       const updatedCampaign = await db.campaign.update({
         where: {
-          userId: userId,
+          userId: isImpersonating ? actor.userId : userId,
           id: campaignId,
         },
         data: {
@@ -135,10 +135,10 @@ export const campaignRouter = router({
       };
     }),
   getAll: privateProcedure.query(async ({ ctx }) => {
-    const { userId } = ctx;
+    const { userId, actor, isImpersonating } = ctx;
     const campaignsData = await db.campaign.findMany({
       where: {
-        userId: userId,
+        userId: isImpersonating ? actor.userId : userId,
       },
       orderBy: {
         createdAt: "desc",
@@ -180,11 +180,11 @@ export const campaignRouter = router({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const { userId } = ctx;
+      const { userId, actor, isImpersonating } = ctx;
       const { campaignId } = input;
       const campaign = await db.campaign.findFirst({
         where: {
-          userId: userId,
+          userId: isImpersonating ? actor.userId : userId,
           id: campaignId,
         },
       });
@@ -229,11 +229,11 @@ export const campaignRouter = router({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const { userId } = ctx;
+      const { userId, actor, isImpersonating } = ctx;
       const { campaignIds } = input;
       const campaigns = await db.campaign.findMany({
         where: {
-          userId: userId,
+          userId: isImpersonating ? actor.userId : userId,
           id: {
             in: campaignIds,
           },

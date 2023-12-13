@@ -52,10 +52,10 @@ export const userRouter = router({
   }),
 
   get: privateProcedure.query(async ({ ctx }) => {
-    const { userId } = ctx;
+    const { userId, isImpersonating, actor } = ctx;
     const user = db.user.findFirst({
       where: {
-        id: userId,
+        id: isImpersonating ? actor.userId : userId,
       },
 
       select: {
@@ -76,10 +76,10 @@ export const userRouter = router({
     return user;
   }),
   generateApi: privateProcedure.mutation(async ({ ctx }) => {
-    const { userId } = ctx;
+    const { userId, isImpersonating, actor } = ctx;
     const user = db.user.findFirst({
       where: {
-        id: userId,
+        id: isImpersonating ? actor.userId : userId,
       },
     });
 
@@ -90,7 +90,7 @@ export const userRouter = router({
       });
     }
     const existingApiKey = await db.apiKey.findFirst({
-      where: { userId: userId, enabled: true },
+      where: { userId: isImpersonating ? actor.userId : userId, enabled: true },
     });
 
     if (existingApiKey) {
@@ -106,7 +106,7 @@ export const userRouter = router({
           data: {
             key: nanoid(32),
             enabled: true,
-            userId: userId,
+            userId: isImpersonating ? actor.userId : userId,
           },
         }),
       ]);
@@ -117,17 +117,17 @@ export const userRouter = router({
       data: {
         key: nanoid(32),
         enabled: true,
-        userId: userId,
+        userId: isImpersonating ? actor.userId : userId,
       },
     });
 
     return newApiKey;
   }),
   generateBearerToken: privateProcedure.mutation(async ({ ctx }) => {
-    const { userId } = ctx;
+    const { userId, isImpersonating, actor } = ctx;
     const user = db.user.findFirst({
       where: {
-        id: userId,
+        id: isImpersonating ? actor.userId : userId,
       },
     });
 
@@ -138,7 +138,7 @@ export const userRouter = router({
       });
     }
     const existingBearerToken = await db.bearerToken.findFirst({
-      where: { userId: userId, active: true },
+      where: { userId: isImpersonating ? actor.userId : userId, active: true },
     });
 
     if (existingBearerToken) {
@@ -165,40 +165,40 @@ export const userRouter = router({
       data: {
         key: `${nanoid(32)}${randomUUID()}${randomUUID()}`.replace(/-/g, ""),
         active: true,
-        userId: userId,
+        userId: isImpersonating ? actor.userId : userId,
       },
     });
 
     return newBearerKey;
   }),
   getProduct: privateProcedure
-  .input(
-    z.object({
-      productId: z.string({
-        required_error: "product Id is required to delete a product",
+    .input(
+      z.object({
+        productId: z.string({
+          required_error: "product Id is required to delete a product",
+        }),
       }),
-    }),
-  )
-  .query(async ({ ctx, input }) => {
-    const { userId } = ctx;
-    const { productId } = input;
-    const product = await db.product.findMany({
-      where: {
-        ownerId: userId,
-        productId: productId,
-      },
-    });
-    if (!product)
-      throw new TRPCError({
-        code: "NOT_FOUND",
-        message: "Product not found",
+    )
+    .query(async ({ ctx, input }) => {
+      const { userId, isImpersonating, actor } = ctx;
+      const { productId } = input;
+      const product = await db.product.findMany({
+        where: {
+          ownerId: isImpersonating ? actor.userId : userId,
+          productId: productId,
+        },
       });
+      if (!product)
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Product not found",
+        });
 
-    return {
-      success: "true",
-      product,
-    };
-  }),
+      return {
+        success: "true",
+        product,
+      };
+    }),
 });
 
 export type UserRouter = typeof userRouter;

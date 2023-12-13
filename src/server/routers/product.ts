@@ -8,10 +8,11 @@ import { z } from "zod";
 
 export const productRouter = router({
   get: privateProcedure.input(z.object({ productId: z.string() })).query(async ({ ctx, input }) => {
+    const { userId, isImpersonating, actor } = ctx
     const product = await db.product.findFirst({
       where: {
         productId: input.productId,
-        ownerId: ctx.userId,
+        ownerId: isImpersonating ? actor.userId : userId,
       },
       include: {
         images: true,
@@ -24,10 +25,10 @@ export const productRouter = router({
     return product;
   }),
   getAll: privateProcedure.query(async ({ ctx }) => {
-    const { userId } = ctx;
+    const { userId, isImpersonating, actor } = ctx;
     const products = await db.product.findMany({
       where: {
-        ownerId: userId,
+        ownerId: isImpersonating ? actor.userId : userId,
       },
       include: {
         images: true,
@@ -58,11 +59,11 @@ export const productRouter = router({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const { userId } = ctx;
+      const { userId, isImpersonating, actor } = ctx;
       const { productIds } = input;
       const products = await db.product.findMany({
         where: {
-          ownerId: userId,
+          ownerId: isImpersonating ? actor.userId : userId,
           productId: {
             in: productIds,
           },
@@ -76,7 +77,7 @@ export const productRouter = router({
 
       const deletedProduct = await db.product.deleteMany({
         where: {
-          ownerId: userId,
+          ownerId: isImpersonating ? actor.userId : userId,
           productId: {
             in: productIds,
           },
@@ -99,7 +100,7 @@ export const productRouter = router({
     .mutation(async ({ input, ctx }) => {
       const { productName, productCategory, productPrice, productQuantity, productDescription, productImages, mediaUrls } = input.product;
       const { files } = input;
-      const { userId } = ctx;
+      const { userId, isImpersonating, actor } = ctx;
       const price = parsePrice(productPrice);
 
       const newProduct = await db.product.create({
@@ -108,7 +109,7 @@ export const productRouter = router({
           price: price,
           quantity: Number(productQuantity),
           description: productDescription,
-          ownerId: userId,
+          ownerId: isImpersonating ? actor.userId : userId,
           category: productCategory,
           images: {
             createMany: {
@@ -155,19 +156,19 @@ export const productRouter = router({
     .mutation(async ({ ctx, input }) => {
       const { productName, productCategory, productPrice, productQuantity, productDescription, productImages, mediaUrls } = input.product;
       const { files, productId } = input;
-      const { userId } = ctx;
+      const { userId, isImpersonating, actor } = ctx;
       const price = parsePrice(productPrice);
       const updatedProduct = await db.product.update({
         where: {
           productId: productId,
-          ownerId: userId,
+          ownerId: isImpersonating ? actor.userId : userId,
         },
         data: {
           name: productName,
           price: price,
           quantity: Number(productQuantity),
           description: productDescription,
-          ownerId: userId,
+          ownerId: isImpersonating? actor.userId : userId,
           category: productCategory,
           media: {
             deleteMany: {

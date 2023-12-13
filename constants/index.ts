@@ -1,4 +1,4 @@
-import { CampaignStatus, LeadStatus } from "@prisma/client";
+import { CampaignStatus, LeadStatus, UserRole } from "@prisma/client";
 import { CheckCircledIcon, CrossCircledIcon, StopwatchIcon } from "@radix-ui/react-icons";
 import { CircleIcon } from "lucide-react";
 
@@ -67,7 +67,7 @@ export const PRODUCT_CATEGORIES: ProductCategory[] = [
 
 export type StatusType = {
   label: string;
-  value: CampaignStatus | LeadStatus;
+  value: CampaignStatus | LeadStatus | UserRole;
   icon?: React.ComponentType<{ className?: string }>;
   color?: {
     textColor: string;
@@ -161,6 +161,53 @@ export const LEADS_STATUS: LeadStatusProp[] = [
     label: "Trashed",
     value: "Trashed",
     icon: CrossCircledIcon,
+    color: {
+      textColor: "text-red-700",
+      bgColor: "!bg-red-50",
+      ringColor: "ring-red-600/20",
+    },
+  },
+];
+
+export type UserRoleType = StatusType & {
+  value: UserRole;
+};
+
+export const USER_ROLE: UserRoleType[] = [
+  {
+    label: "Admin",
+    value: "ADMIN",
+    icon: CircleIcon,
+    color: {
+      textColor: "text-yellow-700",
+      bgColor: "!bg-yellow-50",
+      ringColor: "ring-yellow-600/20",
+    },
+  },
+  {
+    label: "Client",
+    value: "CLIENT",
+    icon: CircleIcon,
+    color: {
+      textColor: "text-green-700",
+      bgColor: "!bg-green-50",
+      ringColor: "ring-green-600/20",
+    },
+  },
+  {
+    label: "Customer",
+    value: "CUSTOMER",
+    icon: CircleIcon,
+    color: {
+      textColor: "text-green-700",
+      bgColor: "!bg-green-50",
+      ringColor: "ring-green-600/20",
+    },
+  },
+  {
+    label: "Super Admin",
+    value: "SUPER_Admin",
+    icon: CircleIcon,
     color: {
       textColor: "text-red-700",
       bgColor: "!bg-red-50",
