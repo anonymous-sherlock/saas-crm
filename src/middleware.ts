@@ -33,7 +33,7 @@ export default withAuth(
       authorized: ({ req, token }) => {
         const pathname = req.nextUrl.pathname;
 
-        const protectedRoutes = ["/user", "/dashboard", "/leads"];
+        const protectedRoutes = ["/user", "/dashboard", "/leads", "/admin", "/campaigns", "/products"];
         if (!!token === false && protectedRoutes.includes(pathname)) {
           return false;
         }
