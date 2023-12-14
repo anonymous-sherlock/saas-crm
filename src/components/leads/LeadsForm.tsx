@@ -15,7 +15,7 @@ interface LeadsFormProps {
   campaignCode: string
 }
 
-const LeadsForm: FC<LeadsFormProps> = ({ campaignCode}) => {
+const LeadsForm: FC<LeadsFormProps> = ({ campaignCode }) => {
   const [leadModelOpen, setLeadModelOpen] = useState<boolean>(false)
   const form = useForm<z.infer<typeof LeadsFormSchema>>({
     resolver: zodResolver(LeadsFormSchema),
@@ -32,8 +32,9 @@ const LeadsForm: FC<LeadsFormProps> = ({ campaignCode}) => {
   const { mutateAsync: addLead, isLoading } = trpc.lead.add.useMutation({
     onSuccess: (data) => {
       setLeadModelOpen(false)
+      form.reset()
       utils.lead.getCampaignLeads.invalidate()
-      utils.analytics.getCampaignAnalytics.invalidate({ campaignId: data.lead.campaignId})
+      utils.analytics.getCampaignAnalytics.invalidate({ campaignId: data.lead.campaignId })
     }
   })
   async function onSubmit(values: z.infer<typeof LeadsFormSchema>) {

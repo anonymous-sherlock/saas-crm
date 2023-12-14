@@ -11,6 +11,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '../ui/form'
 import { Input } from '../ui/input'
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '../ui/select'
+import { toast as hotToast } from "react-hot-toast"
 import { useSession } from 'next-auth/react'
 
 interface AddUserFormProps {
@@ -18,7 +19,7 @@ interface AddUserFormProps {
 }
 
 const AddUserForm: FC<AddUserFormProps> = () => {
-  const [leadModelOpen, setLeadModelOpen] = useState<boolean>(false)
+  const [userModalOpen, setUserModalOpen] = useState<boolean>(false)
   const { data: session, status } = useSession()
   const form = useForm<z.infer<typeof newUserSchema>>({
     resolver: zodResolver(newUserSchema),
@@ -31,21 +32,27 @@ const AddUserForm: FC<AddUserFormProps> = () => {
   });
   const utils = trpc.useUtils();
 
+  const { mutateAsync: addNewUser, isLoading } = trpc.admin.addUser.useMutation({
+    onSuccess: () => {
+      setUserModalOpen(false)
+      form.reset()
+      utils.admin.getAllUser.invalidate()
+    }
+  })
 
   async function onSubmit(values: z.infer<typeof newUserSchema>) {
-    console.log(values)
-    // hotToast.promise(
-    //   console.log(values),
-    //   {
-    //     loading: 'Adding lead...',
-    //     success: "Lead added successfully!",
-    //     error: "Could not add lead.",
-    //   }
-    // );
+    hotToast.promise(
+      addNewUser(values),
+      {
+        loading: 'Adding user...',
+        success: "User added successfully!",
+        error: "Could not add user.",
+      }
+    );
   }
   return (
 
-    <Dialog open={leadModelOpen} onOpenChange={setLeadModelOpen}>
+    <Dialog open={userModalOpen} onOpenChange={setUserModalOpen}>
       <DialogTrigger asChild>
         <Button variant="default" size={'sm'} className='rounded-full'>Add a User</Button>
       </DialogTrigger>
@@ -57,7 +64,7 @@ const AddUserForm: FC<AddUserFormProps> = () => {
             <DialogHeader>
               <DialogTitle>Add a User</DialogTitle>
               <DialogDescription>
-                Fill the Below information to add a new lead manually
+                Fill the Below information to add a new user manually
               </DialogDescription>
             </DialogHeader>
             <div className="grid gap-4 py-4">
@@ -152,7 +159,7 @@ const AddUserForm: FC<AddUserFormProps> = () => {
             </div>
 
             <DialogFooter>
-              <Button type="submit">Add User</Button>
+              <Button type="submit" disabled={isLoading}>Add User</Button>
             </DialogFooter>
           </form>
         </Form>

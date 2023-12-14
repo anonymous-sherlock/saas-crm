@@ -33,6 +33,7 @@ export function DataTableToolbar<TData>({
     setRotating(true);
     setTimeout(() => {
       setRotating(false);
+      utils.admin.getAllUser.invalidate()
     }, 1000); // Adjust the duration as needed
   };
 

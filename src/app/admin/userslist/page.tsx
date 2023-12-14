@@ -18,6 +18,9 @@ export default async function UserListpage() {
       id: {
         not: session.user.id
       }
+    },
+    orderBy: {
+      createdAt: "desc"
     }
   })
   return (

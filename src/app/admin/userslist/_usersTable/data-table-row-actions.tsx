@@ -20,6 +20,7 @@ import { toast as hotToast } from "react-hot-toast";
 import { Session } from "next-auth";
 import { useSession } from "next-auth/react";
 import { UserListSchema } from "./schema";
+import { trpc } from "@/app/_trpc/client";
 
 interface DataTableRowActionsProps<TData> {
   row: Row<TData>;
@@ -28,10 +29,12 @@ interface DataTableRowActionsProps<TData> {
 export function DataTableRowActions<TData>({
   row,
 }: DataTableRowActionsProps<TData>) {
-
   const { data: session, update, status } = useSession()
-
   const user = UserListSchema.parse(row.original);
+
+  const { mutateAsync: deleteUser, isLoading: isDeletingUser } = trpc.admin.deleteUser.useMutation({
+
+  })
 
   const handleUserUpdate = () => {
     if (status === "authenticated" && session.user.role === "ADMIN") {
@@ -57,9 +60,19 @@ export function DataTableRowActions<TData>({
       );
     }
   }
+
+  const handleDelteUser = () => {
+    hotToast.promise(
+      deleteUser({ userIds: [user.id] }),
+      {
+        loading: 'Deleting user...',
+        success: "User Deleted successfully!",
+        error: "Could not delete user.",
+      }
+    );
+  }
   return (
     <>
-
       <AlertDialog>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -88,7 +101,7 @@ export function DataTableRowActions<TData>({
 
             <DropdownMenuSeparator />
             <AlertDialogTrigger asChild>
-              <DropdownMenuItem className="text-red-600" >
+              <DropdownMenuItem className="text-red-600 cursor-pointer" >
                 Delete
                 <DropdownMenuShortcut>⌘⌫</DropdownMenuShortcut>
               </DropdownMenuItem>
@@ -101,16 +114,17 @@ export function DataTableRowActions<TData>({
             <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
             <AlertDialogDescription>
               This action cannot be undone. This will permanently delete this
-              lead from our servers.
+              User from our servers.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
-
+              onClick={handleDelteUser}
+              disabled={isDeletingUser}
               className={buttonVariants({ variant: "destructive" })}
             >
-              Delete User
+              {isDeletingUser ? "Deleting..." : "Delete user"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

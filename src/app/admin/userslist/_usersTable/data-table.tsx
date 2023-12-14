@@ -28,6 +28,8 @@ import {
 import { UsersList } from "./columns";
 import { DataTablePagination } from "./data-table-pagination";
 import { DataTableToolbar } from "./data-table-toolbar";
+import { trpc } from "@/app/_trpc/client";
+import { RouterOutputs } from "@/server";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -50,9 +52,16 @@ export function DataTable<TData, TValue>({
   const [globalFilter, setGlobalFilter] = React.useState("");
 
 
+  const { data: initialData } = trpc.admin.getAllUser.useQuery(undefined, {
+    initialData: data as RouterOutputs["admin"]["getAllUser"],
+    refetchOnMount: false,
+    refetchOnReconnect: false,
+    refetchOnWindowFocus: true
+  }) as { data: TData[] };
+
 
   const table = useReactTable({
-    data,
+    data: initialData,
     columns,
     state: {
       sorting,
@@ -62,7 +71,7 @@ export function DataTable<TData, TValue>({
       globalFilter,
 
     },
-    enableGlobalFilter:true,
+    enableGlobalFilter: true,
     onGlobalFilterChange: setGlobalFilter,
     enableRowSelection: true,
     onRowSelectionChange: setRowSelection,

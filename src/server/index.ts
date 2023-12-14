@@ -7,9 +7,10 @@ import { userRouter } from "./routers/user";
 import { publicProcedure, router } from "./trpc";
 import { inferReactQueryProcedureOptions } from "@trpc/react-query";
 import { analyticsRouter } from "./routers/analytics";
+import { adminRouter } from "./routers/admin";
 
 export const appRouter = router({
-  authCallback: publicProcedure.query(async ({}) => {
+  authCallback: publicProcedure.query(async ({ }) => {
     const session = await getAuthSession();
     if (!session) throw new TRPCError({ code: "UNAUTHORIZED" });
     const { user } = session;
@@ -23,6 +24,7 @@ export const appRouter = router({
   product: productRouter,
   lead: leadRouter,
   analytics: analyticsRouter,
+  admin: adminRouter
 });
 
 export type AppRouter = typeof appRouter;

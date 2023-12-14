@@ -69,7 +69,7 @@ export function DeleteLead<TData>({ table }: DeleteLeadProps<TData>) {
               <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
               <AlertDialogDescription>
                 This action cannot be undone. This will permanently delete your
-                Campaign and remove your data from our servers.
+                Leads and remove your data from our servers.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
