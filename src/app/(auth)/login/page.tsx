@@ -1,6 +1,8 @@
 import AuthenticationForm from "@/components/auth/AuthenticationForm";
+import { getAuthSession } from "@/lib/authOption";
 import { Metadata } from "next";
 import Image from "next/image";
+import { redirect } from "next/navigation";
 
 export const metadata: Metadata = {
   title: "Login Your Account",
@@ -8,6 +10,12 @@ export const metadata: Metadata = {
 };
 
 export default async function LoginPage() {
+
+  const session = await getAuthSession()
+
+  if (session && session.user && session.user.id) {
+    redirect("/dashboard")
+  }
 
   return (
     <>

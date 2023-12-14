@@ -1,12 +1,11 @@
-import { buttonVariants } from "@/components/ui/button"
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"
 import { db } from "@/db"
 import { getAuthSession } from "@/lib/authOption"
 import { Ghost } from "lucide-react"
-import Link from "next/link"
 import { redirect } from "next/navigation"
 import { columns } from "./_usersTable/columns"
 import { DataTable } from "./_usersTable/data-table"
+import AddUserForm from "@/components/admin/AddUserForm"
 
 export default async function UserListpage() {
 
@@ -14,7 +13,13 @@ export default async function UserListpage() {
   const session = await getAuthSession()
   if (!session) redirect("/login")
 
-  const users = await db.user.findMany()
+  const users = await db.user.findMany({
+    where: {
+      id: {
+        not: session.user.id
+      }
+    }
+  })
   return (
     <div className="">
       <ScrollArea className="w-full rounded-md" type="always">
@@ -28,12 +33,9 @@ export default async function UserListpage() {
                 Here&apos;s a list of all your users!
               </p>
             </div>
-            {/* <Link
-              href="/products/create"
-              className={buttonVariants({ size: "sm", variant: "outline" })}
-            >
-              Add a Product
-            </Link> */}
+            {session.user.role === "ADMIN" ?
+              <AddUserForm /> : null
+            }
           </div>
           {users.length === 0 ? (
             <div className="!mb-20 !mt-20 flex flex-col items-center gap-2">

@@ -1,3 +1,4 @@
+import { UserRole } from "@prisma/client";
 import { z } from "zod";
 
 // Create user schema
@@ -30,3 +31,19 @@ export const userSchema = z.object({
   }).email("Invalid email address"),
   password: passwordSchema,
 });
+
+
+export const newUserSchema = z.object({
+  name: z
+    .string({
+      required_error: "Name is required",
+    })
+    .min(2, { message: "Full name must be at least 2 characters" }),
+  email: z.string({
+    required_error: "Email is required",
+
+  }).email("Invalid email address"),
+  password: passwordSchema,
+  role: z.nativeEnum(UserRole)
+});
+
