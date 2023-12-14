@@ -186,7 +186,7 @@ export function ProductForm({ edit, product }: ProductFormProps) {
                                 )}
                               >
                                 {field.value
-                                  ? field.value
+                                  ? PRODUCT_CATEGORIES.find((cat) => field.value === cat.value)?.label
                                   : "Select a Category"}
                                 <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                               </Button>
@@ -207,7 +207,7 @@ export function ProductForm({ edit, product }: ProductFormProps) {
                                       key={index}
                                       value={cat.label}
                                       onSelect={() => {
-                                        form.setValue("productCategory", cat.label);
+                                        form.setValue("productCategory", cat.value);
                                         form.clearErrors("productCategory");
                                         setOpen(false);
                                       }}

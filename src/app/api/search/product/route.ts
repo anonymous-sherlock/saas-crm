@@ -31,7 +31,7 @@ export async function GET(req: NextRequest, res: NextResponse) {
     };
     const products = await db.product.findMany({
       where: {
-        ownerId: user?.id,
+        ownerId: user?.isImpersonating ? user.actor.userId : user?.id,
         ...whereClause,
       },
       include: { images: true },

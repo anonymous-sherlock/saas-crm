@@ -42,7 +42,7 @@ export function isMacOs() {
   return window.navigator.userAgent.includes("Mac");
 }
 
-export function getProductCategories() {}
+export function getProductCategories() { }
 
 export function absoluteUrl(path: string) {
   if (typeof window !== "undefined") return path;
@@ -56,6 +56,8 @@ export function generateCampaignCodeID() {
   const alias = uuid.substring(0, 8);
   return alias;
 }
+
+
 export function formatPrice(
   price: number | string,
   options: {
@@ -63,7 +65,7 @@ export function formatPrice(
     notation?: Intl.NumberFormatOptions["notation"];
   } = {},
 ) {
-  const { currency = "INR", notation = "compact" } = options;
+  const { currency = "INR", notation = "standard" } = options; // Change here
 
   const numericPrice = typeof price === "string" ? parseFloat(price) : price;
 

@@ -1,11 +1,12 @@
 import ImageSlider from '@/components/ImageSlider';
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { PRODUCT_CATEGORIES } from "@/constants/index";
 import { db } from "@/db";
 import { cn, formatPrice } from "@/lib/utils";
 import { Check } from "lucide-react";
+import Link from 'next/link';
 import { notFound } from "next/navigation";
 import "server-only";
 
@@ -49,9 +50,9 @@ export default async function Page({ params }: PageProps) {
             <p className="text-muted-foreground">
             </p>
           </div>
-          <Button variant="secondary">
+          <Link href={`/products/${product.productId}/edit`} className={cn(buttonVariants({ variant: "secondary" }))} >
             Edit Product
-          </Button>
+          </Link>
         </div>
 
         {/* product details section */}
@@ -80,8 +81,13 @@ export default async function Page({ params }: PageProps) {
                 </div>
               </div>
 
+              <div className='mt-4'>
+                Quantity{" : "}{product.quantity}
+              </div>
+
               <div className='mt-4 space-y-6'>
-                <p className='text-base text-muted-foreground'>
+                <p className='text-muted-foreground'>
+                  <span className='text-base font-medium block mb-2'>Description</span>
                   {product.description}
                 </p>
               </div>
