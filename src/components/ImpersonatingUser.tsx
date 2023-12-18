@@ -4,7 +4,7 @@ import { Session } from "next-auth"
 import { useSession } from 'next-auth/react'
 import Image from "next/image"
 import { FC } from 'react'
-import Draggable from "react-draggable"
+
 import { toast as hotToast } from "react-hot-toast"
 import { Icons } from "./Icons"
 import { Avatar, AvatarFallback } from './ui/avatar'
@@ -93,51 +93,46 @@ const ImpersonatingUser: FC<ImpersonatingUserProps> = ({ }) => {
 
   return (
     <>
+      <DropdownMenu >
 
-      <Draggable>
-        <DropdownMenu >
+        <DropdownMenuTrigger
+          asChild
+          className='overflow-visible fixed top-32 right-6'>
+          <Button className='rounded-full w-10 h-10 aspect-square bg-red-500 hover:bg-red-700'>
+            <Avatar className='relative  flex justify-center items-center'>
+              <ExclamationTriangleIcon className="h-6 w-6" />
+            </Avatar>
+          </Button>
+        </DropdownMenuTrigger>
 
-          <DropdownMenuTrigger
-            asChild
-            className='overflow-visible fixed top-32 right-6'>
-            <Button className='rounded-full w-10 h-10 aspect-square bg-red-500 hover:bg-red-700'>
-              <Avatar className='relative  flex justify-center items-center'>
-                <ExclamationTriangleIcon className="h-6 w-6" />
-              </Avatar>
-            </Button>
-          </DropdownMenuTrigger>
-
-          <DropdownMenuContent className='bg-white ' align='end'>
-            <div className='flex items-center justify-start gap-2 p-2'>
-              <div className='flex flex-col space-y-0.5 leading-none'>
-                {user?.actor && (
-                  <>
-                    <p className='font-medium text-sm  text-red-500'> Signed in as </p>
-                    <p className='font-medium text-sm text-black'>
-                      {user.actor.actorName}
-                    </p>
-                  </>
-
-                )}
-                {user?.isImpersonating && user?.actor.actorEmail && (
-                  <p className='w-[200px] truncate text-xs text-zinc-700'>
-                    {user.actor.actorEmail}
+        <DropdownMenuContent className='bg-white ' align='end'>
+          <div className='flex items-center justify-start gap-2 p-2'>
+            <div className='flex flex-col space-y-0.5 leading-none'>
+              {user?.actor && (
+                <>
+                  <p className='font-medium text-sm  text-red-500'> Signed in as </p>
+                  <p className='font-medium text-sm text-black'>
+                    {user.actor.actorName}
                   </p>
-                )}
-              </div>
+                </>
+
+              )}
+              {user?.isImpersonating && user?.actor.actorEmail && (
+                <p className='w-[200px] truncate text-xs text-zinc-700'>
+                  {user.actor.actorEmail}
+                </p>
+              )}
             </div>
+          </div>
 
-            <DropdownMenuSeparator />
+          <DropdownMenuSeparator />
 
-            <DropdownMenuItem className='cursor-pointer' onClick={discardImpersonation}>
-              Log out impersonated session
-            </DropdownMenuItem>
-          </DropdownMenuContent>
+          <DropdownMenuItem className='cursor-pointer' onClick={discardImpersonation}>
+            Log out impersonated session
+          </DropdownMenuItem>
+        </DropdownMenuContent>
 
-        </DropdownMenu>
-      </Draggable >
-
-
+      </DropdownMenu>
     </>
 
 

@@ -8,6 +8,7 @@ import ToggleSidebar from "./ToggleSidebar";
 import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
+import { MobileDocsNav } from "../mobileDocsNav.tsx";
 
 export async function Header() {
   const session = await getAuthSession();
@@ -22,7 +23,7 @@ export async function Header() {
 
 
             {/* <ThemeToggle /> */}
-
+            <MobileDocsNav />
             <div className='hidden items-center space-x-4 sm:flex'>
               {!session?.user ? (
                 <>
@@ -54,6 +55,14 @@ export async function Header() {
                 </>
               ) : (
                 <>
+                  <Link
+                    href='/docs'
+                    className={buttonVariants({
+                      variant: 'ghost',
+                      size: 'sm',
+                    })}>
+                    Documentation
+                  </Link>
                   <Link
                     href='/dashboard'
                     className={buttonVariants({

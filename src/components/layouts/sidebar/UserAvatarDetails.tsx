@@ -1,14 +1,11 @@
 import CrispChatOpen from "@/components/CrispChatOpen";
 import {
   CiCreditCard1,
-  HelpCircle,
-  HiOutlineUser,
-  LifeBuoy
+  HiOutlineUser
 } from "@/components/Icons";
 import { UserAvatar } from "@/components/layouts/UserAvatar";
 import SignOutButton from "@/components/ui/SignOutButton";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
 import {
   HoverCard,
   HoverCardContent,
