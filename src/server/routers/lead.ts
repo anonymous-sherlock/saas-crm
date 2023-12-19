@@ -164,7 +164,7 @@ export const leadRouter = router({
         state: ipInfo.region || "",
         userId: isImpersonating ? actor.userId : userId,
         campaignId: campaign.id,
-        status: existingLead ? "Trashed" : determineLeadStatus({ name, phone })
+        status: existingLead ? "Trashed" ? (campaign.status === "OnHold" ? "OnHold" : "Approved") : "Trashed" : determineLeadStatus({ name, phone })
       },
     });
 

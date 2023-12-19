@@ -26,6 +26,6 @@ export function determineLeadStatus({ name, phone }: DetermineLeadStatusProps): 
   } else if (phone.length < 10 || phone.length > 15) {
     return "Trashed";
   } else {
-    return "OnHold";
+    return "Approved";
   }
 }

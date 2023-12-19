@@ -56,7 +56,7 @@ export async function Header() {
               ) : (
                 <>
                   <Link
-                    href='/docs'
+                    href='https://docs.adscrush.com/docs'
                     className={buttonVariants({
                       variant: 'ghost',
                       size: 'sm',
