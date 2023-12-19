@@ -70,7 +70,7 @@ const Navbar = async () => {
             ) : (
               <>
                <Link
-                  href='/docs'
+                  href='https://docs.adscrush.com/docs'
                   className={buttonVariants({
                     variant: 'ghost',
                     size: 'sm',
