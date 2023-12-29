@@ -41,13 +41,13 @@ export const authRouter = router({
 
     const resetTokenLink = `${RESET_PASSWORD_STEP2_LINK}?token=${resetPassword.token}&email=${user.email}`
 
-    // const data = await resend.sendEmail({
-    //   from: `Adscrush <security@${env.RESEND_DOMAIN}>`,
-    //   to: email,
-    //   subject: "reset your account password",
-    //   html: "",
-    //   react: AdscrushResetPasswordEmail({ resetPasswordCode: resetPassword.token, userFirstname: user.name, resetPasswordLink: resetTokenLink })
-    // });
+    const data = await resend.sendEmail({
+      from: `Adscrush <security@${env.RESEND_DOMAIN}>`,
+      to: email,
+      subject: "reset your account password",
+      html: "",
+      react: AdscrushResetPasswordEmail({ resetPasswordCode: resetPassword.token, userFirstname: user.name, resetPasswordLink: resetTokenLink })
+    });
     return {
       success: true,
       message: `Reset password email sent to ${email}`,
