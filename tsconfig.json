@@ -38,9 +38,9 @@
       "@/constants/*": ["./constants/*"],
       "@/public/*": ["./public/*"],
       "@/types/*": ["./src/types/*"],
-      "contentlayer/generated": ["./.contentlayer/generated"]
+      "@/env": ["./src/lib/env.mjs"]
     }
   },
-  "include": ["store/next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", ".contentlayer/generated"],
+  "include": ["store/next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", ".contentlayer/generated", "src/lib/env.mjs"],
   "exclude": ["node_modules"]
 }

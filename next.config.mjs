@@ -1,4 +1,4 @@
-import { createContentlayerPlugin } from "next-contentlayer";
+import("./src/lib/env.mjs");
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -30,7 +30,4 @@ const nextConfig = {
   },
 };
 
-const withContentlayer = createContentlayerPlugin({
-  // Additional Contentlayer config options
-});
-export default withContentlayer(nextConfig);
+export default nextConfig;

@@ -20,6 +20,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import PasswordToggle from "./PasswordToggle";
+import Link from "next/link";
 
 export function FormLog({ isRegister }: { isRegister: boolean; }) {
   const router = useRouter();
@@ -180,12 +181,12 @@ export function FormLog({ isRegister }: { isRegister: boolean; }) {
           {/* Display the Forgot Password link only for login */}
           {!isRegister && (
             <div className="mt-2 text-right">
-              <a
-                href="#"
+              <Link
+                href="/reset-password"
                 className="text-sm font-semibold text-gray-700 hover:text-blue-700 focus:text-blue-700"
               >
-                Forgot Password?
-              </a>
+                Reset Password?
+              </Link>
             </div>
           )}
           <Button

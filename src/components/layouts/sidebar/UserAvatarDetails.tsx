@@ -18,7 +18,6 @@ import Link from "next/link";
 
 export const UserProfileHover = async () => {
   const session = await getAuthSession();
-
   return (
     <HoverCard>
       {/* user image */}

@@ -1,5 +1,6 @@
 import { withAuth } from "next-auth/middleware";
 import { NextResponse } from "next/server";
+import { env } from "./lib/env.mjs";
 
 export default withAuth(
   // `withAuth` augments your `Request` with the user's token.
@@ -44,7 +45,7 @@ export default withAuth(
     pages: {
       signIn: "/login",
     },
-    secret: process.env.NEXTAUTH_SECRET,
+    secret: env.NEXTAUTH_SECRET,
   },
 );
 export const config = {

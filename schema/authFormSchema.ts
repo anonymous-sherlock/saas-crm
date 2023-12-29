@@ -24,14 +24,26 @@ export const loginFormSchema = z.object({
   }),
 });
 
-export const changePasswordSchema = z
+export const checkEmailSchema = z.object({
+  email: loginFormSchema.shape.email,
+})
+
+export const verifyEmailSchema = z.object({
+  code: z
+    .string()
+    .min(20, {
+      message: "Verification code must be 20 characters long",
+    })
+    .max(30),
+})
+
+export const resetPasswordSchema = z
   .object({
-    password: passwordSchema,
-    confirmPassword: z.string(),
+    password: loginFormSchema.shape.password,
+    confirmPassword: loginFormSchema.shape.password,
+    code: verifyEmailSchema.shape.code,
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords do not match",
     path: ["confirmPassword"],
-  });
-
-export type changePasswordPayload = z.infer<typeof changePasswordSchema>;
+  })

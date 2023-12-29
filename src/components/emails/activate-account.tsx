@@ -13,22 +13,22 @@ import {
 } from "@react-email/components";
 import * as React from "react";
 
-interface EmailTemplateProps {
+interface ActivateAccountEmailProps {
   name: string;
   verifyTokenUrl: string;
 }
 
-export const EmailTemplate: React.FC<Readonly<EmailTemplateProps>> = ({
-  name,
-  verifyTokenUrl,
-}) => (
+const ActivateAccountEmail = ({
+  name = "Akash",
+  verifyTokenUrl = "abc",
+}: ActivateAccountEmailProps) => (
   <Html className="">
     <Head>
       <meta name="viewport" content="width=device-width, initial-scale=1" />
       <meta httpEquiv="Content-Type" content="text/html; charset=UTF-8" />
     </Head>
-    <Body className="text-black">
-      <Tailwind>
+    <Tailwind>
+      <Body className="text-black">
         <Section
           role="presentation"
           style={{
@@ -82,9 +82,9 @@ export const EmailTemplate: React.FC<Readonly<EmailTemplateProps>> = ({
             </Container>
           </Container>
         </Section>
-      </Tailwind>
-    </Body>
+      </Body>
+    </Tailwind>
   </Html>
 );
 
-export default EmailTemplate;
+export default ActivateAccountEmail;

@@ -15,3 +15,12 @@ export interface SubMenuTypes {
   menus: MenuItem[];
   isAdmin?: boolean
 }
+
+export interface SearchParams {
+  [key: string]: string | string[] | undefined
+}
+
+export interface ResetPasswordCookie {
+  email: string,
+  count: number
+}

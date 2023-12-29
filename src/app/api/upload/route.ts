@@ -1,19 +1,20 @@
 import { FileUploadError } from '@/types/fileUpload';
 import axios, { AxiosError } from 'axios';
 import { NextResponse } from 'next/server';
+import {env} from "@/lib/env.mjs"
 
 // Export routes for Next App Router
 const handler = async (req: Request) => {
   try {
-    // Check if the CDN_URL is defined
-    if (!process.env.CDN_URL) {
-      return NextResponse.json({ error: 'CDN_URL is not defined' }, { status: 500 });
+    // Check if the CDN_UPLOAD_URL is defined
+    if (!env.CDN_UPLOAD_URL) {
+      return NextResponse.json({ error: 'CDN_UPLOAD_URL is not defined' }, { status: 500 });
     }
 
     const body = await req.formData();
-    const apiKey = process.env.CDN_API_KEY as string;
+    const apiKey = env.CDN_API_KEY as string;
     body.append('X_API_KEY', apiKey);
-    const { data, status } = await axios.post(process.env.CDN_URL, body, {
+    const { data, status } = await axios.post(env.CDN_UPLOAD_URL, body, {
       headers: { 'X_API_KEY': apiKey },
     });
     // Check if the response status is not 200 or 201

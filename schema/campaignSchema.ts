@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { workingDayOptions } from "@/constants/time";
-export enum TrafficSourceDefault {
+export enum TrafficSource {
   Social = "Social",
   Adult = "Adult",
   Native = "Native",
@@ -106,7 +106,7 @@ export const campaignFormSchema = z.object({
       ),
   }),
   targetGender: z.enum(["Male", "Female"],{required_error:"Target gender is required",invalid_type_error:"Target gender can be Male or Female"}),
-  trafficSource: z.nativeEnum(TrafficSourceDefault),
+  trafficSource: z.nativeEnum(TrafficSource),
 });
 
 export type CampaignFormPayload = z.infer<typeof campaignFormSchema>;

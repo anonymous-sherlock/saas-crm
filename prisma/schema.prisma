@@ -3,9 +3,9 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql"
-  url      = env("DATABASE_URL")
-  
+  provider     = "mysql"
+  url          = env("DATABASE_URL")
+  relationMode = "prisma"
 }
 
 model Account {
@@ -40,24 +40,38 @@ model Session {
 }
 
 model User {
-  id             String          @id @default(cuid())
-  name           String
-  email          String          @unique
-  emailVerified  DateTime?
-  image          String?
-  role           UserRole        @default(CUSTOMER)
-  password       String?
-  active         Boolean         @default(false)
-  createdAt      DateTime        @default(now())
-  updatedAt      DateTime        @updatedAt
-  accounts       Account[]
-  activateTokens ActivateToken[]
-  apiKeys        ApiKey[]
-  BearerToken    BearerToken[]
-  campaigns      Campaign[]
-  leads          Lead[]
-  products       Product[]
-  sessions       Session[]
+  id                  String               @id @default(cuid())
+  name                String
+  email               String               @unique
+  emailVerified       DateTime?
+  image               String?
+  role                UserRole             @default(CUSTOMER)
+  password            String?
+  active              Boolean              @default(false)
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+  accounts            Account[]
+  passwordResetTokens PasswordResetToken[]
+  activateTokens      ActivateToken[]
+  apiKeys             ApiKey[]
+  BearerToken         BearerToken[]
+  campaigns           Campaign[]
+  leads               Lead[]
+  products            Product[]
+  sessions            Session[]
+}
+
+model PasswordResetToken {
+  id        Int       @id @default(autoincrement())
+  token     String    @unique
+  createdAt DateTime  @default(now())
+  resetAt   DateTime?
+
+  user   User   @relation(fields: [userId], references: [id])
+  userId String
+
+  @@unique([userId, token, resetAt])
+  @@map("password_reset_token")
 }
 
 model ActivateToken {
@@ -69,6 +83,7 @@ model ActivateToken {
   user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId], map: "ActivateToken_userId_fkey")
+  @@map("activate_token")
 }
 
 model ApiKey {
@@ -82,6 +97,7 @@ model ApiKey {
 
   @@unique([userId, key, enabled])
   @@index([userId], map: "ApiKey_userId_fkey")
+  @@map("api_key")
 }
 
 model BearerToken {
@@ -95,6 +111,7 @@ model BearerToken {
   user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId], map: "BearerToken_userId_fkey")
+  @@map("bearer_token")
 }
 
 model Product {
@@ -114,6 +131,7 @@ model Product {
   updatedAt DateTime @updatedAt
 
   @@index([ownerId], map: "Product_ownerId_fkey")
+  @@map("products")
 }
 
 model ProductMedia {
@@ -123,6 +141,7 @@ model ProductMedia {
   product        Product @relation(fields: [productMediaId], references: [productId], onDelete: Cascade)
 
   @@index([productMediaId], map: "ProductMedia_productMediaId_fkey")
+  @@map("product_media")
 }
 
 model ProductImage {
@@ -139,41 +158,35 @@ model ProductImage {
   createdAt DateTime @default(now())
 
   @@index([productId], map: "ProductImage_productId_fkey")
-}
-
-enum fileStatus {
-  failed
-  null
-  error
-  processing
-  done
+  @@map("product_images")
 }
 
 model Campaign {
-  id                 String               @id @default(cuid())
-  code               String               @unique
+  id                 String         @id @default(cuid())
+  code               String         @unique
   name               String
   description        String?
   callCenterTeamSize String
   leadsRequirements  String
   targetCountry      String
   targetGender       Gender
-  trafficSource      TrafficSourceDefault
+  trafficSource      TrafficSource
   targetAge          Json
   workingDays        Json
   workingHours       Json
-  status             CampaignStatus       @default(OnHold)
-  createdAt          DateTime             @default(now())
-  updatedAt          DateTime             @updatedAt
+  status             CampaignStatus @default(OnHold)
+  createdAt          DateTime       @default(now())
+  updatedAt          DateTime       @updatedAt
   productId          String?
   userId             String
-  product            Product?             @relation(fields: [productId], references: [productId], onDelete: Cascade)
-  user               User                 @relation(fields: [userId], references: [id])
+  product            Product?       @relation(fields: [productId], references: [productId], onDelete: Cascade)
+  user               User           @relation(fields: [userId], references: [id])
   leads              Lead[]
   targetRegion       TargetRegion[]
 
   @@index([productId], map: "Campaign_productProductId_fkey")
   @@index([userId], map: "Campaign_userId_fkey")
+  @@map("campaigns")
 }
 
 model TargetRegion {
@@ -183,6 +196,7 @@ model TargetRegion {
   campaign   Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
 
   @@index([campaignId], map: "TargetRegion_campaignId_fkey")
+  @@map("target_region")
 }
 
 model Lead {
@@ -204,9 +218,18 @@ model Lead {
 
   @@index([campaignId], map: "Lead_leadCampaingId_fkey")
   @@index([userId], map: "Lead_userId_fkey")
+  @@map("leads")
 }
 
-enum TrafficSourceDefault {
+enum fileStatus {
+  failed
+  null
+  error
+  processing
+  done
+}
+
+enum TrafficSource {
   Social
   Adult
   Native

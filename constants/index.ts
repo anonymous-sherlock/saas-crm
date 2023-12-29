@@ -215,3 +215,6 @@ export const USER_ROLE: UserRoleType[] = [
     },
   },
 ];
+
+export const RESET_PASSWORD_STEP2_LINK: string = "/reset-password/step2"
+export const RESET_PASSWORD_TOKEN_EXPIRE_TIME: number = 4 * 60 * 60 * 1000

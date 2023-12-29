@@ -1,7 +1,8 @@
-import EmailTemplate from "@/components/emails/email-template";
 import { ReactElement } from "react";
 import { Resend } from "resend";
-const resend = new Resend(process.env.RESEND_API_KEY);
+import { env } from "@/env";
+import ActivateAccountEmail from "@/components/emails/activate-account";
+const resend = new Resend(env.RESEND_API_KEY);
 interface senActivationEmailProps {
   name: string;
   email: string;
@@ -14,10 +15,10 @@ export async function senActivationEmail({
 }: senActivationEmailProps) {
   try {
     const data = await resend.emails.send({
-      from: "Adscrush <support@adscrush.com>",
+      from: `Adscrush <${env.EMAIL_FROM_ADDRESS}>`,
       to: email,
       subject: "🙌 Complete your sign up to Adscrush!",
-      react: EmailTemplate({
+      react: ActivateAccountEmail({
         name: name,
         verifyTokenUrl: verifyTokenUrl,
       }) as ReactElement,

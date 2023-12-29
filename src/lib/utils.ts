@@ -3,6 +3,8 @@ import { randomUUID } from "crypto";
 import { Metadata } from "next";
 import { twMerge } from "tailwind-merge";
 import favicon from "@/public/favicon.png";
+import { env } from "./env.mjs";
+import crypto from "crypto"
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -27,9 +29,11 @@ export function generateInitialFromName(fullName: string) {
           return word[0]!.toUpperCase();
         }
       });
+    // Get the first two initials
+    const firstTwoInitials = initials.slice(0, 2);
 
-    if (initials.length > 0) {
-      return initials.join(""); // Join the initials together
+    if (firstTwoInitials.length > 0) {
+      return firstTwoInitials.join(""); // Join the initials together
     }
   }
   // Handle invalid input
@@ -42,11 +46,9 @@ export function isMacOs() {
   return window.navigator.userAgent.includes("Mac");
 }
 
-export function getProductCategories() { }
-
 export function absoluteUrl(path: string) {
   if (typeof window !== "undefined") return path;
-  if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}${path}`;
+  if (env.NEXT_PUBLIC_VERCEL_URL) return `https://${env.NEXT_PUBLIC_VERCEL_URL}${path}`;
   return `http://localhost:${process.env.PORT ?? 3000}${path}`;
 }
 
@@ -125,4 +127,24 @@ export function calculatePercentage(previousValue: number, currentValue: number)
     return currentValue === 0 ? 0 : 100;
   }
   return ((currentValue - previousValue) / previousValue) * 100;
+}
+
+
+export function generateSecurePasswordResetCode() {
+  const partLength = 5;
+  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  let resetCode = '';
+
+  for (let i = 0; i < 4; i++) {
+    if (i > 0) {
+      resetCode += '-';
+    }
+
+    for (let j = 0; j < partLength; j++) {
+      const randomIndex = crypto.randomInt(characters.length);
+      resetCode += characters.charAt(randomIndex);
+    }
+  }
+
+  return resetCode;
 }

@@ -11,18 +11,17 @@ import {
   FormMessage,
 } from "../ui/form";
 
-import { z } from "zod";
-import { Input } from "../ui/input";
-import { Textarea } from "../ui/textarea";
-import { toast as hotToast } from "react-hot-toast"
 import { trpc } from "@/app/_trpc/client";
 import { cn } from "@/lib/utils";
 import {
-  TrafficSourceDefault,
+  TrafficSource,
   campaignFormSchema
 } from "@/schema/campaignSchema";
-import { AxiosError } from "axios";
+import { useRouter } from "next/navigation";
+import { toast as hotToast } from "react-hot-toast";
+import { z } from "zod";
 import { Button } from "../ui/button";
+import { Input } from "../ui/input";
 import {
   Select,
   SelectContent,
@@ -34,12 +33,11 @@ import {
 } from "../ui/select";
 import { Separator } from "../ui/separator";
 import Spinner from "../ui/spinner";
-import { toast } from "../ui/use-toast";
+import { Textarea } from "../ui/textarea";
 import AgeFields from "./AgeFields";
 import CountryRegion from "./CountryRegion";
 import ProductDropdown from "./ProductDropdown";
 import WorkingHours from "./WorkingHours";
-import { useRouter } from "next/navigation";
 
 const CampaignForm = () => {
   const form = useForm<z.infer<typeof campaignFormSchema>>({
@@ -47,7 +45,7 @@ const CampaignForm = () => {
     defaultValues: {
       campaignName: "",
       campaignDescription: "",
-      trafficSource: TrafficSourceDefault.Social,
+      trafficSource: TrafficSource.Social,
       targetCountry: "",
       product: "",
       leadsRequirements: "",
@@ -174,7 +172,7 @@ const CampaignForm = () => {
                           <SelectGroup>
                             <SelectLabel>Select a Traffic Source</SelectLabel>
                             <Separator className="my-2" />
-                            {Object.entries(TrafficSourceDefault).map(
+                            {Object.entries(TrafficSource).map(
                               ([key, value]) => (
                                 <SelectItem key={key} value={value}>
                                   {value}
