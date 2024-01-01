@@ -7,7 +7,11 @@ type HandleAutorizationType = {
   bearerToken: string | null;
 };
 
-export async function handleAuthorization({ apiKey = "", bearerToken = "" }: HandleAutorizationType) {
+type handleAuthorizationPromise = {
+  userId: string
+}
+
+export async function handleAuthorization({ apiKey = "", bearerToken = "" }: HandleAutorizationType): Promise<handleAuthorizationPromise> {
   if (!apiKey) {
     throw new AuthorizationError("Unauthorized access", { success: false, error: "unauthorized", message: "Api key missing" });
   }
@@ -31,5 +35,9 @@ export async function handleAuthorization({ apiKey = "", bearerToken = "" }: Han
   });
   if (!validBearerToken) {
     throw new AuthorizationError("Unauthorized access", { success: false, error: "unauthorized", message: "Authorization header invalid" });
+  }
+
+  return {
+    userId: validApiKey.userId || validBearerToken.userId
   }
 }

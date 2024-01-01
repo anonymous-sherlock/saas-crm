@@ -3,7 +3,9 @@ import { z } from "zod";
 export const LeadsFormSchema = z.object({
     campaignCode: z.string(),
     name: z.string().min(3, { message: "Name must be atleat 3 characters" }),
-    phone: z.string().refine(value => {
+    phone: z.string(
+        { required_error: "Phone is required", invalid_type_error: "Invalid type for phone, should be a string" }
+    )   .refine(value => {
         // Enhance the phone number validation pattern
         const phonePattern = /^[\d\+() -]*\d[\d\+() -]*$/;
 
@@ -22,10 +24,14 @@ export const LeadsFormSchema = z.object({
 })
 
 export const LeadValidator = z.object({
-    campaignCode: z.string(),
+    campaignCode: z.string().min(1, {
+        message: "Campaign Code is required"
+    }),
     data: z.object({
-        name: z.string(),
-        phone: z.string(),
+        name: z.string({
+            invalid_type_error: "Invalid type for name, should be a string"
+        }).min(1, { message: "Name is required" }),
+        phone: LeadsFormSchema.shape.phone,
         address: z.string().optional(),
     })
 
