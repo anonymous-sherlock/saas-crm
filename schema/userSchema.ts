@@ -1,4 +1,4 @@
-import { UserRole } from "@prisma/client";
+import { Role } from "@prisma/client";
 import { z } from "zod";
 
 // Create user schema
@@ -44,6 +44,6 @@ export const newUserSchema = z.object({
 
   }).email("Invalid email address"),
   password: passwordSchema,
-  role: z.nativeEnum(UserRole)
+  role: z.nativeEnum(Role)
 });
 

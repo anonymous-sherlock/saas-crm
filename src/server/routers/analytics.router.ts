@@ -245,8 +245,6 @@ export const analyticsRouter = router({
           c2: { total: count2, name: leads2[0]?.campaign.name || campaignName2 },
         };
       });
-
-      // console.log(hourlyCounts);
       return hourlyCounts;
     }),
 });

@@ -1,7 +1,8 @@
+import { env } from '@/env.mjs';
 import { FileUploadError } from '@/types/fileUpload';
 import axios, { AxiosError } from 'axios';
 import { NextResponse } from 'next/server';
-import {env} from "@/lib/env.mjs"
+
 
 // Export routes for Next App Router
 const handler = async (req: Request) => {

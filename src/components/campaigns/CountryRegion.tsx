@@ -8,6 +8,7 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import { allCountries } from "country-region-data";
 import { cn } from "@/lib/utils";
 import { useFormContext } from "react-hook-form";
+import { Avatar } from "@nextui-org/react";
 
 
 const CountryRegion = () => {
@@ -45,7 +46,12 @@ const CountryRegion = () => {
                 <PopoverTrigger asChild>
                   <FormControl>
                     <Button variant="outline" role="combobox" aria-expanded={countryOpen} className={cn("w-full justify-between h-11", !field.value && "text-muted-foreground")}>
-                      {field.value ? field.value : "Select a Country"}
+                      {field.value ?
+                        <span className="flex">
+                          <Avatar alt="Switzerland" className={"w-5 h-5 shrink-0 mr-2 !opacity-100"} src={`https://flagcdn.com/${allCountries.find((c) => c[0] === field.value)?.[1].toLowerCase()}.svg`} />
+                          {field.value}
+                        </span>
+                        : "Select a Country"}
                       <ChevronsUpDown className="h-3 w-3 shrink-0 opacity-50" />
                     </Button>
                   </FormControl>
@@ -69,8 +75,9 @@ const CountryRegion = () => {
                               setValue("targetRegion", []);
                               selectedRegionRef.current = [];
                             }}>
-                            <Check className={cn("mr-1 h-4 w-4", country[0] === field.value ? "opacity-100" : "opacity-0")} />
+                            <Avatar alt="Switzerland" className={"w-5 h-5 shrink-0 mr-2 !opacity-100"} src={`https://flagcdn.com/${country[1].toLowerCase()}.svg`} />
                             {country[0]}
+                            <Check className={cn("ml-auto h-4 w-4", country[0] === field.value ? "opacity-100" : "opacity-0")} />
                           </CommandItem>
                         ))}
                       </CommandGroup>

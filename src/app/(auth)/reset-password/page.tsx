@@ -18,6 +18,7 @@ import { cn } from "@/lib/utils"
 import { decryptCookie } from "@/lib/helpers/cookie"
 import ResetPasswordChangeEmail from "@/components/auth/reset-password-change-email"
 import SendResetPasswordMail from "@/components/auth/send-reset-mail-Button"
+import { authPages } from "@routes"
 
 export const metadata: Metadata = {
   title: "Reset Password",
@@ -40,7 +41,7 @@ export default function ResetPasswordPage({
         className="absolute right-8 top-8 md:right-0 md:top-2  text-sm transition-all duration-300 text-black"
         variant="link"
       >
-        <Link href="/login">
+        <Link href="/">
           <ArrowLeftToLine className="mr-2" size={16} />
           Go Back To Home
         </Link>

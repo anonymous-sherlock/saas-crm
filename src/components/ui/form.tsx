@@ -94,7 +94,7 @@ const FormLabel = React.forwardRef<
   return (
     <Label
       ref={ref}
-      className={cn(error && "text-destructive-foreground", className)}
+      className={cn(error && "text-foreground", className)}
       htmlFor={formItemId}
       {...props}
     />
@@ -156,7 +156,7 @@ const FormMessage = React.forwardRef<
     <p
       ref={ref}
       id={formMessageId}
-      className={cn("text-sm font-medium text-destructive-foreground", className)}
+      className={cn("text-sm font-medium text-[#ef4444]", className)}
       {...props}
     >
       {body}
@@ -164,6 +164,32 @@ const FormMessage = React.forwardRef<
   )
 })
 FormMessage.displayName = "FormMessage"
+
+const UncontrolledFormMessage = React.forwardRef<
+  HTMLParagraphElement,
+  React.HTMLAttributes<HTMLParagraphElement> & {
+    message?: string
+  }
+>(({ className, children, message, ...props }, ref) => {
+  const { formMessageId } = useFormField()
+  const body = message ? String(message) : children
+
+  if (!body) {
+    return null
+  }
+
+  return (
+    <p
+      ref={ref}
+      id={formMessageId}
+      className={cn("text-sm font-medium text-destructive-foreground", className)}
+      {...props}
+    >
+      {body}
+    </p>
+  )
+})
+UncontrolledFormMessage.displayName = "UncontrolledFormMessage"
 
 export {
   useFormField,
@@ -174,4 +200,5 @@ export {
   FormDescription,
   FormMessage,
   FormField,
+  UncontrolledFormMessage
 }

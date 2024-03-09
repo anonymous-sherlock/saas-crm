@@ -32,6 +32,7 @@ export const filesUploadResponseSchema = z.object({
   files: z.array(fileMetaDetailsSchema)
 })
 
+export type uploaderEndpoint = "crm" | "files" | "aadharUploader" | "documentsUploader"
 export type FileMetaDetails = z.infer<typeof fileMetaDetailsSchema>
 export type FileUploadError = z.infer<typeof fileUploadErrorSchema>
 export type FilesUploadResponse = z.infer<typeof filesUploadResponseSchema>

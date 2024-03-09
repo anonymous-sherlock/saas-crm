@@ -1,4 +1,4 @@
-import { ProductForm } from "@/components/products/ProductForm";
+import { ProductForm } from "@/components/template/products/ProductForm";
 import { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Adscrush | Add Product",
@@ -8,7 +8,6 @@ export const metadata: Metadata = {
 function AddProductsPage() {
   return (
     <>
-
       <div className="flex">
         <div className="w-full">
           <ProductForm edit={false} />

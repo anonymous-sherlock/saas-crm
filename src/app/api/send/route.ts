@@ -1,5 +1,5 @@
 import { AdscrushResetPasswordEmail } from '@/components/emails/reset-password';
-import { env } from '@/lib/env.mjs';
+import { env } from '@/env.mjs';
 import { NextRequest, NextResponse } from 'next/server';
 import { Resend } from 'resend';
 

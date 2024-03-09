@@ -1,8 +1,8 @@
-import { getAuthSession } from "@/lib/authOption";
 import { TRPCError, initTRPC } from "@trpc/server";
-import superjson from "superjson";
 import { FetchCreateContextFnOptions } from "@trpc/server/adapters/fetch";
+import superjson from "superjson";
 
+import { getCurrentUser } from "@/lib/auth";
 import { ZodError } from "zod";
 
 export const createTRPCContext = async (opts: FetchCreateContextFnOptions) => {
@@ -25,10 +25,7 @@ const t = initTRPC.context<typeof createTRPCContext>().create({
 const middleware = t.middleware;
 
 const isAuth = middleware(async (opts) => {
-  const session = await getAuthSession();
-  if (!session) throw new TRPCError({ code: "UNAUTHORIZED" });
-  const { user } = session;
-
+  const user = await getCurrentUser();
   if (!user || !user.id) {
     throw new TRPCError({ code: "UNAUTHORIZED" });
   }

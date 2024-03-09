@@ -15,12 +15,11 @@ import {
 
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { toast as hotToast } from "react-hot-toast";
-
-
 import { Session } from "next-auth";
 import { useSession } from "next-auth/react";
 import { UserListSchema } from "./schema";
 import { trpc } from "@/app/_trpc/client";
+import { useRouter } from "next/navigation";
 
 interface DataTableRowActionsProps<TData> {
   row: Row<TData>;
@@ -31,6 +30,7 @@ export function DataTableRowActions<TData>({
 }: DataTableRowActionsProps<TData>) {
   const { data: session, update, status } = useSession()
   const user = UserListSchema.parse(row.original);
+  const router = useRouter()
 
   const { mutateAsync: deleteUser, isLoading: isDeletingUser } = trpc.admin.deleteUser.useMutation({
 
@@ -46,12 +46,18 @@ export function DataTableRowActions<TData>({
           actor: {
             actorEmail: user.email,
             actorName: user.name,
-            userId: user.id
+            userId: user.id,
+            image: user.image,
+            company: {
+              id: user.company?.id,
+              name: user.company?.name,
+              address: user.company?.address
+            }
           },
         }
       };
       hotToast.promise(
-        update(updatedSession),
+        update(updatedSession).then((ses) => router.refresh()),
         {
           loading: 'Impersonating user...',
           success: "User impersonated successfully!",

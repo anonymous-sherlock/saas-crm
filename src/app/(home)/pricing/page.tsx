@@ -1,4 +1,4 @@
-import MaxWidthWrapper from '@/components/MaxWidthWrapper'
+import MaxWidthWrapper from '@/components/global/MaxWidthWrapper'
 import UpgradeButton from '@/components/UpgradeButton'
 import { buttonVariants } from '@/components/ui/button'
 import {
@@ -8,8 +8,9 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip'
 import { PLANS } from '@/config/pricing'
-import { getAuthSession } from '@/lib/authOption'
+import { getCurrentUser } from '@/lib/auth'
 import { cn } from '@/lib/utils'
+import { DEFAULT_DASHBOARD_REDIRECT, authPages } from '@routes'
 
 import {
   ArrowRight,
@@ -20,8 +21,7 @@ import {
 import Link from 'next/link'
 
 export default async function PricingPage() {
-  const session = await getAuthSession()
-  const user = session?.user
+  const user = await getCurrentUser()
 
   const pricingItems = [
     {
@@ -214,7 +214,7 @@ export default async function PricingPage() {
                       {plan === 'Free' ? (
                         <Link
                           href={
-                            user ? '/dashboard' : '/register'
+                            user ? DEFAULT_DASHBOARD_REDIRECT : authPages.register
                           }
                           className={buttonVariants({
                             className: 'w-full',
@@ -227,7 +227,7 @@ export default async function PricingPage() {
                         <UpgradeButton />
                       ) : (
                         <Link
-                          href='/login'
+                          href={authPages.login}
                           className={buttonVariants({
                             className: 'w-full',
                           })}>

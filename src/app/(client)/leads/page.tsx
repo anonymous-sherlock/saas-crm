@@ -1,11 +1,12 @@
 import { server } from '@/app/_trpc/server';
 import LeadsDashboard from '@/components/leads/LeadsDashboard';
-import { getAuthSession } from '@/lib/authOption';
+import { getCurrentUser } from '@/lib/auth';
+import { authPages } from '@routes';
 import { redirect } from 'next/navigation';
 
 async function LeadsPage() {
-  const session = await getAuthSession()
-  if (!session) redirect("/login")
+  const user = await getCurrentUser()
+  if (!user) redirect(authPages.login)
 
   const Leads = await server.lead.getAll();
 

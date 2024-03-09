@@ -148,6 +148,13 @@ export const Icons = {
       <path d="M21 12a9 9 0 1 1-6.219-8.56" />
     </svg>
   ),
+  settings: (props: LucideProps) => (
+    <svg className="with-icon_icon__MHUeb" data-testid="geist-icon" fill="none" height="24" shape-rendering="geometricPrecision" stroke="currentColor" strokeLinecap="round" stroke-linejoin="round" stroke-width="1.5" viewBox="0 0 24 24" width="24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"></path>
+    </svg>
+  ),
+  warning: (props: LucideProps) => {
+    <svg fill="none" height="36" opacity="1" viewBox="0 0 36 36" width="36" xmlns="http://www.w3.org/2000/svg"><rect fill="#FFFBEB" height="35" rx="17.5" width="35" x="0.5" y="0.5"></rect><g clip-path="url(#clip0_798_8667)"><path d="M16.575 11.2167L9.51665 23C9.37113 23.252 9.29413 23.5377 9.29331 23.8288C9.2925 24.1198 9.3679 24.4059 9.51201 24.6588C9.65612 24.9116 9.86392 25.1223 10.1147 25.2699C10.3656 25.4174 10.6507 25.4968 10.9417 25.5H25.0583C25.3493 25.4968 25.6344 25.4174 25.8852 25.2699C26.136 25.1223 26.3439 24.9116 26.488 24.6588C26.6321 24.4059 26.7075 24.1198 26.7067 23.8288C26.7058 23.5377 26.6288 23.252 26.4833 23L19.425 11.2167C19.2764 10.9717 19.0673 10.7693 18.8176 10.6287C18.568 10.4882 18.2864 10.4144 18 10.4144C17.7135 10.4144 17.4319 10.4882 17.1823 10.6287C16.9327 10.7693 16.7235 10.9717 16.575 11.2167V11.2167Z" stroke="#BD5200" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"></path><path d="M18 22.1667H18.0083" stroke="#BD5200" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"></path><path d="M18 15.5V18.8333" stroke="#BD5200" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"></path></g><rect height="35" rx="17.5" stroke="#FEF3C7" width="35" x="0.5" y="0.5"></rect><defs><clipPath id="clip0_798_8667"><rect fill="white" height="20" transform="translate(8 8)" width="20"></rect></clipPath></defs></svg>
+  }
 }
 
 export { Activity, HelpCircle, LifeBuoy, Settings } from "lucide-react";

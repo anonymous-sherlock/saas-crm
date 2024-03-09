@@ -3,10 +3,7 @@ type TargetAge = {
   max: string | number;
 };
 
-type WorkingDays = {
-  start: string;
-  end: string;
-};
+type WorkingDays = string[]
 
 type WorkingHours = {
   startTime: string;

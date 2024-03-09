@@ -3,7 +3,6 @@ import Logo from "@/assets/logo.png";
 import { motion } from "framer-motion";
 import { PropsWithChildren, useEffect, useRef } from "react";
 import SubMenu from "./SubMenu";
-// * React icons
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Menus, singleMenu, subMenusList } from "@/constants/MenuItems";
 import { cn } from "@/lib/utils";
@@ -96,10 +95,7 @@ const Sidebar = ({ children }: PropsWithChildren) => {
           <ul className="flex h-[70%] flex-col gap-1 overflow-x-hidden whitespace-pre  py-5 text-[0.9rem] font-medium md:h-[68%]">
             <ScrollArea className="h-full w-full border-none px-2.5">
               {Menus.map((menu, index) => (
-                <li
-                  key={index}
-                  className={cn("hover:bg-gray-100 text-popover-foreground rounded-lg", pathname.includes(menu.url) && "text-blue-600 bg-slate-100")}
-                >
+                <li key={index} className={cn("hover:bg-gray-100 text-popover-foreground rounded-lg", pathname.includes(menu.url) && "text-blue-600 bg-slate-100")}   >
                   <Link href={menu.url} className={cn("link cursor-pointer my-1", menu.gap === true && "mb-4")}>
                     <menu.icon size={23} className={cn("min-w-max", !pathname.includes(menu.url) && "text-slate-500")} />
                     {menu.label}
@@ -110,7 +106,7 @@ const Sidebar = ({ children }: PropsWithChildren) => {
               {(open || isTabletMid) && (
                 <div className="border-y border-slate-300 py-5 ">
                   <small className="mb-2 inline-block pl-3 text-slate-500">
-                    Products
+                    Analytics
                   </small>
                   {subMenusList?.map((menu, index,) => {
                     if (menu.isAdmin && status !== "unauthenticated" && session?.user.role !== "ADMIN") {
@@ -126,13 +122,8 @@ const Sidebar = ({ children }: PropsWithChildren) => {
                 </div>
               )}
               {singleMenu.map((menu, index) => (
-                <li
-                  key={index}
-                  className={`${cn(
-                    "hover:bg-gray-100 text-popover-foreground rounded-lg", pathname.includes(menu.url) && "text-blue-600 bg-slate-100"
-                  )} ${menu.gap && "mt-2"}`}
-                >
-                  <Link href={menu.url} className="link my-1">
+                <li key={index} className={cn("hover:bg-gray-100 text-popover-foreground rounded-lg", pathname.includes(menu.url) && "text-blue-600 bg-slate-100")}   >
+                  <Link href={menu.url} className={cn("link cursor-pointer my-1", menu.gap === true && "mt-4")}>
                     <menu.icon size={23} className={cn("min-w-max", !pathname.includes(menu.url) && "text-slate-500")} />
                     {menu.label}
                   </Link>

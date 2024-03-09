@@ -1,17 +1,20 @@
+import { server } from "@/app/_trpc/server";
+import UserAccountNav from "@/components/layouts/UserAccountNav";
+import { buttonVariants } from "@/components/ui/button";
+import { getCurrentUser } from "@/lib/auth";
+import { ArrowRight } from "lucide-react";
+import Link from "next/link";
 import React from "react";
-
-
-import UserAccountNav from "@/components/UserAccountNav";
-import { getAuthSession } from "@/lib/authOption";
+import { DEFAULT_DASHBOARD_REDIRECT, DOCUMENTATION_REDIRECT, authPages } from "routes";
+import Notifiation from "./Notifiation";
 import Search from "./Search";
 import ToggleSidebar from "./ToggleSidebar";
-import Link from "next/link";
-import { buttonVariants } from "@/components/ui/button";
-import { ArrowRight } from "lucide-react";
-import { MobileDocsNav } from "../mobileDocsNav.tsx";
+import { MobileDocsNav } from "./mobileDocsNav";
 
 export async function Header() {
-  const session = await getAuthSession();
+  const user = await getCurrentUser();
+  const notifications = await server.notification.getNotifictions()
+
   return (
     <React.Fragment>
       <nav className="sticky z-99 lg:z-50 left-0 top-0  w-full justify-between border-gray-200 bg-white/95 backdrop-blur-sm before:shadow-[-2px_3px_90px_-20px_rgb(0_0_0_/_25%)] dark:bg-gray-900">
@@ -20,12 +23,10 @@ export async function Header() {
           <Search />
 
           <div className="flex flex-1 items-center justify-end space-x-4 md:order-2 ">
-
-
             {/* <ThemeToggle /> */}
             <MobileDocsNav />
             <div className='hidden items-center space-x-4 sm:flex'>
-              {!session?.user ? (
+              {!user ? (
                 <>
                   <Link
                     href='/pricing'
@@ -37,7 +38,7 @@ export async function Header() {
                   </Link>
                   <Link
 
-                    href={"/login"}
+                    href={authPages.login}
                     className={buttonVariants({
                       variant: 'ghost',
                       size: 'sm',
@@ -45,7 +46,7 @@ export async function Header() {
                     Sign in
                   </Link>
                   <Link
-                    href={"/register"}
+                    href={authPages.register}
                     className={buttonVariants({
                       size: 'sm',
                     })}>
@@ -56,7 +57,7 @@ export async function Header() {
               ) : (
                 <>
                   <Link
-                    href='https://docs.adscrush.com/docs'
+                    href={DOCUMENTATION_REDIRECT}
                     className={buttonVariants({
                       variant: 'ghost',
                       size: 'sm',
@@ -64,27 +65,27 @@ export async function Header() {
                     Documentation
                   </Link>
                   <Link
-                    href='/dashboard'
+                    href={DEFAULT_DASHBOARD_REDIRECT}
                     className={buttonVariants({
                       variant: 'ghost',
                       size: 'sm',
                     })}>
                     Dashboard
                   </Link>
-
                   <UserAccountNav
                     name={
-                      !session.user.name
+                      !user.name
                         ? 'Your Account'
-                        : `${session.user.name}`
+                        : `${user.name}`
                     }
-                    email={session?.user.email ?? ''}
-                    imageUrl={session?.user.image ?? ''}
-                    user={session.user}
+                    email={user.email ?? ''}
+                    imageUrl={user.image ?? ''}
+                    user={user}
                   />
                 </>
               )}
             </div>
+            <Notifiation notifications={notifications} />
           </div>
         </div>
       </nav>

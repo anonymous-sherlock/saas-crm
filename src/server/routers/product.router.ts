@@ -21,7 +21,6 @@ export const productRouter = router({
     });
 
     if (!product) throw new TRPCError({ code: "NOT_FOUND", message: "product not found" });
-    console.log(product);
     return product;
   }),
   getAll: privateProcedure.query(async ({ ctx }) => {
@@ -168,7 +167,7 @@ export const productRouter = router({
           price: price,
           quantity: Number(productQuantity),
           description: productDescription,
-          ownerId: isImpersonating? actor.userId : userId,
+          ownerId: isImpersonating ? actor.userId : userId,
           category: productCategory,
           media: {
             deleteMany: {

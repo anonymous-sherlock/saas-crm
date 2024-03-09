@@ -15,7 +15,7 @@ import { DataTableFacetedFilter } from "./data-table-faceted-filter";
 import { DeleteLead } from "./delete-lead";
 import { LEADS_STATUS } from "@/constants/index";
 import { useState } from "react";
-import TooltipComponent from "@/components/tooltip-component";
+import TooltipComponent from "@/components/global/tooltip-component";
 import { cn } from "@/lib/utils";
 
 interface DataTableToolbarProps<TData> {

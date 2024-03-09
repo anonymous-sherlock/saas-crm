@@ -5,7 +5,7 @@ import { Header } from "./header/Header";
 
 export const SidebarLayout = ({ children }: PropsWithChildren) => {
   return (
-    <div className="flex w-full grainy">
+    <section className="flex w-full grainy">
       <Sidebar>
         <UserAvatarDetails />
       </Sidebar>
@@ -13,6 +13,6 @@ export const SidebarLayout = ({ children }: PropsWithChildren) => {
         <Header />
         <main className="mt-0 p-4">{children}</main>
       </section>
-    </div>
+    </section>
   );
 };

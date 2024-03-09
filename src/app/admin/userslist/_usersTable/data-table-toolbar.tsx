@@ -10,7 +10,7 @@ import { DataTableViewOptions } from "./data-table-view-options";
 import { trpc } from "@/app/_trpc/client";
 import { RefreshCw } from "lucide-react";
 
-import TooltipComponent from "@/components/tooltip-component";
+import TooltipComponent from "@/components/global/tooltip-component";
 import { USER_ROLE } from "@/constants/index";
 import { cn } from "@/lib/utils";
 import { useState } from "react";

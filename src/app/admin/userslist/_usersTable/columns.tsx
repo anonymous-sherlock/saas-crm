@@ -5,7 +5,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { Checkbox } from "@/ui/checkbox";
 
 import {
-  $Enums
+  $Enums, Company
 } from "@prisma/client";
 import { DataTableColumnHeader } from "./data-table-column-header";
 import { DataTableRowActions } from "./data-table-row-actions";
@@ -18,11 +18,16 @@ export type UsersList = {
   email: string;
   emailVerified: Date | null;
   image: string | null;
-  role: $Enums.UserRole;
+  role: $Enums.Role;
   password: string | null;
   active: boolean;
   createdAt: Date;
   updatedAt: Date;
+  company: {
+    id: string | undefined | null,
+    name: string | undefined | null,
+    address: string | undefined | null
+  } | undefined
 };
 
 export const columns: ColumnDef<UsersList>[] = [

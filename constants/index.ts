@@ -1,6 +1,6 @@
-import { CampaignStatus, LeadStatus, UserRole } from "@prisma/client";
-import { CheckCircledIcon, CrossCircledIcon, StopwatchIcon } from "@radix-ui/react-icons";
-import { CircleIcon } from "lucide-react";
+import { CampaignStatus, Icon, LeadStatus, Role } from "@prisma/client";
+import { CheckCircledIcon, CrossCircledIcon, ExclamationTriangleIcon, StopwatchIcon } from "@radix-ui/react-icons";
+import { CheckCircle, CircleIcon, Info } from "lucide-react";
 
 type ProductCategory = {
   label: string;
@@ -67,7 +67,7 @@ export const PRODUCT_CATEGORIES: ProductCategory[] = [
 
 export type StatusType = {
   label: string;
-  value: CampaignStatus | LeadStatus | UserRole;
+  value: CampaignStatus | LeadStatus | Role;
   icon?: React.ComponentType<{ className?: string }>;
   color?: {
     textColor: string;
@@ -170,7 +170,7 @@ export const LEADS_STATUS: LeadStatusProp[] = [
 ];
 
 export type UserRoleType = StatusType & {
-  value: UserRole;
+  value: Role;
 };
 
 export const USER_ROLE: UserRoleType[] = [
@@ -215,6 +215,40 @@ export const USER_ROLE: UserRoleType[] = [
     },
   },
 ];
+
+type NotificationIconTypt = {
+  key: Icon
+  icon: React.ComponentType<{ className?: string }>,
+  color?: {
+    textColor: string;
+    bgColor: string;
+    ringColor: string;
+  };
+
+}
+export const NOTIFICATION_ICON: NotificationIconTypt[] = [
+  {
+    key: "success", icon: CheckCircle, color: {
+      bgColor: "bg-[#F0FDF4]",
+      textColor: "text-green-600",
+      ringColor: "ring-[#DCFCE7]"
+    }
+  },
+  {
+    key: "warning", icon: ExclamationTriangleIcon, color: {
+      bgColor: "bg-[#FFFBEB]",
+      textColor: "text-yellow-600",
+      ringColor: "ring-[#FEF3C7]"
+    }
+  },
+  {
+    key: "info", icon: Info, color: {
+      bgColor: "bg-blue-50",
+      textColor: "text-blue-600",
+      ringColor: "ring-blue-100"
+    }
+  }
+] as const;
 
 export const RESET_PASSWORD_STEP2_LINK: string = "/reset-password/step2"
 export const RESET_PASSWORD_TOKEN_EXPIRE_TIME: number = 4 * 60 * 60 * 1000

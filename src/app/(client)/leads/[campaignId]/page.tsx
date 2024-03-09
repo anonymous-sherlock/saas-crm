@@ -1,9 +1,10 @@
 import { server } from "@/app/_trpc/server";
 import LeadsForm from "@/components/leads/LeadsForm";
 import { db } from "@/db";
-import { getAuthSession } from "@/lib/authOption";
+import { getCurrentUser } from "@/lib/auth";
 import { notFound, redirect } from "next/navigation";
 import SingleCampaignLeads from "./singleCampaignLeads/_table/SingleCampaignLeads";
+import { authPages } from "@routes";
 
 export default async function LeadsPage({
   params
@@ -13,14 +14,14 @@ export default async function LeadsPage({
 
 }) {
 
-  const session = await getAuthSession()
-  if (!session) redirect("/login")
+  const user = await getCurrentUser()
+  if (!user) redirect(authPages.login)
 
-  const { user: { actor, isImpersonating, } } = session
+  const { actor, isImpersonating } = user
   const campaign = await db.campaign.findFirst({
     where: {
       code: params.codeID,
-      userId: isImpersonating ? actor.userId : session.user.id
+      userId: isImpersonating ? actor.userId : user.id
     },
     select: {
       name: true,

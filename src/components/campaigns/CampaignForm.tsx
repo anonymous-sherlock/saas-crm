@@ -50,10 +50,7 @@ const CampaignForm = () => {
       product: "",
       leadsRequirements: "",
       callCenterTeamSize: "",
-      workingDays: {
-        start: "",
-        end: "",
-      },
+      workingDays: [],
       workingHours: {
         startTime: "",
         endTime: "",
@@ -214,7 +211,7 @@ const CampaignForm = () => {
                           <SelectGroup>
                             <SelectLabel>Target Gender</SelectLabel>
                             <Separator className="my-2" />
-                            {["Male", "Female"].map((value) => (
+                            {["Male", "Female", "Both"].map((value) => (
                               <SelectItem
                                 key={value}
                                 value={value}
@@ -257,7 +254,7 @@ const CampaignForm = () => {
               />
             </div>
 
-            <div className=" w-full md:col-span-3 lg:col-span-2  flex flex-col gap-4 gap-y-6">
+            <div className="w-full md:col-span-3 lg:col-span-2 md:!mt-0 flex flex-col gap-4 gap-y-6">
               {/* Working Hours */}
               <WorkingHours />
               <FormField

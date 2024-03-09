@@ -1,4 +1,5 @@
 import { db } from "@/db";
+import { authPages } from "@routes";
 import { redirect } from "next/navigation";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -61,5 +62,5 @@ export async function GET(req: NextRequest) {
     }
     return NextResponse.json({ error: "Token is invalid or expired" }, { status: 500 });
   }
-  redirect("/login");
+  redirect(authPages.login);
 }

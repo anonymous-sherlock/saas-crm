@@ -3,8 +3,13 @@ import { randomUUID } from "crypto";
 import { Metadata } from "next";
 import { twMerge } from "tailwind-merge";
 import favicon from "@/public/favicon.png";
-import { env } from "./env.mjs";
+import { env } from "../env.mjs";
 import crypto from "crypto"
+import { toast } from "sonner";
+import { z } from "zod";
+import { TRPCError } from "@trpc/server";
+import { format, isValid, parse } from "date-fns";
+import { DateRange } from "react-day-picker";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -148,3 +153,44 @@ export function generateSecurePasswordResetCode() {
 
   return resetCode;
 }
+
+
+export function formatBytes(
+  bytes: number,
+  decimals = 0,
+  sizeType: "accurate" | "normal" = "normal"
+) {
+  const sizes = ["Bytes", "KB", "MB", "GB", "TB"];
+  const accurateSizes = ["Bytes", "KiB", "MiB", "GiB", "TiB"];
+  if (bytes === 0) return "0 Byte";
+  const i = Math.floor(Math.log(bytes) / Math.log(1024));
+  return `${(bytes / Math.pow(1024, i)).toFixed(decimals)} ${sizeType === "accurate" ? accurateSizes[i] ?? "Bytest" : sizes[i] ?? "Bytes"
+    }`;
+}
+
+export function catchError(err: unknown) {
+  if (err instanceof z.ZodError) {
+    const errors = err.issues.map((issue) => {
+      return issue.message;
+    });
+    return toast.error(errors.join("\n"));
+  } else if (err instanceof Error) {
+    return toast.error(err.message);
+  } else if (err instanceof TRPCError) {
+    return toast.error(err.message);
+  } else {
+    return toast("Something went wrong, please try again later.");
+  }
+}
+
+export function isValidDateString(dateString: string | undefined, today: Date): Date {
+  if (!dateString) return today;
+  const parsedDate = parse(dateString, "yyyy-MM-dd", today);
+  return isValid(parsedDate) ? parsedDate : today;
+}
+export function formatDateRangeForParams(dateRange: DateRange | undefined): string {
+  if (!dateRange) return '';
+  const from = dateRange.from ? format(dateRange.from, 'yyyy-MM-dd') : '';
+  const to = dateRange.to ? format(dateRange.to, 'yyyy-MM-dd') : '';
+  return `${from}.${to}`;
+};

@@ -1,12 +1,13 @@
 "use client"
 import { toast } from '@/components/ui/use-toast';
-import { FileUploadError, FilesUploadResponse } from '@/types/fileUpload';
-import { useMutation, UseMutationResult } from '@tanstack/react-query';
+import { FileUploadError, FilesUploadResponse, uploaderEndpoint } from '@/types/fileUpload';
+import { useMutation } from '@tanstack/react-query';
 import axios, { AxiosError, AxiosResponse } from 'axios';
 
 
 interface UseFileUploadOptions {
   uplaodPath?: string
+  endpoint?: uploaderEndpoint
 }
 
 interface UploadProps {
@@ -50,8 +51,22 @@ const useFileUpload = (uploadOtions?: UseFileUploadOptions) => {
 
   const upload = async ({ files, path }: UploadProps): Promise<AxiosResponse<FilesUploadResponse> | undefined> => {
     const formData = new FormData();
-    files.map((file) => formData.append('files', file, file.name));
+
+    switch (uploadOtions?.endpoint) {
+      case "crm": files.map((file) => formData.append('crm', file, file.name));
+        break;
+      case "aadharUploader": files.map((file) => formData.append("aadharUploader", file, file.name));
+        break;
+      case "documentsUploader": files.map((file) => formData.append("documentsUploader", file, file.name));
+        break;
+      case "files": files.map((file) => formData.append("files", file, file.name));
+        break;
+      default: files.map((file) => formData.append('crm', file, file.name));
+        break;
+    }
+
     // Use path from the function argument if provided, otherwise use the globalPath
+
     if (path) formData.append('path', path);
     else if (uploadOtions?.uplaodPath) formData.append('path', uploadOtions?.uplaodPath);
     try {

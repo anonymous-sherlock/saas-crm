@@ -21,6 +21,7 @@ import { useForm } from "react-hook-form";
 import * as z from "zod";
 import PasswordToggle from "./PasswordToggle";
 import Link from "next/link";
+import { authPages } from "routes";
 
 export function FormLog({ isRegister }: { isRegister: boolean; }) {
   const router = useRouter();
@@ -46,7 +47,7 @@ export function FormLog({ isRegister }: { isRegister: boolean; }) {
           title: "User Created",
           description: data.message,
         });
-      router.push("/login");
+      router.push(authPages.login);
     },
     onError(error) {
       if (error instanceof TRPCError && error.code === 'CONFLICT') {
@@ -182,7 +183,7 @@ export function FormLog({ isRegister }: { isRegister: boolean; }) {
           {!isRegister && (
             <div className="mt-2 text-right">
               <Link
-                href="/reset-password"
+                href={authPages.resetPassWord}
                 className="text-sm font-semibold text-gray-700 hover:text-blue-700 focus:text-blue-700"
               >
                 Reset Password?

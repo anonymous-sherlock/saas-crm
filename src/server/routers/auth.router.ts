@@ -1,7 +1,7 @@
 import AdscrushResetPasswordEmail from "@/components/emails/reset-password";
 import { RESET_PASSWORD_STEP2_LINK, RESET_PASSWORD_TOKEN_EXPIRE_TIME } from "@/constants/index";
 import { db } from "@/db";
-import { env } from "@/lib/env.mjs";
+import { env } from "@/env.mjs";
 import { encryptCookie } from "@/lib/helpers/cookie";
 import { resend } from "@/lib/resend";
 import { absoluteUrl, generateSecurePasswordResetCode } from "@/lib/utils";

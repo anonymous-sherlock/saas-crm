@@ -56,10 +56,9 @@ export const adminRouter = router({
     const { userId } = ctx
     const users = await db.user.findMany({
       where: {
-        id: {
-          not: userId
-        }
+        id: { not: userId }
       },
+      include: { company: { select: { id: true, name: true, address: true } } },
       orderBy: {
         createdAt: "desc"
       }

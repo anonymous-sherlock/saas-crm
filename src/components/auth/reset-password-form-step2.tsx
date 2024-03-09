@@ -1,12 +1,13 @@
 "use client"
 
-import * as React from "react"
-import { useRouter } from "next/navigation"
 import { zodResolver } from "@hookform/resolvers/zod"
+import { useRouter } from "next/navigation"
 import { useForm } from "react-hook-form"
 import { toast } from "react-hot-toast"
 import type { z } from "zod"
 
+import { trpc } from "@/app/_trpc/client"
+import { Icons } from "@/components/Icons"
 import { Button } from "@/components/ui/button"
 import {
   Form,
@@ -17,10 +18,9 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-import { Icons } from "@/components/Icons"
-import { PasswordInput } from "./password-input"
 import { resetPasswordSchema } from "@/schema/authFormSchema"
-import { trpc } from "@/app/_trpc/client"
+import { authPages } from "@routes"
+import { PasswordInput } from "./password-input"
 
 type Inputs = z.infer<typeof resetPasswordSchema>
 
@@ -42,7 +42,7 @@ export function ResetPasswordStep2Form() {
     },
     onSuccess(data) {
       form.reset()
-      router.push("/login")
+      router.push(authPages.login)
       toast.success(data.message)
     }
   })

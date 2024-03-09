@@ -1,5 +1,5 @@
 import { server } from '@/app/_trpc/server'
-import { ProductForm } from '@/components/products/ProductForm'
+import { ProductForm } from '@/components/template/products/ProductForm'
 import React from 'react'
 
 

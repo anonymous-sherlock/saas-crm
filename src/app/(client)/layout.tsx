@@ -1,4 +1,4 @@
-import { Breadcrumbs } from '@/components/Breadcrumbs'
+import { Breadcrumbs } from '@/components/global/Breadcrumbs'
 import { SidebarLayout } from '@/components/layouts/SidebarLayout'
 
 import { constructMetadata } from '@/lib/utils'

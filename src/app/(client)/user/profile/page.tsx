@@ -1,31 +1,26 @@
 import { server } from "@/app/_trpc/server";
 import { Icons } from "@/components/Icons";
-import Account from "@/components/profile/Account";
-import { Integration } from "@/components/profile/Integration";
-import { NotificationsForm } from "@/components/profile/NotificationForm";
+import Account from "@/components/template/profile/Account";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
+import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { getAuthSession } from "@/lib/authOption";
+import { getCurrentUser } from "@/lib/auth";
+import { cn } from "@/lib/utils";
+import defaultProfileCover from "@/public/default-profile-cover.png";
+import { authPages } from "@routes";
 import Image from "next/image";
 import { redirect } from "next/navigation";
-import defaultProfileCover from "@/public/default-profile-cover.png"
 
 
 export default async function UserProfilePage() {
-  const session = await getAuthSession();
-  if (!session || !session.user) {
-    redirect("/login");
-  }
-  const { user } = session;
+  const user = await getCurrentUser();
+  if (!user) redirect(authPages.login);
+
   const userData = await server.user.get()
 
   return (
-    <main className="flex ">
+    <main className="flex">
       <Card className="w-full overflow-hidden">
         <div className="min-h-[200px] w-full relative">
           <Image src={defaultProfileCover.src} blurDataURL={defaultProfileCover.blurDataURL} fill alt="" priority quality={90} />
@@ -47,23 +42,8 @@ export default async function UserProfilePage() {
               <h3 className="text-xl font-medium">{user?.name}</h3>
             </div>
             <Separator />
-            <div className="flex-1 space-y-4 p-8 pl-0 pt-6">
-              <Tabs defaultValue="account" className="space-y-4">
-                <TabsList className="text-2xl capitalize font-medium space-x-4">
-                  <TabsTrigger value="account">Account</TabsTrigger>
-                  <TabsTrigger value="notification">Notification</TabsTrigger>
-                  <TabsTrigger value="integration">Integration</TabsTrigger>
-                </TabsList>
-                <TabsContent value="account" className="w-full" >
-                  <Account user={userData} />
-                </TabsContent>
-                <TabsContent value="notification" className="w-full" >
-                  <NotificationsForm />
-                </TabsContent>
-                <TabsContent value="integration" className="w-full" >
-                  <Integration />
-                </TabsContent>
-              </Tabs>
+            <div className={cn("flex-1 space-y-4 p-8 pl-0", "!pt-0")}>
+              <Account user={userData} />
             </div>
           </div>
         </CardContent>

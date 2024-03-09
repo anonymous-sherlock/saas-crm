@@ -1,11 +1,11 @@
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["fullTextSearch", "fullTextIndex"]
 }
 
 datasource db {
-  provider     = "mysql"
-  url          = env("DATABASE_URL")
-  relationMode = "prisma"
+  provider = "mysql"
+  url      = env("DATABASE_URL")
 }
 
 model Account {
@@ -29,14 +29,51 @@ model Account {
   @@index([userId], map: "Account_userId_fkey")
 }
 
-model Session {
-  id           String   @id @default(cuid())
-  sessionToken String   @unique
-  userId       String
-  expires      DateTime
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+model Notification {
+  id        String   @id @default(uuid())
+  message   String
+  companyId String
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  company   Company? @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  isRead    Boolean  @default(false)
+  archived  Boolean  @default(false)
+  icon      Icon?
+  action    String?
 
-  @@index([userId], map: "Session_userId_fkey")
+  @@index([companyId])
+  @@index([userId])
+}
+
+enum Icon {
+  warning
+  success
+  info
+}
+
+model Company {
+  id                        String         @id @default(cuid())
+  name                      String
+  phone                     String
+  gstNumber                 String?
+  contactPersonName         String
+  contactPersonEmail        String
+  billingContactPersonName  String
+  billingContactPersonEmail String
+  billingContactPersonPhone String?
+  country                   String
+  state                     String
+  city                      String
+  zipcode                   String
+  landmark                  String?
+  address                   String
+  user                      User?
+  notification              Notification[]
+  media                     Media[]
+
+  @@map("company_details")
 }
 
 model User {
@@ -45,11 +82,13 @@ model User {
   email               String               @unique
   emailVerified       DateTime?
   image               String?
-  role                UserRole             @default(CUSTOMER)
+  role                Role                 @default(CUSTOMER)
   password            String?
   active              Boolean              @default(false)
   createdAt           DateTime             @default(now())
   updatedAt           DateTime             @updatedAt
+  company             Company?             @relation(fields: [companyId], references: [id])
+  companyId           String?              @unique
   accounts            Account[]
   passwordResetTokens PasswordResetToken[]
   activateTokens      ActivateToken[]
@@ -58,7 +97,27 @@ model User {
   campaigns           Campaign[]
   leads               Lead[]
   products            Product[]
-  sessions            Session[]
+  notification        Notification[]
+  media               Media[]
+
+  @@fulltext([name, email])
+}
+
+model Media {
+  id               String   @id @default(uuid())
+  name             String
+  size             Int?
+  type             String?
+  url              String
+  originalFileName String?
+  user             User?    @relation(fields: [userId], references: [id])
+  userId           String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  company          Company? @relation(fields: [companyId], references: [id])
+  companyId        String?
+
+  @@map("media")
 }
 
 model PasswordResetToken {
@@ -186,6 +245,8 @@ model Campaign {
 
   @@index([productId], map: "Campaign_productProductId_fkey")
   @@index([userId], map: "Campaign_userId_fkey")
+  @@fulltext([name, code])
+  @@fulltext([description])
   @@map("campaigns")
 }
 
@@ -251,7 +312,7 @@ enum LeadStatus {
   Approved
 }
 
-enum UserRole {
+enum Role {
   SUPER_Admin
   ADMIN
   CLIENT
@@ -261,4 +322,5 @@ enum UserRole {
 enum Gender {
   Male
   Female
+  Both
 }

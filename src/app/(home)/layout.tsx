@@ -1,7 +1,5 @@
-import Navbar from '@/components/Navbar'
-
+import Navbar from '@/components/layouts/header/Navbar'
 import { constructMetadata } from '@/lib/utils'
-
 export const metadata = constructMetadata()
 
 export default function HomeLayout({

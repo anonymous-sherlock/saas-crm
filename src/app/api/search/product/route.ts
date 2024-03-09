@@ -1,6 +1,6 @@
 import { INFINITE_QUERY_LIMIT } from "@/config/infinite-query";
 import { db } from "@/db";
-import { getAuthSession } from "@/lib/authOption";
+import { getCurrentUser } from "@/lib/auth";
 import { NextRequest, NextResponse } from "next/server";
 
 async function getSelectedProduct(selectedId: string | null) {
@@ -14,8 +14,7 @@ async function getSelectedProduct(selectedId: string | null) {
 }
 
 export async function GET(req: NextRequest, res: NextResponse) {
-  const session = await getAuthSession();
-  const user = session?.user;
+  const user = await getCurrentUser();
 
   const queryParams = req.nextUrl.searchParams;
   const productName = queryParams.get("name");

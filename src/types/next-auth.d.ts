@@ -1,4 +1,4 @@
-import { UserRole } from "@prisma/client";
+import { Company, Role } from "@prisma/client";
 import { DefaultSession } from "next-auth";
 import { type Session, type User } from "next-auth";
 import type { JWT } from "next-auth/jwt";
@@ -9,21 +9,30 @@ type Actor = {
   userId: string;
   actorName: string;
   actorEmail: string;
+  image: string | undefined | null;
+  company: {
+    id: string | undefined,
+    name: string | undefined,
+    address: string | undefined
+  }
+
 }
 
 type UserWithActor = User & {
   id: UserId;
-  role: UserRole;
+  role: Role;
   isImpersonating: boolean;
   actor: Actor;
+  company: Pick<Company, "id" | "name" | "address">
 };
 
 declare module "next-auth/jwt" {
   interface JWT {
     id: UserId;
-    role: UserRole;
+    role: Role;
     isImpersonating: boolean;
     actor: Actor;
+    company: Pick<Company, "id" | "name" | "address">
   }
 }
 

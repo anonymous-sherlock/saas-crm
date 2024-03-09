@@ -5,7 +5,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { Checkbox } from "@/ui/checkbox";
 
 import { CustomBadge } from "@/components/CustomBadge";
-import TooltipComponent from "@/components/tooltip-component";
+import TooltipComponent from "@/components/global/tooltip-component";
 import { LEADS_STATUS } from "@/constants/index";
 import { cn } from "@/lib/utils";
 import {

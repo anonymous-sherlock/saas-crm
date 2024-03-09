@@ -1,4 +1,3 @@
-import { getFileExtension } from "@/lib/helpers";
 import { z } from "zod";
 
 export const singleImageSchema = z.object({
@@ -40,31 +39,12 @@ export const productFormSchema = z.object({
       message: "Product quantity must be a valid number or -1 for unlimited.",
     }),
 
-  productImages: z
-    .array(singleImageSchema)
-    // .refine((files) => files.length > 0, { message: "Add At least one product image." })
-    .refine(
-      (files) => {
-        // For example, you can check file types, sizes, or other criteria.
-        return files.every((file) => {
-          const extension = getFileExtension(file.name).toLowerCase();
-          return ACCEPTED_IMAGE_EXTENSIONS.includes(extension);
-        });
-      },
-      {
-        message: "Please upload valid image files only .jpg, .jpeg, .png and .webp are acceptable.",
-      },
-    )
-    .refine(
-      (files) => {
-        // Limit the number of files to a maximum of 5
-        return files.length <= 10;
-      },
-      {
-        message: "You can upload a maximum of 10 files.",
-      },
-    ),
-
+  productImages: z.unknown()
+    .refine((val) => {
+      if (!Array.isArray(val)) return false
+      if (val.some((file) => !(file instanceof File))) return false
+      return true
+    }, "Must be an array of File"),
   mediaUrls: z.array(
     z.object({
       value: z
@@ -85,7 +65,7 @@ export const ACCEPTED_IMAGE_EXTENSIONS = ["jpg", "jpeg", "png", "webp", "svg"];
 
 // delete product payload
 
-export const deleteProduct = z.object({
+export const productDeleteScheme = z.object({
   productId: z.string({
     required_error: "product id is required",
   }),
@@ -105,5 +85,5 @@ export const productSearch = z.object({
   cursor: z.string(),
 });
 export type ProductFormPayload = z.infer<typeof productFormSchema>;
-export type DeleteProductPayload = z.infer<typeof deleteProduct>;
+export type DeleteProductPayload = z.infer<typeof productDeleteScheme>;
 export type ProductSearchPayload = z.infer<typeof productSearch>;

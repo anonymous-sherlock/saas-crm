@@ -12,12 +12,12 @@ import {
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
 import { Separator } from "@/components/ui/separator";
-import { getAuthSession } from "@/lib/authOption";
+import { getCurrentUser } from "@/lib/auth";
 import { generateInitialFromName } from "@/lib/utils";
 import Link from "next/link";
 
 export const UserProfileHover = async () => {
-  const session = await getAuthSession();
+  const user = await getCurrentUser();
   return (
     <HoverCard>
       {/* user image */}
@@ -25,19 +25,19 @@ export const UserProfileHover = async () => {
         <div className="flex cursor-pointer items-center justify-start gap-2 border-y p-4">
           <Avatar>
             <AvatarImage
-              src={session?.user.image as string}
-              alt={session?.user.name as string}
+              src={user?.image as string}
+              alt={user?.name as string}
             />
             <AvatarFallback>
-              {generateInitialFromName(session?.user.name as string)}
+              {generateInitialFromName(user?.name as string)}
             </AvatarFallback>
           </Avatar>
           <span className="truncate">
             <span className="block text-sm text-gray-900 dark:text-white">
-              {session?.user.name}
+              {user?.name}
             </span>
             <span className="block truncate text-sm text-gray-500 dark:text-gray-400">
-              {session?.user.email}
+              {user?.email}
             </span>
           </span>
         </div>
@@ -45,13 +45,13 @@ export const UserProfileHover = async () => {
       <HoverCardContent className="m-0 w-fit p-0" side="right">
         <div className="">
           <div className="flex items-center justify-start gap-2 border-y p-4">
-            {session?.user && <UserAvatar user={session.user} />}
+            {user && <UserAvatar user={user} />}
             <div>
               <span className="block text-sm text-gray-900 dark:text-white">
-                {session?.user.name}
+                {user?.name}
               </span>
               <span className="block truncate  text-sm text-gray-500 dark:text-gray-400">
-                {session?.user.email}
+                {user?.email}
               </span>
             </div>
           </div>

@@ -3,12 +3,13 @@ import { ExclamationTriangleIcon } from "@radix-ui/react-icons"
 import { Session } from "next-auth"
 import { useSession } from 'next-auth/react'
 import Image from "next/image"
+import { useRouter } from "next/navigation"
 import { FC } from 'react'
-
 import { toast as hotToast } from "react-hot-toast"
 import { Icons } from "./Icons"
 import { Avatar, AvatarFallback } from './ui/avatar'
 import { Button } from './ui/button'
+
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from './ui/dropdown-menu'
 interface ImpersonatingUserProps {
 
@@ -16,6 +17,9 @@ interface ImpersonatingUserProps {
 
 const ImpersonatingUser: FC<ImpersonatingUserProps> = ({ }) => {
   const { data: session, status, update } = useSession()
+  const router = useRouter()
+
+
   const user = session?.user
   if (!session?.user.isImpersonating || !session.user.actor) {
     return null
@@ -33,9 +37,8 @@ const ImpersonatingUser: FC<ImpersonatingUserProps> = ({ }) => {
           actor: null as any
         }
       };
-
       try {
-        await update(updatedSession),
+        await update(updatedSession).then((ses) => router.refresh()),
           hotToast.custom((t) => (
             <div
               className={`${t.visible ? 'animate-enter' : 'animate-leave'
@@ -86,18 +89,15 @@ const ImpersonatingUser: FC<ImpersonatingUserProps> = ({ }) => {
       } catch (error) {
         hotToast.error("Could not remove impersonated session as this time.");
       }
-
-
     }
   }
 
   return (
     <>
       <DropdownMenu >
-
         <DropdownMenuTrigger
           asChild
-          className='overflow-visible fixed top-32 right-6'>
+          className='overflow-visible fixed top-32 right-6 z-50'>
           <Button className='rounded-full w-10 h-10 aspect-square bg-red-500 hover:bg-red-700'>
             <Avatar className='relative  flex justify-center items-center'>
               <ExclamationTriangleIcon className="h-6 w-6" />
@@ -126,16 +126,12 @@ const ImpersonatingUser: FC<ImpersonatingUserProps> = ({ }) => {
           </div>
 
           <DropdownMenuSeparator />
-
           <DropdownMenuItem className='cursor-pointer' onClick={discardImpersonation}>
             Log out impersonated session
           </DropdownMenuItem>
         </DropdownMenuContent>
-
       </DropdownMenu>
     </>
-
-
   )
 }
 

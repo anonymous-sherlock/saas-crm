@@ -96,8 +96,6 @@ const ProductDropdown = () => {
     let fetched = false
     if (!fetched) {
       refetch()
-
-      console.log("fetched called")
       fetched = true
     }
 

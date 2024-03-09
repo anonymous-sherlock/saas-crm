@@ -1,5 +1,5 @@
-import MaxWidthWrapper from "@/components/MaxWidthWrapper";
-import Navbar from "@/components/Navbar";
+import MaxWidthWrapper from "@/components/global/MaxWidthWrapper";
+import Navbar from "@/components/layouts/header/Navbar";
 import { buttonVariants } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";

@@ -1,45 +1,56 @@
 import { SubMenuTypes } from "@/types";
-import { UserRoundCog } from "lucide-react";
+import { BarChartBig, Folders, LayoutDashboard, Settings, UserRoundCog } from "lucide-react";
 import { BsPerson } from "react-icons/bs";
-import { MdDashboard, MdLeaderboard } from "react-icons/md";
+// import { MdDashboard, MdLeaderboard } from "react-icons/md";
 import { RiBuilding3Line } from "react-icons/ri";
-import { SlSettings } from "react-icons/sl";
 import { TbReportAnalytics } from "react-icons/tb";
 
 export const Menus = [
-  { label: "Dashboard", icon: MdDashboard, url: "/dashboard" },
-  { label: "Leads", icon: MdLeaderboard, url: "/leads", gap: true },
+  { label: "Dashboard", icon: LayoutDashboard, url: "/dashboard" },
+  { label: "Leads", icon: BarChartBig, url: "/leads", gap: true },
 ];
 export const singleMenu = [
+  {
+    label: "Media",
+    icon: Folders,
+    url: "/media",
+    gap: true,
+  },
   {
     label: "Profile",
     icon: BsPerson,
     url: "/user/profile",
-    gap: true,
   },
   {
     label: "Settings",
-    icon: SlSettings,
-    url: "/user/settings",
+    icon: Settings,
+    url: "/settings",
   },
-  // {
-  //   label: "Balance",
-  //   icon: Wallet2,
-  //   url: "/user/wallet",
-  // },
 ];
 
 export const subMenusList: SubMenuTypes[] = [
   {
     name: "admin",
     label: "Admin",
-    icon: UserRoundCog ,
+    icon: UserRoundCog,
     menus: [
+    
       {
         id: "1",
         label: "All Users",
         url: "/admin/userslist",
       },
+      {
+        id: "2",
+        label: "All Users Campaigns",
+        url: "/admin/user-campaigns",
+      },
+      {
+        id: "3",
+        label: "Notifications",
+        url: "/admin/notifications",
+      },
+
     ],
     isAdmin: true,
   },

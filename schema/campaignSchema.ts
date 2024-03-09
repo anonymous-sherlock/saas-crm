@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { workingDayOptions } from "@/constants/time";
+import { isValidDay } from "@/lib/helpers/date";
 export enum TrafficSource {
   Social = "Social",
   Adult = "Adult",
@@ -33,29 +34,7 @@ export const campaignFormSchema = z.object({
       message: "End time is required.",
     }),
   }),
-
-  workingDays: z.object({
-    start: z
-      .string({
-        required_error: "Start day is required.",
-      })
-      .min(1, {
-        message: "Start day is required.",
-      })
-      .refine((value) => workingDayOptions.includes(value), {
-        message: "Start day must be a valid working day option.",
-      }),
-    end: z
-      .string({
-        required_error: "End day is required",
-      })
-      .min(1, {
-        message: "End day is required.",
-      })
-      .refine((value) => workingDayOptions.includes(value), {
-        message: "End day must be a valid working day option.",
-      }),
-  }),
+  workingDays: z.array(z.string().refine(isValidDay, { message: "Invalid day" })),
   // Call Center Team size
   callCenterTeamSize: z
     .string()
@@ -68,11 +47,9 @@ export const campaignFormSchema = z.object({
     }),
 
   // Country Region
-  targetCountry: z
-    .string()
-    .min(1, {
-      message: "Target country is required.",
-    }),
+  targetCountry: z.string().min(1, {
+    message: "Target country is required.",
+  }),
   // target region
   targetRegion: z
     .string({
@@ -86,7 +63,8 @@ export const campaignFormSchema = z.object({
   // Target Age
   targetAge: z.object({
     min: z
-      .string().min(1,{message:"Minimum age is required."})
+      .string()
+      .min(1, { message: "Minimum age is required." })
 
       .refine(
         (value) => {
@@ -96,7 +74,8 @@ export const campaignFormSchema = z.object({
         { message: "Minimum age must be between 18 and 65." },
       ),
     max: z
-      .string().min(1,{message:"Maximum age is required."})
+      .string()
+      .min(1, { message: "Maximum age is required." })
       .refine(
         (value) => {
           const parsedValue = parseInt(value, 10);
@@ -105,8 +84,9 @@ export const campaignFormSchema = z.object({
         { message: "Maximum age must be between 18 and 65." },
       ),
   }),
-  targetGender: z.enum(["Male", "Female"],{required_error:"Target gender is required",invalid_type_error:"Target gender can be Male or Female"}),
+  targetGender: z.enum(["Male", "Female", "Both"], { required_error: "Target gender is required", invalid_type_error: "Target gender can be Male or Female" }),
   trafficSource: z.nativeEnum(TrafficSource),
 });
 
 export type CampaignFormPayload = z.infer<typeof campaignFormSchema>;
+export type CampaignFormType = z.infer<typeof campaignFormSchema>;

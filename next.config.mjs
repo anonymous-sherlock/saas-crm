@@ -1,4 +1,4 @@
-import("./src/lib/env.mjs");
+import("./src/env.mjs");
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -24,6 +24,16 @@ const nextConfig = {
       {
         protocol: "https",
         hostname: "*source.unsplash.com",
+        pathname: "**",
+      },
+      {
+        protocol: "https",
+        hostname: "*cdn-crm.adscrush.com.stevensmith.a2hosted.com*",
+        pathname: "**",
+      },
+      {
+        protocol: "https",
+        hostname: "*cdn-crm.adscrush.com",
         pathname: "**",
       },
     ],

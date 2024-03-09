@@ -1,7 +1,7 @@
 "use client";
 import { Separator } from "@/components/ui/separator";
 import { timeOptions, workingDayOptions } from "@/constants/time";
-import { FC } from "react";
+import { FC, useRef, useState } from "react";
 import { useFormContext } from "react-hook-form";
 import {
   FormControl,
@@ -20,78 +20,83 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
+import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
+import { Button } from "../ui/button";
+import { Check, ChevronsUpDown } from "lucide-react";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "../ui/command";
+import { cn } from "@/lib/utils";
+import { CampaignFormType } from "@/schema/campaignSchema";
 
 interface WorkingHoursProps { }
 
 const WorkingHours: FC<WorkingHoursProps> = ({ }) => {
-  const { control, } =
-    useFormContext();
+  const { control, setValue, setError, clearErrors } = useFormContext<CampaignFormType>();
+  const [daysOpen, setDaysOpen] = useState(false);
+
+  const selectedWorkingDaysRef = useRef<Array<string>>([]);
+
+  const handleDaySelect = (day: string) => {
+    selectedWorkingDaysRef.current = selectedWorkingDaysRef.current.includes(day) ? selectedWorkingDaysRef.current.filter((d) => d !== day) : [...selectedWorkingDaysRef.current, day];
+    setValue("workingDays", selectedWorkingDaysRef.current);
+    if (selectedWorkingDaysRef.current.length === 0) {
+      setError("workingDays", {
+        type: "required",
+        message: "Please select at least one region.",
+      });
+    } else {
+      clearErrors("workingDays"); // Remove the error
+    }
+  };
 
   return (
     <>
       {/* Working Days */}
-      <div className="grid grid-cols-2 gap-2 items-end">
-        <FormField
-          control={control}
-          name="workingDays.start"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Working Days</FormLabel>
-              <Select onValueChange={field.onChange}>
-                <SelectTrigger className="w-full capitalize h-11">
-                  <SelectValue placeholder="Start Day" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectGroup>
-                    <SelectLabel>Start Day</SelectLabel>
-                    <Separator className="my-2" />
-                    {workingDayOptions.map((day, index) => (
-                      <SelectItem key={index} value={day}>
-                        {day}
-                      </SelectItem>
-                    ))}
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={control}
-          name="workingDays.end"
-          render={({ field }) => (
-            <FormItem>
-              {/* end time */}
+      <FormField
+        control={control}
+        name="workingDays"
+        render={({ field }) => (
+          <FormItem className="mt-0">
+            <FormLabel>Working Days</FormLabel>
+            <FormControl>
+              <Popover open={daysOpen} onOpenChange={setDaysOpen} >
+                <PopoverTrigger asChild >
+                  <FormControl>
+                    <Button variant="outline" role="combobox" aria-expanded={daysOpen} className={cn("w-full justify-between h-11", !field.value && "text-muted-foreground")}>
+                      {selectedWorkingDaysRef.current.length > 0 ? `${selectedWorkingDaysRef.current.length}${" "}Days selected` : "Select Working Days"}
+                      <ChevronsUpDown className=" h-3 w-3 shrink-0 opacity-50" />
+                    </Button>
+                  </FormControl>
+                </PopoverTrigger>
+                <PopoverContent className="w-[300px] p-0">
+                  <Command className="m-0 h-full w-full p-0">
+                    <CommandInput placeholder="Search..." />
+                    <CommandList>
+                      <CommandEmpty>No Days Found.</CommandEmpty>
+                      <CommandGroup heading="Days">
+                        {workingDayOptions.map((day, index) => (
+                          <CommandItem
+                            key={index}
+                            value={day}
+                            className="capitalize my-2"
+                            onSelect={() => {
+                              handleDaySelect(day);
+                            }}
+                          >
+                            <Check className={cn("mr-1 h-4 w-4", selectedWorkingDaysRef.current.includes(day) ? "opacity-100" : "opacity-0")} />
+                            <span>{day}</span>
+                          </CommandItem>
+                        ))}
 
-              <Select onValueChange={field.onChange}>
-                <FormControl className="capitalize">
-                  <SelectTrigger className="w-full capitalize h-11">
-                    <SelectValue
-                      placeholder="Last Day"
-                      className="text-muted-foreground"
-                    />
-                  </SelectTrigger>
-                </FormControl>
-
-                <SelectContent>
-                  <SelectGroup>
-                    <SelectLabel>End Day</SelectLabel>
-                    <Separator className="my-2" />
-                    {workingDayOptions.map((day, index) => (
-                      <SelectItem key={index} value={day}>
-                        {day}
-                      </SelectItem>
-                    ))}
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
-
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-      </div>
+                      </CommandGroup>
+                    </CommandList>
+                  </Command>
+                </PopoverContent>
+              </Popover>
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
 
       {/* working Hours */}
       <div className="grid grid-cols-2 gap-2 items-end">

@@ -1,23 +1,22 @@
-import MaxWidthWrapper from "@/components/MaxWidthWrapper";
+import MaxWidthWrapper from "@/components/global/MaxWidthWrapper";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import Image from "next/image";
 import dashboardImage from "@/public/dashboard-preview.jpg";
 import fileUploadPreview from "@/public/file-upload-preview.jpg";
+import Pill from "@/components/global/pill";
 
 export default function Home() {
   return (
     <>
-      <MaxWidthWrapper className="mb-12 mt-28 sm:mt-40 flex flex-col items-center justify-center text-center">
-        <div className="mx-auto mb-4 flex max-w-fit items-center justify-center space-x-2 overflow-hidden rounded-full border border-gray-200 bg-white px-7 py-2 shadow-md backdrop-blur transition-all hover:border-gray-300 hover:bg-white/50">
-          <p className="text-sm font-semibold text-gray-700">adscrush crm is now public! 🎉</p>
-        </div>
+      <MaxWidthWrapper className="mb-12 mt-28 sm:mt-32 flex flex-col items-center justify-center text-center">
+        <Pill content={<p className="font-semibold space-x-2">adscrush crm is now public! 🎉</p>} className="mb-5" />
         <h1 className="max-w-4xl text-5xl font-bold md:text-6xl lg:text-7xl">
           The Ultimate <span className="text-blue-600">Leads</span> Management in seconds.
         </h1>
         <p className="mt-5 max-w-prose text-zinc-700 sm:text-lg">
-        Adscrush: Your all-in-one CRM for seamless lead management, tracking, and conversion. Elevate your business with intuitive tools and insights.
+          Adscrush: Your all-in-one CRM for seamless lead management, tracking, and conversion. Elevate your business with intuitive tools and insights.
         </p>
 
         <Link

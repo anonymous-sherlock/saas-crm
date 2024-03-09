@@ -1,24 +1,19 @@
+import AddUserForm from "@/components/admin/user/AddUserForm"
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"
 import { db } from "@/db"
-import { getAuthSession } from "@/lib/authOption"
+import { getCurrentUser } from "@/lib/auth"
 import { Ghost } from "lucide-react"
 import { redirect } from "next/navigation"
 import { columns } from "./_usersTable/columns"
 import { DataTable } from "./_usersTable/data-table"
-import AddUserForm from "@/components/admin/AddUserForm"
+import { authPages } from "@routes"
 
 export default async function UserListpage() {
-
-
-  const session = await getAuthSession()
-  if (!session) redirect("/login")
-
+  const user = await getCurrentUser()
+  if (!user) redirect(authPages.login)
   const users = await db.user.findMany({
-    where: {
-      id: {
-        not: session.user.id
-      }
-    },
+    where: { id: { not: user.id } },
+    include: { company: { select: { id: true, name: true, address: true } } },
     orderBy: {
       createdAt: "desc"
     }
@@ -36,7 +31,7 @@ export default async function UserListpage() {
                 Here&apos;s a list of all your users!
               </p>
             </div>
-            {session.user.role === "ADMIN" ?
+            {user.role === "ADMIN" ?
               <AddUserForm /> : null
             }
           </div>

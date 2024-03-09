@@ -4,11 +4,10 @@ import Link from "next/link";
 import { FC } from "react";
 import { FormLog } from "./FormLog";
 import GoogleSignIn from "./GoogleSignIn";
-
-
+import { authPages } from "routes";
 
 interface AuthFormProps {
-  isRegister :boolean;
+  isRegister: boolean;
 }
 
 const AuthenticationForm: FC<AuthFormProps> = ({ isRegister }) => {
@@ -42,7 +41,7 @@ const AuthenticationForm: FC<AuthFormProps> = ({ isRegister }) => {
         <p className="mt-8">
           Already have an account?{" "}
           <Link
-            href="/login"
+            href={authPages.login}
             className="font-semibold text-blue-500 hover:text-blue-700"
           >
             Log in
@@ -52,7 +51,7 @@ const AuthenticationForm: FC<AuthFormProps> = ({ isRegister }) => {
         <p className="mt-8">
           Need an account?{" "}
           <Link
-            href="/register"
+            href={authPages.register}
             className="font-semibold text-blue-500 hover:text-blue-700"
           >
             Create an account

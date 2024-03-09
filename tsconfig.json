@@ -14,6 +14,7 @@
     "jsx": "preserve",
     "incremental": true,
     "baseUrl": ".",
+    "rootDir": ".",
     "plugins": [
       {
         "name": "next"
@@ -21,7 +22,6 @@
     ],
     "paths": {
       "@/*": ["./src/*"],
-      "@/prisma/*": ["./prisma/*"],
       "@/db/*": ["./src/db/*"],
       "@/server/*": ["./src/server/*"],
       "@/ui/*": ["./src/components/ui/*"],
@@ -38,9 +38,10 @@
       "@/constants/*": ["./constants/*"],
       "@/public/*": ["./public/*"],
       "@/types/*": ["./src/types/*"],
-      "@/env": ["./src/lib/env.mjs"]
+      "@/env": ["./src/env.mjs"],
+      "@routes": ["routes.ts"]
     }
   },
-  "include": ["store/next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", ".contentlayer/generated", "src/lib/env.mjs"],
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules"],
+  "include": ["next-env.d.ts", ".next/types/**/*.ts", "**/*.ts", "**/*.tsx"]
 }
