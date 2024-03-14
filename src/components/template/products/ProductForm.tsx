@@ -1,7 +1,4 @@
 "use client";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-
 import { trpc } from "@/app/_trpc/client";
 import { FormError } from "@/components/global/form-error";
 import { FormSuccess } from "@/components/global/form-success";
@@ -15,12 +12,10 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
 import { PRODUCT_CATEGORIES } from "@/constants/index";
 import { addProduct, deleteProduct } from "@/lib/actions/product.action";
 import useFileUpload from "@/lib/hooks/useFileUpload";
 import { catchError, cn } from "@/lib/utils";
-import { pages } from "routes";
 import { productFormSchema } from "@/schema/productSchema";
 import { RouterOutputs } from "@/server";
 import { FileWithPreview } from "@/types";
@@ -34,12 +29,15 @@ import {
   CommandList,
 } from "@/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "@/ui/popover";
-import { Textarea } from "@/ui/textarea";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Input as NextInput, Textarea as NextTextarea } from "@nextui-org/react";
 import { Check, ChevronsUpDown, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import toast from "react-hot-toast";
+import { pages } from "routes";
+import { z } from "zod";
 import Spinner from "../../ui/spinner";
 import { ProductImagesUploader } from "./productImages";
 
@@ -66,7 +64,7 @@ export function ProductForm({ edit, product }: ProductFormProps) {
   const form = useForm<z.infer<typeof productFormSchema>>({
     resolver: zodResolver(productFormSchema),
     defaultValues: {
-      productId: product?.name || "",
+      id: product?.id || "",
       productName: product?.name || "",
       productPrice: product?.price.toString() || "",
       productDescription: product?.description || "",
@@ -156,7 +154,7 @@ export function ProductForm({ edit, product }: ProductFormProps) {
       setSuccess("");
       if (edit === true) {
         try {
-          deleteProduct({ productId: product?.productId }).then((data) => {
+          deleteProduct({ id: product?.id }).then((data) => {
             setError(data?.error);
             setSuccess(data?.success);
             if (data?.success) {
@@ -190,7 +188,10 @@ export function ProductForm({ edit, product }: ProductFormProps) {
                     <FormItem>
                       <FormLabel >Product Name</FormLabel>
                       <FormControl>
-                        <Input placeholder="Nutra Bay" {...field} />
+                        <NextInput type="text" aria-label="Product Name" size="sm"
+                          placeholder="Nutra Bay" variant="faded"
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -204,7 +205,10 @@ export function ProductForm({ edit, product }: ProductFormProps) {
                     <FormItem>
                       <FormLabel>Product Price</FormLabel>
                       <FormControl>
-                        <Input placeholder="1,999" {...field} />
+                        <NextInput type="text" aria-label="Product Name" size="sm"
+                          placeholder="1,999" variant="faded"
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -224,15 +228,7 @@ export function ProductForm({ edit, product }: ProductFormProps) {
                         <Popover open={open} onOpenChange={setOpen}>
                           <PopoverTrigger asChild>
                             <FormControl>
-                              <Button
-                                variant="outline"
-                                role="combobox"
-                                aria-expanded={open}
-                                className={cn(
-                                  "w-full justify-between",
-                                  !field.value && "text-muted-foreground"
-                                )}
-                              >
+                              <Button data-slot="input-wrapper" variant="outline" role="combobox" className={cn("relative items-center justify-between w-full flex tap-highlight-transparent shadow-sm border-2  border-default-200 bg-default-100 hover:bg-default-100 text-foreground-500 hover:text-foreground-500 font-normal hover:font-normal focus-visible:bg-default-100 hover:border-default-400 min-h-unit-8 rounded-small gap-0 transition-background !duration-150 transition-colors motion-reduce:transition-none outline-none focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-background h-12 px-3 py-1 is-filled")}>
                                 {field.value
                                   ? PRODUCT_CATEGORIES.find((cat) => field.value === cat.value)?.label
                                   : "Select a Category"}
@@ -240,18 +236,16 @@ export function ProductForm({ edit, product }: ProductFormProps) {
                               </Button>
                             </FormControl>
                           </PopoverTrigger>
-                          <PopoverContent
-                            className="w-full p-0"
-                            style={{ maxWidth: "100%", width: "100%" }}
+                          <PopoverContent className="p-0 gap-0 divide-y divide-default-300/50 dark:divide-default-100/80 bg-content1 max-w-[300px] overflow-hidden shadow-small rounded-medium"
                           >
                             <Command className="m-0 h-full w-full p-0">
                               <CommandInput placeholder="Search..." />
                               <CommandList>
-                                <CommandEmpty>No results found.</CommandEmpty>
-                                <CommandGroup heading="Categories">
+                                <CommandEmpty>No region found.</CommandEmpty>
+                                <CommandGroup heading="Region">
                                   {PRODUCT_CATEGORIES.map((cat, index) => (
                                     <CommandItem
-                                      className="my-2  cursor-pointer"
+                                      className="my-2 cursor-pointer aria-selected:bg-default-300"
                                       key={index}
                                       value={cat.label}
                                       onSelect={() => {
@@ -289,8 +283,8 @@ export function ProductForm({ edit, product }: ProductFormProps) {
                     <FormItem>
                       <FormLabel>Product Quantity</FormLabel>
                       <FormControl>
-                        <Input
-                          placeholder="-1 for unlimited stocks"
+                        <NextInput type="text" aria-label="Product Name" size="sm"
+                          placeholder="-1 for unlimited stocks" variant="faded"
                           {...field}
                         />
                       </FormControl>
@@ -307,11 +301,13 @@ export function ProductForm({ edit, product }: ProductFormProps) {
                   <FormItem>
                     <FormLabel>Product Description</FormLabel>
                     <FormControl>
-                      <Textarea
-                        placeholder="Product Description."
+                      <NextTextarea
+                        variant="faded"
+                        aria-label="Product Description"
+                        labelPlacement="outside"
+                        placeholder="Enter your description"
+                        className="col-span-12 md:col-span-6 mb-6 md:mb-0"
                         {...field}
-                        className={cn("min-h-36!")}
-                        minRows={5}
                       />
                     </FormControl>
                     <FormMessage />
@@ -339,7 +335,7 @@ export function ProductForm({ edit, product }: ProductFormProps) {
                           </FormDescription>
                         </div>
                         {index === 0 ?
-                          <Button type="button" variant="secondary" size="sm" className="mt-2 md:w-1/4 "
+                          <Button type="button" variant="secondary" size="sm" className="mt-2 md:w-1/4 border"
                             onClick={() => append({ value: "" })}>
                             Add URL
                           </Button> : null}
@@ -347,10 +343,12 @@ export function ProductForm({ edit, product }: ProductFormProps) {
 
                       <FormControl>
                         <div className="flex gap-2">
-                          <Input
+                          <NextInput type="text" aria-label="Product Name" size="sm"
+                            classNames={{
+                              inputWrapper: "h-11"
+                            }}
+                            placeholder="https://youtu.be/cZ25wf..." variant="faded" className="flex-1"
                             {...field}
-                            className="flex-1"
-                            placeholder="https://youtu.be/cZ25wf..."
                           />
                           <Button
                             type="button"

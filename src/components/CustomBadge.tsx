@@ -5,12 +5,14 @@ import { FC } from 'react'
 
 interface CustomBadgeProps {
     status: StatusType[]
-    badgeValue: string
+    badgeValue: string,
+    className?: string
 }
 
-export const CustomBadge: FC<CustomBadgeProps> = ({ status, badgeValue }) => {
+export const CustomBadge: FC<CustomBadgeProps> = ({ status, badgeValue, className }) => {
     return (
         <span className={cn("inline-flex flex-shrink-0 items-center rounded-full px-1.5 py-0.5 text-xs font-medium ring-1 ring-inset",
+            className,
             badgeValue && status.find((s) => s.value === badgeValue)?.color?.textColor,
             badgeValue && status.find((s) => s.value === badgeValue)?.color?.bgColor,
             badgeValue && status.find((s) => s.value === badgeValue)?.color?.ringColor

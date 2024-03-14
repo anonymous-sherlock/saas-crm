@@ -8,7 +8,7 @@ export const singleImageSchema = z.object({
 });
 
 export const productFormSchema = z.object({
-  productId: z.string().optional(),
+  id: z.string().optional(),
   productName: z.string().min(1, { message: "Product name is required." }).min(2, { message: "Product name must be at least 2 characters." }),
   productPrice: z
     .string({ required_error: "Product price is required." })
@@ -66,7 +66,7 @@ export const ACCEPTED_IMAGE_EXTENSIONS = ["jpg", "jpeg", "png", "webp", "svg"];
 // delete product payload
 
 export const productDeleteScheme = z.object({
-  productId: z.string({
+  id: z.string({
     required_error: "product id is required",
   }),
 });

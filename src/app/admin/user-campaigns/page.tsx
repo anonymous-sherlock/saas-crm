@@ -1,7 +1,8 @@
 import CampaignsResults from '@/components/admin/campaign/CampaignListResult';
 import { PageHeader, PageHeaderDescription, PageHeaderHeading } from '@/components/global/page-header';
-import { SearchInput } from '@/components/search/search-input';
+import { CampaignSearchInput } from '@/components/search/campaign-search-input';
 import UserCampaginsFilterTabs from '@/components/tabs/campaigns-filter-tabs';
+import { getAllCampaigns } from '@/lib/actions/campaign.action';
 import { CampaignsFilterValues } from '@/schema/filter.schema';
 
 
@@ -14,10 +15,10 @@ interface AdminCampaignsPageProps {
 }
 
 
-function AdminCampaignsPage({ searchParams: { q, page, status } }: AdminCampaignsPageProps) {
-    const filterValues: CampaignsFilterValues = {
-        q, status
-    };
+async function AdminCampaignsPage({ searchParams: { q, page, status } }: AdminCampaignsPageProps) {
+    const filterValues: CampaignsFilterValues = { q, status };
+    const pageNumber = page && page ? parseInt(page) : undefined
+    const data = await getAllCampaigns({ filterValues, page: pageNumber, })
     return (
         <div className='flex flex-col gap-4'>
             <PageHeader className="flex flex-col md:flex-row justify-between md:items-center">
@@ -33,10 +34,10 @@ function AdminCampaignsPage({ searchParams: { q, page, status } }: AdminCampaign
                 </div>
                 <UserCampaginsFilterTabs defaultValues={filterValues} />
             </PageHeader>
-            <SearchInput placeholder='Search campaigns' className="bg-white h-11" defaultValues={filterValues} />
+            <CampaignSearchInput baseUrl='/admin/user-campaigns' placeholder='Search campaigns' className="bg-white h-11" defaultValues={filterValues} />
             <CampaignsResults
-                filterValues={filterValues}
-                page={page ? parseInt(page) : undefined}
+                data={data}
+                baseUrl='/campaigns'
             />
         </div>
 

@@ -1,8 +1,6 @@
 "use client";
-
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";
 import { Row } from "@tanstack/react-table";
-
 import { trpc } from "@/app/_trpc/client";
 import {
   AlertDialog,
@@ -51,6 +49,7 @@ export function DataTableRowActions<TData>({
         variant: "success",
       });
       utils.product.getAll.invalidate()
+      router.refresh()
     },
     onError: (err) => {
       if (err instanceof AxiosError) {
@@ -68,7 +67,7 @@ export function DataTableRowActions<TData>({
 
   function handleRowClick() {
     const currentRow = product;
-    const payload = currentRow.productId;
+    const payload = currentRow.id;
 
     deleteProduct({ productIds: [payload] });
   }
@@ -91,11 +90,11 @@ export function DataTableRowActions<TData>({
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-[160px]">
-              <DropdownMenuItem className="cursor-pointer"><Link href={`/products/${product.productId}/edit`} className="w-full">Edit</Link></DropdownMenuItem>
-              <DropdownMenuItem className="cursor-pointer"><Link href={`/products/${product.productId}`} className="w-full">View Product</Link></DropdownMenuItem>
-              <DropdownMenuItem className="cursor-pointer" 
-                onClick={()=>{
-                  navigator.clipboard.writeText(product.productId.toString());
+              <DropdownMenuItem className="cursor-pointer"><Link href={`/products/${product.id}/edit`} className="w-full">Edit</Link></DropdownMenuItem>
+              <DropdownMenuItem className="cursor-pointer"><Link href={`/products/${product.id}`} className="w-full">View Product</Link></DropdownMenuItem>
+              <DropdownMenuItem className="cursor-pointer"
+                onClick={() => {
+                  navigator.clipboard.writeText(product.id.toString());
                   hotToast.success('Successfully copied product ID')
 
                 }}

@@ -185,7 +185,7 @@ export const userRouter = router({
       const product = await db.product.findMany({
         where: {
           ownerId: isImpersonating ? actor.userId : userId,
-          productId: productId,
+          id: productId,
         },
       });
       if (!product)

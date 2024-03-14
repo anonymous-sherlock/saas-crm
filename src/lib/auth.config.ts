@@ -54,12 +54,8 @@ export const authOptions: NextAuthOptions = {
     CredentialsProvider({
       name: "Credentials",
       credentials: {
-        email: {
-          type: "email",
-        },
-        password: {
-          type: "password",
-        },
+        email: { type: "email", },
+        password: { type: "password", },
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
@@ -145,6 +141,14 @@ export const authOptions: NextAuthOptions = {
       }
       const dashboardUrl = `${baseUrl}/dashboard`;
       return dashboardUrl;
+    },
+  },
+  events: {
+    async linkAccount({ user }) {
+      await db.user.update({
+        where: { id: user.id },
+        data: { emailVerified: new Date() }
+      })
     },
   },
   debug: env.NODE_ENV === "development" ? true : false,

@@ -29,6 +29,7 @@ export type Pages = {
 export const pages = {
   product: "/products",
   campaign: "/campaigns",
+  leads: "/leads"
 };
 
 /**

@@ -1,15 +1,14 @@
 "use server"
 
+import { db } from "@/db"
 import { productDeleteScheme, productFormSchema } from "@/schema/productSchema"
 import { fileMetaDetailsSchema } from "@/types/fileUpload"
-import { z } from "zod"
-import { getCurrentUser } from "../auth"
-import { db } from "@/db"
 import { revalidatePath } from "next/cache"
 import { pages } from "routes"
-import { server } from "@/app/_trpc/server"
-import { catchError } from "../utils"
+import { z } from "zod"
+import { getCurrentUser } from "../auth"
 import { getProductById } from "../data/products.data"
+import { catchError } from "../utils"
 
 
 const extendedProductSchema = productFormSchema.extend({
@@ -59,7 +58,7 @@ export async function addProduct(rawInput: z.infer<typeof extendedProductSchema>
       },
     });
     if (!newProduct) { return { code: "TIMEOUT", error: "Cannot Add New Product" } }
-    revalidatePath(pages.product)
+    revalidatePath("/products")
     return { success: `${newProduct.name} created successfully`, }
   } catch (error) {
     console.log(error)
@@ -75,11 +74,11 @@ export async function deleteProduct(rawInput: z.infer<typeof productDeleteScheme
     if (!user) { return { error: "you are not authorized", } }
     const { isImpersonating, actor } = user
 
-    const product = await getProductById({ id: parserData.data.productId, userId: isImpersonating ? actor.userId : user.id, })
+    const product = await getProductById({ id: parserData.data.id, userId: isImpersonating ? actor.userId : user.id, })
     if (!product) { return { error: "Product not found" } }
 
     const deletedProduct = await db.product.delete({
-      where: { productId: product.productId }
+      where: { id: product.id }
     })
     revalidatePath(pages.product)
     return { success: `${deletedProduct.name} deleted successfully`, }

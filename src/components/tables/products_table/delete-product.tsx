@@ -58,7 +58,7 @@ export function DeleteProduct<TData>({
     const rows = table.getFilteredSelectedRowModel().rows;
     const payload = rows.map((row) => {
       const rowOriginal = row.original as ProductList;
-      return rowOriginal.productId;
+      return rowOriginal.id;
     });
 
     deleteProducts({ productIds: [...payload] });

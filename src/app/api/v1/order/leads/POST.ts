@@ -3,7 +3,7 @@ import { findCampaignByCode } from "@/lib/actions/campaign.action";
 import { determineLeadStatus } from "@/lib/helpers";
 import { getIpInfo } from "@/lib/helpers/getIpInfo";
 import { handleAuthorization } from "@/lib/helpers/handleAuthorization.helper";
-import { LeadValidator } from "@/schema/LeadSchema";
+import { LeadValidator } from "@/schema/lead.schema";
 import { ApiLeadUploadError, AuthorizationError } from "@/types/api-type";
 import { headers } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";

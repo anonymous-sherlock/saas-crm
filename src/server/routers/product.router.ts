@@ -11,7 +11,7 @@ export const productRouter = router({
     const { userId, isImpersonating, actor } = ctx
     const product = await db.product.findFirst({
       where: {
-        productId: input.productId,
+        id: input.productId,
         ownerId: isImpersonating ? actor.userId : userId,
       },
       include: {
@@ -63,7 +63,7 @@ export const productRouter = router({
       const products = await db.product.findMany({
         where: {
           ownerId: isImpersonating ? actor.userId : userId,
-          productId: {
+          id: {
             in: productIds,
           },
         },
@@ -77,7 +77,7 @@ export const productRouter = router({
       const deletedProduct = await db.product.deleteMany({
         where: {
           ownerId: isImpersonating ? actor.userId : userId,
-          productId: {
+          id: {
             in: productIds,
           },
         },
@@ -159,7 +159,7 @@ export const productRouter = router({
       const price = parsePrice(productPrice);
       const updatedProduct = await db.product.update({
         where: {
-          productId: productId,
+          id: productId,
           ownerId: isImpersonating ? actor.userId : userId,
         },
         data: {

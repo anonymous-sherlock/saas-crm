@@ -1,8 +1,8 @@
 import { db } from "@/db";
 import { generateCampaignCodeID } from "@/lib/utils";
-import { campaignFormSchema } from "@/schema/campaignSchema";
+import { campaignFormSchema } from "@/schema/campaign.schema";
 import { privateProcedure, router } from "@/server/trpc";
-import { CampaignStatus } from "@prisma/client";
+import { CampaignStatus, Prisma } from "@prisma/client";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
@@ -36,17 +36,13 @@ export const campaignRouter = router({
     };
   }),
   create: privateProcedure
-    .input(
-      z.object({
-        campaign: campaignFormSchema,
-      }),
-    )
+    .input(z.object({ campaign: campaignFormSchema, }),)
     .mutation(async ({ ctx, input }) => {
       const { userId, isImpersonating, actor } = ctx;
       const {
         campaignName,
         campaignDescription,
-        product,
+        productId,
         callCenterTeamSize,
         leadsRequirements,
         targetAge,
@@ -61,12 +57,13 @@ export const campaignRouter = router({
 
       const newCampaign = await db.campaign.create({
         data: {
+          code: campaignCode,
           name: campaignName,
           description: campaignDescription,
           callCenterTeamSize,
           leadsRequirements,
           targetCountry,
-          targetGender: targetGender === "Female" ? "Female" : "Male",
+          targetGender: targetGender,
           trafficSource: trafficSource,
           workingDays,
           workingHours,
@@ -78,21 +75,12 @@ export const campaignRouter = router({
               })),
             },
           },
-          code: campaignCode,
-          user: {
-            connect: {
-              id: isImpersonating ? actor.userId : userId,
-            },
-          },
-          product: {
-            connect: {
-              productId: product,
-            },
-          },
+          user: { connect: { id: actor ? actor.userId : userId, }, },
+          product: { connect: { id: productId, }, },
         },
       });
       return {
-        success: "true",
+        success: `${newCampaign.name} campaign created successfully `,
         campaign: newCampaign,
       };
     }),
@@ -158,7 +146,7 @@ export const campaignRouter = router({
         createdAt: true,
         product: {
           select: {
-            productId: true,
+            id: true,
             name: true,
             category: true,
             description: true,
@@ -172,12 +160,11 @@ export const campaignRouter = router({
     return campaignsData;
   }),
   copyCampaign: privateProcedure
-    .input(
-      z.object({
-        campaignId: z.string({
-          required_error: "Campaign Id is required to copy a campaign",
-        }),
+    .input(z.object({
+      campaignId: z.string({
+        required_error: "Campaign Id is required to copy a campaign",
       }),
+    }),
     )
     .mutation(async ({ ctx, input }) => {
       const { userId, actor, isImpersonating } = ctx;
@@ -187,29 +174,28 @@ export const campaignRouter = router({
           userId: isImpersonating ? actor.userId : userId,
           id: campaignId,
         },
+        include: { targetRegion: true }
       });
       if (!campaign) {
-        throw new TRPCError({
-          code: "NOT_FOUND",
-          message: "Campaign with this id not found",
-        });
+        throw new TRPCError({ code: "NOT_FOUND", message: "Campaign with this id not found", });
       }
 
       const copiedCampaign = await db.campaign.create({
         data: {
           code: generateCampaignCodeID(),
-          name: `${campaign.name}`,
+          name: `${campaign.name} copy`,
           description: campaign.description,
           callCenterTeamSize: campaign.callCenterTeamSize,
           leadsRequirements: campaign.leadsRequirements,
-          targetAge: JSON.stringify(campaign.targetAge),
+          targetAge: campaign.targetAge as Prisma.InputJsonValue,
           targetCountry: campaign.targetCountry,
           targetGender: campaign.targetGender,
           trafficSource: campaign.trafficSource,
-          workingDays: JSON.stringify(campaign.workingDays),
-          workingHours: JSON.stringify(campaign.workingHours),
+          workingDays: campaign.workingDays as Prisma.InputJsonValue,
+          workingHours: campaign.workingHours as Prisma.InputJsonValue,
           productId: campaign.productId,
           userId: campaign.userId,
+
         },
       });
 

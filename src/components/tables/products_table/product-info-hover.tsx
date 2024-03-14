@@ -17,7 +17,7 @@ type ProductInfoHoverProps = {
     Product & {
       images: ProductImage[];
     },
-    "name" | "description" | "price" | "productId" | "images" | "createdAt"
+    "name" | "description" | "price" | "id" | "images" | "createdAt"
   >;
 };
 
@@ -47,7 +47,7 @@ export const ProductInfoHover: FC<ProductInfoHoverProps> = ({ product }) => {
 
           <div className="space-y-1">
             <h4 className="text-sm font-semibold">
-              <Link href={`/products/${product.productId}`}>
+              <Link href={`/products/${product.id}`}>
                 {product.name}
               </Link>
             </h4>

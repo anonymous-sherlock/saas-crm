@@ -1,9 +1,12 @@
-import CampaignForm from "@/components/campaigns/CampaignForm";
+import CampaignForm from "@/components/template/campaigns/CampaignForm";
 
 export default function CampaignCreate() {
   return (
     <div>
-      <CampaignForm />
+      <CampaignForm
+        title="Create a Campaign"
+        type="create"
+      />
     </div>
   );
 }

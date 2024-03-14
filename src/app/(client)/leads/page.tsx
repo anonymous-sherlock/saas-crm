@@ -1,23 +1,51 @@
 import { server } from '@/app/_trpc/server';
-import LeadsDashboard from '@/components/leads/LeadsDashboard';
+import { PageHeader, PageHeaderDescription, PageHeaderHeading } from '@/components/global/page-header';
+import { DataTableSkeleton } from '@/components/tables/global/data-table-skeleton';
+import LeadsTableShell from '@/components/tables/leads_table/leads-table-shell';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { getCurrentUser } from '@/lib/auth';
 import { authPages } from '@routes';
 import { redirect } from 'next/navigation';
+import React from 'react';
 
 async function LeadsPage() {
   const user = await getCurrentUser()
   if (!user) redirect(authPages.login)
 
-  const Leads = await server.lead.getAll();
+  const leads = await server.lead.getAll();
 
   return (
-    <main className="mx-auto max-w-7xl md:p-2">
-      <div className="mt-8 flex flex-col items-start justify-between gap-4 border-b border-gray-200 pb-5 sm:flex-row sm:items-center sm:gap-0">
-        <h1 className="mb-3 font-bold text-4xl text-gray-900">My Leads</h1>
+    <>
+      <PageHeader className="flex flex-col md:flex-row justify-between md:items-center">
+        <div>
+          <div className="flex space-x-4">
+            <PageHeaderHeading size="sm" className="flex-1">
+              All Leads
+            </PageHeaderHeading>
+          </div>
+          <PageHeaderDescription size="sm">
+            Manage Leads
+          </PageHeaderDescription>
+        </div>
+      </PageHeader>
+      <div className="p-0 md:!pt-4">
+        <React.Suspense>
+          <Card className="col-span-3 !mt-0">
+            <CardHeader>
+              <CardTitle>Welcome back!</CardTitle>
+              <CardDescription>
+                Here&apos;s a list of all your leads!.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <React.Suspense fallback={<DataTableSkeleton columnCount={6} />}>
+                <LeadsTableShell data={leads ?? []} />
+              </React.Suspense>
+            </CardContent>
+          </Card>
+        </React.Suspense>
       </div>
-
-      <LeadsDashboard Leads={Leads} />
-    </main>
+    </>
   );
 }
 

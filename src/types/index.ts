@@ -41,3 +41,4 @@ export type GetMediaFiles = Prisma.PromiseReturnType<typeof getMedia>
 
 
 export type UploadThingEndpoint = "productImages" | "avatar"
+

@@ -83,7 +83,7 @@ export function OnboardingForm({ }: OnboardingFormProps) {
             setError(data.error)
             toast.error(data.error)
           }
-          else if (data.success) {
+          else if (data?.success) {
             setSuccess(data.success)
             toast.success(data.success)
             router.push(DEFAULT_DASHBOARD_REDIRECT)

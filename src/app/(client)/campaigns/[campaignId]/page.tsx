@@ -1,5 +1,5 @@
 import { server } from "@/app/_trpc/server";
-import { CampaignStats } from "@/components/campaigns/CampaignStats";
+import { CampaignStats } from "@/components/template/campaigns/CampaignStats";
 import { getCurrentUser } from "@/lib/auth";
 import { authPages } from "@routes";
 import { notFound, redirect } from "next/navigation";

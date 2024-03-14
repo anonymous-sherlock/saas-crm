@@ -1,7 +1,8 @@
+import { Product, ProductImage } from "@prisma/client";
 import { z } from "zod";
 
 export const productRowSchema = z.object({
-    productId: z.string(),
+    id: z.string(),
     name: z.string(),
     description: z.string().optional().nullish(),
     price: z.number(),
@@ -11,3 +12,5 @@ export const productRowSchema = z.object({
 });
 
 export type ProductRow = z.infer<typeof productRowSchema>;
+
+export type ProductColumnDef = Product & { images: ProductImage[]; };

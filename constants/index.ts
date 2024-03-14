@@ -105,9 +105,9 @@ export const CAMPAIGN_STATUS: CampaignStatusProp[] = [
     label: "Done",
     icon: CheckCircledIcon,
     color: {
-      textColor: "text-green-700",
-      bgColor: "!bg-green-50",
-      ringColor: "ring-green-600/20",
+      textColor: "text-blue-700",
+      bgColor: "!bg-blue-50",
+      ringColor: "ring-blue-600/20",
     },
   },
   {

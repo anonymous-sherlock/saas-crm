@@ -26,7 +26,7 @@ import {
 
 import { trpc } from "@/app/_trpc/client";
 import { RouterOutputs } from "@/server";
-import { DataTablePagination } from "./data-table-pagination";
+import { DataTablePagination } from "../global/data-table-pagination";
 import { DataTableToolbar } from "./data-table-toolbar";
 
 interface DataTableProps<TData, TValue> {
@@ -53,6 +53,7 @@ export function DataTable<TData, TValue>({
     refetchOnReconnect: false,
     refetchOnWindowFocus: true
   }) as { data: TData[] };
+
 
   const table = useReactTable({
     data: initialData || [],

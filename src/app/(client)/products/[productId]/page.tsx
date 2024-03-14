@@ -20,7 +20,7 @@ export default async function Page({ params }: PageProps) {
 
   const product = await db.product.findFirst({
     where: {
-      productId: params.productId
+      id: params.productId
     },
     include: {
       images: true
@@ -50,7 +50,7 @@ export default async function Page({ params }: PageProps) {
             <p className="text-muted-foreground">
             </p>
           </div>
-          <Link href={`/products/${product.productId}/edit`} className={cn(buttonVariants({ variant: "secondary" }))} >
+          <Link href={`/products/${product.id}/edit`} className={cn(buttonVariants({ variant: "secondary" }))} >
             Edit Product
           </Link>
         </div>

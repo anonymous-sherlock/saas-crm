@@ -1,6 +1,6 @@
 "use client"
 import { trpc } from '@/app/_trpc/client'
-import { LeadsFormSchema } from '@/schema/LeadSchema'
+import { LeadsFormSchema } from '@/schema/lead.schema'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { FC, useState } from 'react'
 import { useForm } from 'react-hook-form'

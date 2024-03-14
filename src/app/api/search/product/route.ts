@@ -1,12 +1,13 @@
 import { INFINITE_QUERY_LIMIT } from "@/config/infinite-query";
 import { db } from "@/db";
 import { getCurrentUser } from "@/lib/auth";
+import { Prisma } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
 
 async function getSelectedProduct(selectedId: string | null) {
   if (selectedId) {
     return await db.product.findUnique({
-      where: { productId: selectedId },
+      where: { id: selectedId },
       include: { images: true },
     });
   }
@@ -24,9 +25,9 @@ export async function GET(req: NextRequest, res: NextResponse) {
 
   try {
     const selectedProduct = await getSelectedProduct(selectedId);
-    const whereClause = {
-      OR: [{ name: { contains: productName ?? "" } }, { productId: { contains: productName ?? "" } }, { category: { contains: productName ?? "" } }],
-      NOT: { productId: selectedProduct?.productId },
+    const whereClause: Prisma.ProductWhereInput = {
+      OR: [{ name: { contains: productName ?? "" } }, { id: { contains: productName ?? "" } }, { category: { contains: productName ?? "" } }],
+      NOT: { id: selectedProduct?.id },
     };
     const products = await db.product.findMany({
       where: {
@@ -35,7 +36,7 @@ export async function GET(req: NextRequest, res: NextResponse) {
       },
       include: { images: true },
       take: limit + 1, // Fetch one extra item to check if there's a next page
-      cursor: cursor ? { productId: cursor } : undefined,
+      cursor: cursor ? { id: cursor } : undefined,
       orderBy: {
         createdAt: "desc",
       },
@@ -45,7 +46,7 @@ export async function GET(req: NextRequest, res: NextResponse) {
 
     if (products.length > limit) {
       const nextItem = products.pop();
-      nextCursor = nextItem?.productId;
+      nextCursor = nextItem?.id;
     }
 
     let productsArray = [...products];

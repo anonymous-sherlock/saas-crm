@@ -1,7 +1,7 @@
 import { db } from "@/db";
 import { determineLeadStatus } from "@/lib/helpers";
 import { getIpInfo } from "@/lib/helpers/getIpInfo";
-import { LeadsFormSchema } from "@/schema/LeadSchema";
+import { LeadsFormSchema } from "@/schema/lead.schema";
 import { privateProcedure, router } from "@/server/trpc";
 import { LeadStatus } from "@prisma/client";
 import { TRPCError } from "@trpc/server";
@@ -148,9 +148,7 @@ export const leadRouter = router({
 
     const existingLead = await db.lead.findFirst({
       where: {
-        OR: [
-          { phone: phone }
-        ]
+        OR: [{ phone: phone }],
       },
     });
     const newLead = await db.lead.create({
@@ -161,10 +159,13 @@ export const leadRouter = router({
         country: ipInfo.country || "",
         ip: ipInfo.ip,
         region: ipInfo.region || "",
-        state: ipInfo.region || "",
+        city: ipInfo.region || "",
+        region_code: ipInfo.region_code,
+        country_code: ipInfo.country_code,
+        zipcode: ipInfo.postal,
         userId: isImpersonating ? actor.userId : userId,
         campaignId: campaign.id,
-        status: existingLead ? "Trashed" ? (campaign.status === "OnHold" ? "OnHold" : "Approved") : "Trashed" : determineLeadStatus({ name, phone })
+        status: existingLead ? ("Trashed" ? (campaign.status === "OnHold" ? "OnHold" : "Approved") : "Trashed") : determineLeadStatus({ name, phone }),
       },
     });
 

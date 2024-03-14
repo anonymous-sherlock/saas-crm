@@ -20,7 +20,7 @@ export default withAuth(
 
 
     // check for user account if they are onboarded
-    if (!companyAccount && !pathname.startsWith(ONBOARDING_REDIRECT)) {
+    if (!companyAccount && !pathname.startsWith(ONBOARDING_REDIRECT) && !pathname.startsWith("/dashboard")) {
       if (!isPublicRoute && !isAuthRoute && !isApiRoute) {
         return Response.redirect(new URL(ONBOARDING_REDIRECT, nextUrl));
       }

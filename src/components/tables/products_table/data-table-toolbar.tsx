@@ -9,8 +9,10 @@ import { Button } from "@/ui/button";
 import { Input } from "@/ui/input";
 import { RefreshCw } from "lucide-react";
 import { useState } from "react";
-import { DataTableViewOptions } from "./data-table-view-options";
+
 import { DeleteProduct } from "./delete-product";
+import { DataTableViewOptions } from "../global/data-table-view-options";
+import { useRouter } from "next/navigation";
 
 interface DataTableToolbarProps<TData> {
   table: Table<TData>;
@@ -20,16 +22,17 @@ export function DataTableToolbar<TData>({
   table,
 }: DataTableToolbarProps<TData>) {
   const isFiltered = table.getState().columnFilters.length > 0;
-
   const [isRotating, setRotating] = useState(false);
   const utils = trpc.useUtils()
+  const router = useRouter()
 
   const handleRefreshClick = () => {
     setRotating(true);
     setTimeout(() => {
       utils.product.getAll.invalidate()
+      router.refresh()
       setRotating(false);
-    }, 1000); 
+    }, 1000);
   };
 
   return (

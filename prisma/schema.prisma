@@ -174,7 +174,7 @@ model BearerToken {
 }
 
 model Product {
-  productId   String         @id @default(cuid())
+  id          String         @id @default(cuid())
   name        String
   description String?
   price       Float
@@ -190,6 +190,9 @@ model Product {
   updatedAt DateTime @updatedAt
 
   @@index([ownerId], map: "Product_ownerId_fkey")
+  @@fulltext([id])
+  @@fulltext([name])
+  @@fulltext([description])
   @@map("products")
 }
 
@@ -197,7 +200,7 @@ model ProductMedia {
   id             String  @id @default(cuid())
   url            String
   productMediaId String
-  product        Product @relation(fields: [productMediaId], references: [productId], onDelete: Cascade)
+  product        Product @relation(fields: [productMediaId], references: [id], onDelete: Cascade)
 
   @@index([productMediaId], map: "ProductMedia_productMediaId_fkey")
   @@map("product_media")
@@ -213,7 +216,7 @@ model ProductImage {
   uploadPath       String?
 
   productId String
-  product   Product  @relation(fields: [productId], references: [productId], onDelete: Cascade)
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
 
   @@index([productId], map: "ProductImage_productId_fkey")
@@ -228,6 +231,7 @@ model Campaign {
   callCenterTeamSize String
   leadsRequirements  String
   targetCountry      String
+  targetRegion       TargetRegion[]
   targetGender       Gender
   trafficSource      TrafficSource
   targetAge          Json
@@ -238,14 +242,15 @@ model Campaign {
   updatedAt          DateTime       @updatedAt
   productId          String?
   userId             String
-  product            Product?       @relation(fields: [productId], references: [productId], onDelete: Cascade)
+  product            Product?       @relation(fields: [productId], references: [id], onDelete: Cascade)
   user               User           @relation(fields: [userId], references: [id])
   leads              Lead[]
-  targetRegion       TargetRegion[]
 
-  @@index([productId], map: "Campaign_productProductId_fkey")
-  @@index([userId], map: "Campaign_userId_fkey")
-  @@fulltext([name, code])
+  @@index([name], name: "unique_campaign_name_idx")
+  @@index([description], name: "campaign_description_idx")
+  @@fulltext([name, code, description])
+  @@fulltext([name])
+  @@fulltext([code])
   @@fulltext([description])
   @@map("campaigns")
 }
@@ -261,21 +266,28 @@ model TargetRegion {
 }
 
 model Lead {
-  id         String     @id @default(cuid())
-  ip         String
-  name       String
-  phone      String
-  address    String
-  state      String
-  region     String
-  country    String
-  status     LeadStatus @default(OnHold)
-  createdAt  DateTime   @default(now())
-  updatedAt  DateTime   @updatedAt
-  campaignId String
-  userId     String?
-  campaign   Campaign   @relation(fields: [campaignId], references: [id], onDelete: Cascade)
-  user       User?      @relation(fields: [userId], references: [id])
+  id           String     @id @default(cuid())
+  name         String
+  phone        String
+  country      String?
+  region       String?
+  country_code String?    @db.VarChar(5)
+  region_code  String?    @db.VarChar(5)
+  city         String?
+  zipcode      String?
+  street       String?
+  address      String?
+  email        String?
+  website      String?
+  description  String?
+  ip           String?
+  status       LeadStatus @default(OnHold)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  campaign     Campaign   @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  campaignId   String
+  user         User?      @relation(fields: [userId], references: [id])
+  userId       String?
 
   @@index([campaignId], map: "Lead_leadCampaingId_fkey")
   @@index([userId], map: "Lead_userId_fkey")

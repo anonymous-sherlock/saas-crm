@@ -1,6 +1,5 @@
 import { server } from "@/app/_trpc/server";
-import { columns } from "@/components/tables/products_table/columns";
-import { DataTable } from "@/components/tables/products_table/data-table";
+import ProductTableShell from "@/components/tables/products_table/product-table-shell";
 import { buttonVariants } from "@/components/ui/button";
 import { getCurrentUser } from "@/lib/auth";
 import { authPages } from "@routes";
@@ -13,8 +12,6 @@ import "server-only";
 export default async function ProductPage() {
   const user = await getCurrentUser()
   if (!user) redirect(authPages.login)
-
-
   const products = await server.product.getAll();
 
   return (
@@ -42,7 +39,7 @@ export default async function ProductPage() {
             <p>Let&apos;s upload your first product.</p>
           </div>
         ) : (
-          <DataTable data={products} columns={columns} />
+          <ProductTableShell data={products} />
         )}
       </div>
     </>

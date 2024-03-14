@@ -4,7 +4,7 @@ import { Metadata } from "next";
 import { twMerge } from "tailwind-merge";
 import favicon from "@/public/favicon.png";
 import { env } from "../env.mjs";
-import crypto from "crypto"
+import crypto from "crypto";
 import { toast } from "sonner";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
@@ -44,6 +44,9 @@ export function generateInitialFromName(fullName: string) {
   // Handle invalid input
   return "N/A"; // You can return a default value like 'N/A' for invalid input
 }
+export function toSentenceCase(str: string) {
+  return str.replace(/([A-Z])/g, " $1").replace(/^./, (str) => str.toUpperCase());
+}
 
 export function isMacOs() {
   if (typeof window === "undefined") return false;
@@ -63,7 +66,6 @@ export function generateCampaignCodeID() {
   const alias = uuid.substring(0, 8);
   return alias;
 }
-
 
 export function formatPrice(
   price: number | string,
@@ -134,15 +136,14 @@ export function calculatePercentage(previousValue: number, currentValue: number)
   return ((currentValue - previousValue) / previousValue) * 100;
 }
 
-
 export function generateSecurePasswordResetCode() {
   const partLength = 5;
-  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  let resetCode = '';
+  const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  let resetCode = "";
 
   for (let i = 0; i < 4; i++) {
     if (i > 0) {
-      resetCode += '-';
+      resetCode += "-";
     }
 
     for (let j = 0; j < partLength; j++) {
@@ -154,18 +155,12 @@ export function generateSecurePasswordResetCode() {
   return resetCode;
 }
 
-
-export function formatBytes(
-  bytes: number,
-  decimals = 0,
-  sizeType: "accurate" | "normal" = "normal"
-) {
+export function formatBytes(bytes: number, decimals = 0, sizeType: "accurate" | "normal" = "normal") {
   const sizes = ["Bytes", "KB", "MB", "GB", "TB"];
   const accurateSizes = ["Bytes", "KiB", "MiB", "GiB", "TiB"];
   if (bytes === 0) return "0 Byte";
   const i = Math.floor(Math.log(bytes) / Math.log(1024));
-  return `${(bytes / Math.pow(1024, i)).toFixed(decimals)} ${sizeType === "accurate" ? accurateSizes[i] ?? "Bytest" : sizes[i] ?? "Bytes"
-    }`;
+  return `${(bytes / Math.pow(1024, i)).toFixed(decimals)} ${sizeType === "accurate" ? accurateSizes[i] ?? "Bytest" : sizes[i] ?? "Bytes"}`;
 }
 
 export function catchError(err: unknown) {
@@ -189,8 +184,18 @@ export function isValidDateString(dateString: string | undefined, today: Date): 
   return isValid(parsedDate) ? parsedDate : today;
 }
 export function formatDateRangeForParams(dateRange: DateRange | undefined): string {
-  if (!dateRange) return '';
-  const from = dateRange.from ? format(dateRange.from, 'yyyy-MM-dd') : '';
-  const to = dateRange.to ? format(dateRange.to, 'yyyy-MM-dd') : '';
+  if (!dateRange) return "";
+  const from = dateRange.from ? format(dateRange.from, "yyyy-MM-dd") : "";
+  const to = dateRange.to ? format(dateRange.to, "yyyy-MM-dd") : "";
   return `${from}.${to}`;
-};
+}
+
+type ServerFunction<T> = () => Promise<T>;
+export async function safeExecute<T>(serverFunction: ServerFunction<T>): Promise<T | null> {
+  try {
+    return await serverFunction();
+  } catch (error) {
+    console.error("Error occurred during server call:", error instanceof Error ? error.message : "An unknown error occurred.");
+    return null;
+  }
+}

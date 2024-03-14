@@ -24,9 +24,9 @@ export const searchRouter = router({
         orderBy: {
           createdAt: "desc",
         },
-        cursor: cursor ? { productId: cursor } : undefined,
+        cursor: cursor ? { id: cursor } : undefined,
         select: {
-          productId: true,
+          id: true,
           name: true,
           images: true,
           category: true,
@@ -36,7 +36,7 @@ export const searchRouter = router({
       let nextCursor: typeof cursor | undefined = undefined;
       if (products.length > limit) {
         const nextItem = products.pop();
-        nextCursor = nextItem?.productId;
+        nextCursor = nextItem?.id;
       }
 
       return {
