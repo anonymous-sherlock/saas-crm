@@ -15,7 +15,6 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import * as React from "react";
-
 import {
   Table,
   TableBody,
@@ -25,18 +24,15 @@ import {
   TableRow,
 } from "@/ui/table";
 
-import { UsersList } from "./columns";
-import { DataTablePagination } from "./data-table-pagination";
-import { DataTableToolbar } from "./data-table-toolbar";
 import { trpc } from "@/app/_trpc/client";
 import { RouterOutputs } from "@/server";
+import { DataTablePagination } from "../global/data-table-pagination";
+import { DataTableToolbar } from "./data-table-toolbar";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
 }
-type ColumnKeys = keyof UsersList;
-const initialVisibilityState: Partial<Record<ColumnKeys, boolean>> = {};
 
 export function DataTable<TData, TValue>({
   columns,
@@ -44,13 +40,12 @@ export function DataTable<TData, TValue>({
 }: DataTableProps<TData, TValue>) {
   const [rowSelection, setRowSelection] = React.useState({});
   const [columnVisibility, setColumnVisibility] =
-    React.useState<VisibilityState>(initialVisibilityState);
+    React.useState<VisibilityState>({});
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
   );
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [globalFilter, setGlobalFilter] = React.useState("");
-
 
   const { data: initialData } = trpc.admin.getAllUser.useQuery(undefined, {
     initialData: data as RouterOutputs["admin"]["getAllUser"],
@@ -61,7 +56,7 @@ export function DataTable<TData, TValue>({
 
 
   const table = useReactTable({
-    data: initialData,
+    data: initialData || [],
     columns,
     state: {
       sorting,
@@ -69,11 +64,10 @@ export function DataTable<TData, TValue>({
       rowSelection,
       columnFilters,
       globalFilter,
-
     },
+    enableRowSelection: true,
     enableGlobalFilter: true,
     onGlobalFilterChange: setGlobalFilter,
-    enableRowSelection: true,
     onRowSelectionChange: setRowSelection,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
@@ -90,7 +84,7 @@ export function DataTable<TData, TValue>({
     <div className="space-y-4">
       <DataTableToolbar table={table} />
       <div className="rounded-md border overflow-x-auto w-full">
-        <Table className="min-w-max">
+        <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
@@ -116,9 +110,8 @@ export function DataTable<TData, TValue>({
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
                 >
-
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
+                    <TableCell key={cell.id} className="p-2 px-4">
                       {flexRender(
                         cell.column.columnDef.cell,
                         cell.getContext()

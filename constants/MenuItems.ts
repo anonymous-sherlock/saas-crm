@@ -38,7 +38,7 @@ export const subMenusList: SubMenuTypes[] = [
       {
         id: "1",
         label: "All Users",
-        url: "/admin/userslist",
+        url: "/admin/users",
       },
       {
         id: "2",

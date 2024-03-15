@@ -20,7 +20,7 @@ export const DeleteLeadAlert: FC<DeleteLeadAlertProps> = ({ onDelete, isDeleting
 
     if (!isAdmin) return null
     return (
-        <AlertDialog>
+        <AlertDialog open={open} onOpenChange={setOpen}>
             <AlertDialogTrigger asChild>
                 <Listbox variant="faded" aria-label="Leads Danger zone menu">
                     <ListboxSection title="Danger zone" aria-label='Danger zone' >

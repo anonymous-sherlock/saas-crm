@@ -22,7 +22,7 @@ type ProductInfoHoverProps = {
 };
 
 export const ProductInfoHover: FC<ProductInfoHoverProps> = ({ product }) => {
-  const firstProductImage = product.images[0];
+  const firstProductImage = product.images && product.images[0];
   return (
     <HoverCard closeDelay={200} openDelay={300}>
       <HoverCardTrigger asChild>
@@ -44,7 +44,6 @@ export const ProductInfoHover: FC<ProductInfoHoverProps> = ({ product }) => {
             blurDataURL={notFoundImage.blurDataURL}
             className="w-28 h-28 object-contain ring-1 rounded-md shadow-md p-1 bg-white ring-gray-900/10 "
           />
-
           <div className="space-y-1">
             <h4 className="text-sm font-semibold">
               <Link href={`/products/${product.id}`}>

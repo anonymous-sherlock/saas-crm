@@ -325,7 +325,7 @@ enum LeadStatus {
 }
 
 enum Role {
-  SUPER_Admin
+  SUPER_ADMIN
   ADMIN
   CLIENT
   CUSTOMER

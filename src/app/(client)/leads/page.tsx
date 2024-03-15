@@ -8,7 +8,11 @@ import { authPages } from '@routes';
 import { redirect } from 'next/navigation';
 import React from 'react';
 
-async function LeadsPage() {
+
+interface LeadsPageProps {
+
+}
+async function LeadsPage({ }: LeadsPageProps) {
   const user = await getCurrentUser()
   if (!user) redirect(authPages.login)
 

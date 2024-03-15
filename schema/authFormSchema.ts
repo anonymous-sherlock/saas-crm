@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { passwordSchema } from "./userSchema";
+import { passwordSchema } from "./user.schema";
 
 export const registerFormSchema = z
   .object({

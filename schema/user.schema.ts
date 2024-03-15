@@ -20,30 +20,25 @@ export const passwordSchema = z
   });
 
 export const userSchema = z.object({
-  name: z
-    .string({
-      required_error: "Name is required",
-    })
-    .min(2, { message: "Full name must be at least 2 characters" }),
-  email: z.string({
-    required_error: "Email is required",
-
-  }).email("Invalid email address"),
+  name: z.string({ required_error: "Name is required" }).min(2, { message: "Full name must be at least 2 characters" }),
+  email: z.string({ required_error: "Email is required" }).email("Invalid email address"),
   password: passwordSchema,
 });
-
 
 export const newUserSchema = z.object({
-  name: z
-    .string({
-      required_error: "Name is required",
-    })
-    .min(2, { message: "Full name must be at least 2 characters" }),
-  email: z.string({
-    required_error: "Email is required",
-
-  }).email("Invalid email address"),
+  name: z.string({ required_error: "Name is required" }).min(2, { message: "Full name must be at least 2 characters" }),
+  email: z.string({ required_error: "Email is required" }).email("Invalid email address"),
   password: passwordSchema,
-  role: z.nativeEnum(Role)
+  role: z.nativeEnum(Role),
 });
 
+export const UserFormSchema = z.object({
+  name: z.string(),
+  email: z.string(),
+  emailVerified: z.date().nullable(),
+  image: z.string().nullable(),
+  role: z.nativeEnum(Role),
+  active: z.boolean(),
+});
+
+export type UserFormSchemaType = z.infer<typeof UserFormSchema>;

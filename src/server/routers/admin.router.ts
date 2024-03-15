@@ -1,5 +1,5 @@
 import { db } from "@/db";
-import { newUserSchema } from "@/schema/userSchema";
+import { newUserSchema } from "@/schema/user.schema";
 import { privateProcedure, publicProcedure, router } from "@/server/trpc";
 import { TRPCError } from "@trpc/server";
 import { hash } from "bcrypt";

@@ -4,28 +4,23 @@ import { FormError } from "@/components/global/form-error";
 import { FormSuccess } from "@/components/global/form-success";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage
-} from "@/components/ui/form";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { addCompanyDetails } from "@/lib/actions/onboarding.action";
 import { catchError, cn } from "@/lib/utils";
 import { CompanyDetailsSchema } from "@/schema/company.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Autocomplete, AutocompleteItem, Avatar, Input } from "@nextui-org/react";
+import { Autocomplete, AutocompleteItem } from "@nextui-org/autocomplete";
+import { Avatar } from "@nextui-org/avatar";
+import { Input } from "@nextui-org/input";
+import { DEFAULT_DASHBOARD_REDIRECT } from "@routes";
+import { City, Country, State } from "country-state-city";
 import { ArrowRight, AtSign, Building, CircleUserRound, Phone } from "lucide-react";
 import { useRouter } from "next/navigation";
-import React, { useRef, useState } from "react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
-import { Separator } from "../ui/separator";
-import { Country, State, City } from "country-state-city";
-import { addCompanyDetails } from "@/lib/actions/onboarding.action";
-import { DEFAULT_DASHBOARD_REDIRECT } from "@routes";
+import { Separator } from "@/ui/separator";
 
 type OnboardingFormProps = {
 };
@@ -116,22 +111,16 @@ export function OnboardingForm({ }: OnboardingFormProps) {
     setStateCode(StateCodeValue)
   }
   const gradientColor = `linear-gradient(90deg, blue 0%, blue ${(currentStep / STEPS_AMOUNT) * 100}%, #DDE3EC ${(currentStep / STEPS_AMOUNT) * 100}%, #DDE3EC 100%)`;
-
-
   function isFieldTouched(fields: FormFieldsName): boolean {
     const schemaKeys = Object.keys(CompanyDetailsSchema.shape);
     return fields.every(fieldName => schemaKeys.includes(fieldName) && form.formState.touchedFields[fieldName]);
   }
-
   function isFieldValid(fields: FormFieldsName): boolean {
     const schemaKeys = Object.keys(CompanyDetailsSchema.shape);
     return fields.every(fieldName => schemaKeys.includes(fieldName) && !form.formState.errors[fieldName]);
   }
-
-
   const stepOneRequiredField: FormFieldsName = ["name", "phone", "contactPersonName", "contactPersonEmail", "gstNumber"]
   const stepTwwoRequiredField: FormFieldsName = ["billingContactPersonName", "billingContactPersonEmail"]
-
   return (
     <Card className="p-6 w-full max-w-3xl bg-white mx-auto">
       <CardHeader className="p-0 md:p-6">

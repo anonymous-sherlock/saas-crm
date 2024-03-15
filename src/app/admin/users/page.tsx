@@ -1,12 +1,11 @@
 import AddUserForm from "@/components/admin/user/AddUserForm"
+import UserListTableShell from "@/components/tables/users_list_table/user-list-table-shell"
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"
 import { db } from "@/db"
 import { getCurrentUser } from "@/lib/auth"
+import { authPages } from "@routes"
 import { Ghost } from "lucide-react"
 import { redirect } from "next/navigation"
-import { columns } from "./_usersTable/columns"
-import { DataTable } from "./_usersTable/data-table"
-import { authPages } from "@routes"
 
 export default async function UserListpage() {
   const user = await getCurrentUser()
@@ -18,6 +17,7 @@ export default async function UserListpage() {
       createdAt: "desc"
     }
   })
+
   return (
     <div className="">
       <ScrollArea className="w-full rounded-md" type="always">
@@ -44,7 +44,7 @@ export default async function UserListpage() {
               <p>Let&apos;s upload your first product.</p>
             </div>
           ) : (
-            <DataTable data={users} columns={columns} />
+            <UserListTableShell data={users} />
           )}
         </div>
         <ScrollBar orientation="horizontal" className="w-full" />

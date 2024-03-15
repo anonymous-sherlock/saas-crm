@@ -206,7 +206,7 @@ export const USER_ROLE: UserRoleType[] = [
   },
   {
     label: "Super Admin",
-    value: "SUPER_Admin",
+    value: "SUPER_ADMIN",
     icon: CircleIcon,
     color: {
       textColor: "text-red-700",
@@ -217,38 +217,43 @@ export const USER_ROLE: UserRoleType[] = [
 ];
 
 type NotificationIconTypt = {
-  key: Icon
-  icon: React.ComponentType<{ className?: string }>,
+  key: Icon;
+  icon: React.ComponentType<{ className?: string }>;
   color?: {
     textColor: string;
     bgColor: string;
     ringColor: string;
   };
-
-}
+};
 export const NOTIFICATION_ICON: NotificationIconTypt[] = [
   {
-    key: "success", icon: CheckCircle, color: {
+    key: "success",
+    icon: CheckCircle,
+    color: {
       bgColor: "bg-[#F0FDF4]",
       textColor: "text-green-600",
-      ringColor: "ring-[#DCFCE7]"
-    }
+      ringColor: "ring-[#DCFCE7]",
+    },
   },
   {
-    key: "warning", icon: ExclamationTriangleIcon, color: {
+    key: "warning",
+    icon: ExclamationTriangleIcon,
+    color: {
       bgColor: "bg-[#FFFBEB]",
       textColor: "text-yellow-600",
-      ringColor: "ring-[#FEF3C7]"
-    }
+      ringColor: "ring-[#FEF3C7]",
+    },
   },
   {
-    key: "info", icon: Info, color: {
+    key: "info",
+    icon: Info,
+    color: {
       bgColor: "bg-blue-50",
       textColor: "text-blue-600",
-      ringColor: "ring-blue-100"
-    }
-  }
-] as const;
+      ringColor: "ring-blue-100",
+    },
+  },
+]
 
-export const RESET_PASSWORD_STEP2_LINK: string = "/reset-password/step2"
-export const RESET_PASSWORD_TOKEN_EXPIRE_TIME: number = 4 * 60 * 60 * 1000
+export const RESET_PASSWORD_STEP2_LINK: string = "/reset-password/step2";
+export const RESET_PASSWORD_TOKEN_EXPIRE_TIME: number = 4 * 60 * 60 * 1000;

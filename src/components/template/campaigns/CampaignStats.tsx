@@ -50,9 +50,7 @@ export const CampaignStats = ({ campaign: InitialCampaignData, user }: CampaignS
         </div>
 
         <div className='flex justify-end items-center gap-4'>
-          {user.role === "ADMIN" ?
-            <LeadsForm campaignCode={campaign.code} /> : null
-          }
+          {user.role === "ADMIN" ? <LeadsForm campaignId={campaign.id} /> : null}
           <CampaignActionDropDown campaign={campaign} type='default' />
         </div>
       </div>

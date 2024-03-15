@@ -18,7 +18,7 @@ import { Table } from "@tanstack/react-table";
 import { AxiosError } from "axios";
 import { useRouter } from "next/navigation";
 import React from "react";
-import { ProductList } from "./columns";
+import { ProductColumnDef } from "./schema";
 
 interface DeleteProductProps<TData> {
   children?: React.ReactNode;
@@ -57,7 +57,7 @@ export function DeleteProduct<TData>({
   function handleCampaignDelete() {
     const rows = table.getFilteredSelectedRowModel().rows;
     const payload = rows.map((row) => {
-      const rowOriginal = row.original as ProductList;
+      const rowOriginal = row.original as ProductColumnDef;
       return rowOriginal.id;
     });
 

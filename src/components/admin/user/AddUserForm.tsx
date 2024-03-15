@@ -1,7 +1,7 @@
 "use client"
 import { trpc } from '@/app/_trpc/client'
 import { USER_ROLE } from '@/constants/index'
-import { newUserSchema } from '@/schema/userSchema'
+import { newUserSchema } from '@/schema/user.schema'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { FC, useState } from 'react'
 import { useForm } from 'react-hook-form'
@@ -125,7 +125,7 @@ const AddUserForm: FC<AddUserFormProps> = () => {
 
                       <SelectContent>
                         <SelectGroup>
-                          {USER_ROLE.filter(role => !(session?.user.role === "ADMIN" && role.value === "SUPER_Admin")).map((role) => (
+                          {USER_ROLE.filter(role => !(session?.user.role === "ADMIN" && role.value === "SUPER_ADMIN")).map((role) => (
                             <SelectItem key={role.value} value={role.value}>
                               {role.label}
                             </SelectItem>
