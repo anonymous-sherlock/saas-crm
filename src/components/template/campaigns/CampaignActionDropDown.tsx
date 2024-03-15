@@ -9,7 +9,7 @@ import { Button } from '@/ui/button'
 import { Listbox, ListboxItem, ListboxSection } from '@nextui-org/react'
 import { CampaignStatus } from '@prisma/client'
 import { pages } from '@routes'
-import { MoreVertical } from 'lucide-react'
+import { AreaChart, MoreVertical } from 'lucide-react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
@@ -126,6 +126,9 @@ export const CampaignActionDropDown = ({ campaign, children, type = "default" }:
         <Separator className='my-1' />
         <Listbox variant="faded" aria-label="Campaign quick actions menu">
           <ListboxSection title="Quick actions" aria-label='Quick actions'>
+          <ListboxItem key="view-leads" startContent={<Icons.ViewLeadsIcon className={iconClasses} />} href={`${pages.campaign}/${campaign.id}/leads`} >
+              View Leads
+            </ListboxItem>
             <ListboxItem key="edit" startContent={<Icons.EditIcon className={iconClasses} />} href={`${pages.campaign}/${campaign.id}/edit`} >
               Edit campaign
             </ListboxItem>

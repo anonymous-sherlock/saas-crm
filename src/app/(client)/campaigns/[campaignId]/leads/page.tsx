@@ -1,5 +1,6 @@
 import { server } from '@/app/_trpc/server';
 import { PageHeader, PageHeaderDescription, PageHeaderHeading } from '@/components/global/page-header';
+import LeadsForm from '@/components/leads/LeadsForm';
 import { DataTableSkeleton } from '@/components/tables/global/data-table-skeleton';
 import LeadsTableShell from '@/components/tables/leads_table/leads-table-shell';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -44,6 +45,9 @@ async function CampaignLeadsPage({ params: { campaignId } }: CampaignLeadsPagePr
           <PageHeaderDescription size="sm">
             Manage Leads
           </PageHeaderDescription>
+        </div>
+        <div>
+          <LeadsForm campaignId={campaign.id} />
         </div>
       </PageHeader>
       <div className="p-0 md:!pt-4">

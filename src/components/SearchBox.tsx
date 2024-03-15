@@ -60,7 +60,7 @@ export function SearchBox() {
                       runCommand(() => router.push(menu.url))
                     }}
                   >
-                    <CircleIcon className="w-[12px] h-[12px] mr-2" />
+                    <CircleIcon className="w-3 h-3 mr-2" />
                     <Link href={menu.url}>{menu.label}</Link>
                   </CommandItem>
                 )

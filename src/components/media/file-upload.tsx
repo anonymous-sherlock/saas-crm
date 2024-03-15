@@ -3,6 +3,8 @@ import Image from 'next/image'
 import React from 'react'
 import { Button } from '../ui/button'
 import { UploadDropzone } from '@/lib/uploadthing'
+import { useFormContext } from 'react-hook-form'
+import { MediaFormType } from '@/schema/media.schema'
 
 type Props = {
   apiEndpoint: "productImages" | "avatar"
@@ -12,7 +14,7 @@ type Props = {
 
 const FileUpload = ({ apiEndpoint, onChange, value }: Props) => {
   const type = value?.split('.').pop()
-
+  const { getValues, setValue, resetField, watch } = useFormContext<MediaFormType>()
   if (value) {
     return (
       <div className="flex flex-col justify-center items-center">
@@ -39,7 +41,10 @@ const FileUpload = ({ apiEndpoint, onChange, value }: Props) => {
           </div>
         )}
         <Button
-          onClick={() => onChange('')}
+          onClick={() => {
+            resetField("name")
+            resetField("url")
+          }}
           variant="ghost"
           type="button"
         >
@@ -54,7 +59,12 @@ const FileUpload = ({ apiEndpoint, onChange, value }: Props) => {
       <UploadDropzone
         endpoint={apiEndpoint}
         onClientUploadComplete={(res) => {
-          onChange(res?.[0].url)
+          setValue("url", res?.[0].url)
+          if (!getValues("name") || getValues("name") === "") {
+            console.log(getValues("name"))
+            setValue("name", res?.[0].name)
+            console.log(getValues("name"))
+          }
         }}
         onUploadError={(error: Error) => {
           console.log(error)

@@ -1,9 +1,8 @@
 import { db } from "@/db";
 import { calculatePercentage } from "@/lib/utils";
 import { privateProcedure, router } from "@/server/trpc";
+import { endOfDay, endOfMonth, endOfWeek, startOfDay, startOfMonth, startOfWeek, subDays, subMonths } from "date-fns";
 import { z } from "zod";
-import { startOfWeek, previousDay, startOfDay, endOfMonth, endOfDay, startOfMonth, endOfWeek, subMonths, differenceInDays, subDays } from "date-fns";
-import { UserRoundIcon } from "lucide-react";
 
 export const analyticsRouter = router({
   getCampaignAnalytics: privateProcedure

@@ -9,7 +9,7 @@ import { toast } from 'sonner'
 import { cn, formatBytes } from '@/lib/utils'
 import { useFormContext } from 'react-hook-form'
 import { MediaFormType } from '@/schema/media.schema'
-import { Progress } from '../ui/progress'
+import { Progress } from '@nextui-org/react'
 import { deleteMediaFromUT } from '@/lib/actions/media.action'
 
 interface FileUploadDropzoneProps {
@@ -147,10 +147,18 @@ const FileUploadDropzone: FC<FileUploadDropzoneProps> = ({ apiEndpoint, value,
                         {isUploading ? (
                             <div className='w-full mt-4 max-w-xs mx-auto'>
                                 <Progress
+                                    size="sm"
+                                    isIndeterminate={uploadProgress === 0}
+                                    aria-label="Loading..."
+                                    className="max-w-lg"
+                                    value={uploadProgress}
+                                    color={uploadProgress === 0 ? "primary" : "success"}
+                                />
+                                {/* <Progress
                                     indicatorColor={cn("", uploadProgress === 100 && "bg-green-500")}
                                     value={uploadProgress}
                                     className='h-1 w-full bg-zinc-200'
-                                />
+                                /> */}
                                 {uploadProgress === 100 ? (
                                     <div className='flex gap-1 items-center justify-center text-sm text-zinc-700 text-center pt-2'>
                                         <Loader2 className='h-3 w-3 animate-spin' />

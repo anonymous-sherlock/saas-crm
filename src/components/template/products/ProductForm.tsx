@@ -40,6 +40,7 @@ import { pages } from "routes";
 import { z } from "zod";
 import Spinner from "../../ui/spinner";
 import { ProductImagesUploader } from "./productImages";
+import { MediaDialog } from "../media-modal/media-dialog";
 
 type ProductFormProps = {
   edit: true;
@@ -377,6 +378,7 @@ export function ProductForm({ edit, product }: ProductFormProps) {
             {/* right side menu */}
             <div className="col-span-3 lg:col-span-2 mt-[0_!important] w-full">
               <ProductImagesUploader files={productImages} setFiles={setProductImages} />
+              {/* <MediaDialog /> */}
             </div>
 
             <FormSuccess message={success} classname="col-span-5" />

@@ -1,8 +1,7 @@
-import { Lead } from "@prisma/client";
 import { z } from "zod";
 
-export const LeadsFormSchema = z.object({
-    campaignCode: z.string(),
+export const AddLeadFormSchema = z.object({
+    campaignId: z.string(),
     name: z.string().min(3, { message: "Name must be atleat 3 characters" }),
     phone: z.string(
         { required_error: "Phone is required", invalid_type_error: "Invalid type for phone, should be a string" }
@@ -32,7 +31,7 @@ export const LeadValidator = z.object({
         name: z.string({
             invalid_type_error: "Invalid type for name, should be a string"
         }).min(1, { message: "Name is required" }),
-        phone: LeadsFormSchema.shape.phone,
+        phone: AddLeadFormSchema.shape.phone,
         address: z.string().optional(),
     })
 
@@ -55,4 +54,5 @@ export const LeadSchema = z.object({
 
 export type LeadSchemaType = z.infer<typeof LeadSchema>
 export type LeadsPayload = z.infer<typeof LeadValidator>
+export type AddLeadFormType = z.infer<typeof AddLeadFormSchema>
 

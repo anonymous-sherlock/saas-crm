@@ -1,7 +1,7 @@
 import { db } from "@/db";
 import { determineLeadStatus } from "@/lib/helpers";
 import { getIpInfo } from "@/lib/helpers/getIpInfo";
-import { LeadsFormSchema } from "@/schema/lead.schema";
+import { AddLeadFormSchema } from "@/schema/lead.schema";
 import { privateProcedure, router } from "@/server/trpc";
 import { LeadStatus } from "@prisma/client";
 import { TRPCError } from "@trpc/server";
@@ -131,14 +131,14 @@ export const leadRouter = router({
       };
     }),
 
-  add: privateProcedure.input(LeadsFormSchema).mutation(async ({ ctx, input }) => {
+  add: privateProcedure.input(AddLeadFormSchema).mutation(async ({ ctx, input }) => {
     const { userId, req, actor, isImpersonating } = ctx;
-    const { name, phone, address, campaignCode } = input;
+    const { name, phone, address, campaignId } = input;
 
     const campaign = await db.campaign.findUnique({
       where: {
         userId: isImpersonating ? actor.userId : userId,
-        code: campaignCode,
+        id: campaignId,
       },
     });
 

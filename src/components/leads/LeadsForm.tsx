@@ -1,6 +1,6 @@
 "use client"
 import { trpc } from '@/app/_trpc/client'
-import { LeadsFormSchema } from '@/schema/lead.schema'
+import { AddLeadFormSchema, AddLeadFormType } from '@/schema/lead.schema'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { FC, useState } from 'react'
 import { useForm } from 'react-hook-form'
@@ -10,34 +10,37 @@ import { Button } from '../ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '../ui/dialog'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '../ui/form'
 import { Input } from '../ui/input'
+import { useRouter } from 'next/navigation'
 
 interface LeadsFormProps {
-  campaignCode: string
+  campaignId: string
 }
 
-const LeadsForm: FC<LeadsFormProps> = ({ campaignCode }) => {
+const LeadsForm: FC<LeadsFormProps> = ({ campaignId }) => {
   const [leadModelOpen, setLeadModelOpen] = useState<boolean>(false)
-  const form = useForm<z.infer<typeof LeadsFormSchema>>({
-    resolver: zodResolver(LeadsFormSchema),
+  const router = useRouter()
+  const utils = trpc.useUtils();
+
+  const form = useForm<z.infer<typeof AddLeadFormSchema>>({
+    resolver: zodResolver(AddLeadFormSchema),
     defaultValues: {
-      campaignCode: campaignCode,
+      campaignId: campaignId,
       name: "",
       phone: "",
       address: "",
 
     },
   });
-  const utils = trpc.useUtils();
-
   const { mutateAsync: addLead, isLoading } = trpc.lead.add.useMutation({
     onSuccess: (data) => {
       setLeadModelOpen(false)
       form.reset()
       utils.lead.getCampaignLeads.invalidate()
       utils.analytics.getCampaignAnalytics.invalidate({ campaignId: data.lead.campaignId })
+      router.refresh()
     }
   })
-  async function onSubmit(values: z.infer<typeof LeadsFormSchema>) {
+  async function onSubmit(values: AddLeadFormType) {
     hotToast.promise(
       addLead(values),
       {
@@ -48,7 +51,6 @@ const LeadsForm: FC<LeadsFormProps> = ({ campaignCode }) => {
     );
   }
   return (
-
     <Dialog open={leadModelOpen} onOpenChange={setLeadModelOpen}>
       <DialogTrigger asChild>
         <Button variant="default" size={'sm'} className='rounded-full'>Add a Lead</Button>
@@ -131,7 +133,6 @@ const LeadsForm: FC<LeadsFormProps> = ({ campaignCode }) => {
         </Form>
       </DialogContent>
     </Dialog>
-
   )
 }
 
