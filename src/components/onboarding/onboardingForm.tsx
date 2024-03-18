@@ -21,6 +21,7 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 import { Separator } from "@/ui/separator";
+import { revalidatePage } from "@/lib/actions/revalidate.action";
 
 type OnboardingFormProps = {
 };
@@ -73,7 +74,7 @@ export function OnboardingForm({ }: OnboardingFormProps) {
       setError("");
       setSuccess("");
       try {
-        await addCompanyDetails(values).then((data) => {
+        await addCompanyDetails(values).then(async (data) => {
           if (data?.error) {
             setError(data.error)
             toast.error(data.error)
@@ -81,6 +82,7 @@ export function OnboardingForm({ }: OnboardingFormProps) {
           else if (data?.success) {
             setSuccess(data.success)
             toast.success(data.success)
+            await revalidatePage(DEFAULT_DASHBOARD_REDIRECT)
             router.push(DEFAULT_DASHBOARD_REDIRECT)
           }
         })

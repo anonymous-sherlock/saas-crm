@@ -1,5 +1,6 @@
 import { server } from '@/app/_trpc/server'
 import { ProductForm } from '@/components/template/products/ProductForm'
+import { db } from '@/db'
 import React from 'react'
 
 
@@ -9,13 +10,13 @@ interface ProductEditPageProps {
   }
 }
 
-export default async function ProductEditPage({params}:ProductEditPageProps) {
-  const product = await server.product.get({productId:params.productId})
+export default async function ProductEditPage({ params }: ProductEditPageProps) {
+  const product = await server.product.get({ productId: params.productId })
 
   return (
     <div className="flex">
       <div className="w-full">
-        <ProductForm edit product={product}/>
+        <ProductForm product={product} title='Edit Product Details' type="update" />
       </div>
     </div>
   )

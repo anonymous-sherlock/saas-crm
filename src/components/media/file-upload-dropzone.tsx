@@ -34,7 +34,10 @@ const FileUploadDropzone: FC<FileUploadDropzoneProps> = ({ apiEndpoint, value,
     const [uploadProgress, setUploadProgress] = useState<number>(0)
     const { startUpload, isUploading } = useUploadThing(apiEndpoint, {
         onClientUploadComplete: (res) => {
-            console.log(res)
+            const name = getValues("name")
+            if (!name || name === "") {
+                setValue("name", res?.[0].name)
+            }
             setValue("key", res?.[0].key)
             setValue("originalFileName", res?.[0].name)
             setValue("type", res?.[0].type)
@@ -66,10 +69,9 @@ const FileUploadDropzone: FC<FileUploadDropzoneProps> = ({ apiEndpoint, value,
                 })
             }
         },
-
         [maxSize, startUpload]
     )
-    const { getRootProps, getInputProps, isDragActive, isDragAccept } = useDropzone({
+    const { getRootProps, getInputProps, isDragActive, acceptedFiles } = useDropzone({
         onDrop,
         accept,
         maxSize,
@@ -143,6 +145,9 @@ const FileUploadDropzone: FC<FileUploadDropzoneProps> = ({ apiEndpoint, value,
                         <p className='text-xs text-zinc-500'>
                             Image (up to {formatBytes(maxSize)})
                         </p>
+                        {acceptedFiles[0] &&
+                            <p className='text-xs mt-4 text-zinc-500'>{acceptedFiles[0].name}</p>
+                        }
 
                         {isUploading ? (
                             <div className='w-full mt-4 max-w-xs mx-auto'>
@@ -154,11 +159,7 @@ const FileUploadDropzone: FC<FileUploadDropzoneProps> = ({ apiEndpoint, value,
                                     value={uploadProgress}
                                     color={uploadProgress === 0 ? "primary" : "success"}
                                 />
-                                {/* <Progress
-                                    indicatorColor={cn("", uploadProgress === 100 && "bg-green-500")}
-                                    value={uploadProgress}
-                                    className='h-1 w-full bg-zinc-200'
-                                /> */}
+
                                 {uploadProgress === 100 ? (
                                     <div className='flex gap-1 items-center justify-center text-sm text-zinc-700 text-center pt-2'>
                                         <Loader2 className='h-3 w-3 animate-spin' />

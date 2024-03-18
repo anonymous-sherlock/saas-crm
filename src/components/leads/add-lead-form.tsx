@@ -16,7 +16,7 @@ interface LeadsFormProps {
   campaignId: string
 }
 
-const LeadsForm: FC<LeadsFormProps> = ({ campaignId }) => {
+export const AddLeadsForm: FC<LeadsFormProps> = ({ campaignId }) => {
   const [leadModelOpen, setLeadModelOpen] = useState<boolean>(false)
   const router = useRouter()
   const utils = trpc.useUtils();
@@ -53,7 +53,7 @@ const LeadsForm: FC<LeadsFormProps> = ({ campaignId }) => {
   return (
     <Dialog open={leadModelOpen} onOpenChange={setLeadModelOpen}>
       <DialogTrigger asChild>
-        <Button variant="default" size={'sm'} className='rounded-full'>Add a Lead</Button>
+        <Button >Add a Lead</Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <Form {...form}>
@@ -135,5 +135,3 @@ const LeadsForm: FC<LeadsFormProps> = ({ campaignId }) => {
     </Dialog>
   )
 }
-
-export default LeadsForm

@@ -1,62 +1,49 @@
 "use client";
-
-import {
-  ColumnDef,
-  ColumnFiltersState,
-  SortingState,
-  VisibilityState,
-  flexRender,
-  getCoreRowModel,
-  getFacetedRowModel,
-  getFacetedUniqueValues,
-  getFilteredRowModel,
-  getPaginationRowModel,
-  getSortedRowModel,
-  useReactTable,
-} from "@tanstack/react-table";
+import { DataTableFilterableColumn, DataTableSearchableColumn } from "@/types";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, } from "@/ui/table";
+import { ColumnDef, ColumnFiltersState, SortingState, VisibilityState, flexRender, getCoreRowModel, getFacetedRowModel, getFacetedUniqueValues, getFilteredRowModel, getPaginationRowModel, getSortedRowModel, useReactTable, } from "@tanstack/react-table";
 import * as React from "react";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/ui/table";
-
-import { trpc } from "@/app/_trpc/client";
-import { RouterOutputs } from "@/server";
-import { DataTablePagination } from "../global/data-table-pagination";
+import { DataTablePagination } from "./data-table-pagination";
 import { DataTableToolbar } from "./data-table-toolbar";
 
+interface EmptyMessageProps {
+  title: string;
+  description: string;
+}
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
+  filterableColumns?: DataTableFilterableColumn<TData>[]
+  searchableColumns?: DataTableSearchableColumn<TData>[]
+  searchPlaceholder?: string
+  deleteRowsComponent?: React.ReactNode
+  emptyDataMessage?: EmptyMessageProps;
+  filteredDataNotFoundMessage?: EmptyMessageProps
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
+  filterableColumns = [],
+  searchableColumns = [],
+  searchPlaceholder,
+  deleteRowsComponent,
+  emptyDataMessage = {
+    title: "No results found.",
+    description: ""
+  },
+  filteredDataNotFoundMessage = {
+    title: "No results found.",
+    description: "Clear some filter"
+  }
 }: DataTableProps<TData, TValue>) {
   const [rowSelection, setRowSelection] = React.useState({});
-  const [columnVisibility, setColumnVisibility] =
-    React.useState<VisibilityState>({});
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    []
-  );
+  const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
+  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [globalFilter, setGlobalFilter] = React.useState("");
-
-  const { data: initialData } = trpc.product.getAll.useQuery(undefined, {
-    initialData: data as RouterOutputs["product"]["getAll"],
-    refetchOnMount: false,
-    refetchOnReconnect: false,
-    refetchOnWindowFocus: true
-  }) as { data: TData[] };
-
-
   const table = useReactTable({
-    data: initialData || [],
+    data: data || [],
     columns,
     state: {
       sorting,
@@ -66,7 +53,7 @@ export function DataTable<TData, TValue>({
       globalFilter,
     },
     enableRowSelection: true,
-    enableGlobalFilter:true,
+    enableGlobalFilter: true,
     onGlobalFilterChange: setGlobalFilter,
     onRowSelectionChange: setRowSelection,
     onSortingChange: setSorting,
@@ -79,10 +66,13 @@ export function DataTable<TData, TValue>({
     getFacetedRowModel: getFacetedRowModel(),
     getFacetedUniqueValues: getFacetedUniqueValues(),
   });
-
   return (
     <div className="space-y-4">
-      <DataTableToolbar table={table} />
+      <DataTableToolbar table={table}
+        filterableColumns={filterableColumns}
+        searchableColumns={searchableColumns}
+        searchPlaceholder={searchPlaceholder}
+      />
       <div className="rounded-md border overflow-x-auto w-full">
         <Table>
           <TableHeader>
@@ -122,18 +112,26 @@ export function DataTable<TData, TValue>({
               ))
             ) : (
               <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-24 text-center"
-                >
-                  No results.
+                <TableCell colSpan={columns.length} className="h-24 text-center bg-[#F9F9FA]">
+                  {data.length === 0 ?
+                    <EmptyMessage title={emptyDataMessage.title} description={emptyDataMessage.description} />
+                    :
+                    <EmptyMessage title={filteredDataNotFoundMessage.title} description={filteredDataNotFoundMessage.description} />
+                  }
                 </TableCell>
               </TableRow>
             )}
           </TableBody>
         </Table>
       </div>
-      <DataTablePagination table={table} />
+      <DataTablePagination table={table} deleteComponent={deleteRowsComponent} />
     </div>
   );
 }
+
+const EmptyMessage: React.FC<EmptyMessageProps> = ({ title, description }) => (
+  <div className="flex h-full w-full flex-col items-center justify-center py-40 text-center">
+    <h1 className="text-lg font-medium sm:text-xl">{title}</h1>
+    <p className="text-xs text-muted-foreground sm:text-sm">{description}</p>
+  </div>
+);

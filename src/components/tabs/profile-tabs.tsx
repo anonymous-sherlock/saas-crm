@@ -28,16 +28,16 @@ export function ProfileTabs({ }: ProfileTabsProps) {
             href: `/user/profile/password`,
             isActive: segment === "password",
         },
-        {
-            title: "Notification",
-            href: `/user/profile/notification`,
-            isActive: segment === "notification",
-        },
-        {
-            title: "Integration",
-            href: `/user/profile/integration`,
-            isActive: segment === "integration",
-        },
+        // {
+        //     title: "Notification",
+        //     href: `/user/profile/notification`,
+        //     isActive: segment === "notification",
+        // },
+        // {
+        //     title: "Integration",
+        //     href: `/user/profile/integration`,
+        //     isActive: segment === "integration",
+        // },
     ]
 
     return (

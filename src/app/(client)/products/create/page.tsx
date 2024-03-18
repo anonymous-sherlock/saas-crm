@@ -4,13 +4,16 @@ export const metadata: Metadata = {
   title: "Adscrush | Add Product",
   description: "",
 };
+interface AddProductsPageProps {
 
-function AddProductsPage() {
+}
+async function AddProductsPage({ }: AddProductsPageProps) {
+
   return (
     <>
       <div className="flex">
         <div className="w-full">
-          <ProductForm edit={false} />
+          <ProductForm title='Add a Product' type="create" />
         </div>
       </div>
     </>

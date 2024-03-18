@@ -61,7 +61,6 @@ export async function upsertCampaignDetails({ data, campaignId, type }: updateCa
          });
          return { success: `New campaign '${newCampaign.name}' has been successfully created.`, campaign: newCampaign };
       }
-
       if (type === "update") {
          if (!campaignId) return { error: "Campaign id not provide" }
          const existingCampaign = await db.campaign.findFirst({ where: { id: campaignId } })

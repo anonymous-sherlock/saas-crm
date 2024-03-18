@@ -1,16 +1,16 @@
 import { LucideIcon } from "lucide-react";
 import { IconType } from "react-icons";
 
-import { type FileWithPath } from "react-dropzone"
+import { type FileWithPath } from "react-dropzone";
 import { Prisma } from "@prisma/client";
 import { getMedia } from "@/lib/actions/media.action";
 export type FileWithPreview = FileWithPath & {
-  preview: string
-}
+  preview: string;
+};
 
 // sidebar submenu
 interface MenuItem {
-  id: string
+  id: string;
   label: string;
   url: string;
 }
@@ -20,25 +20,40 @@ export interface SubMenuTypes {
   label: string;
   icon: IconType | LucideIcon;
   menus: MenuItem[];
-  isAdmin?: boolean
+  isAdmin?: boolean;
 }
 
 export interface SearchParams {
-  [key: string]: string | string[] | undefined
+  [key: string]: string | string[] | undefined;
 }
 
 export interface ResetPasswordCookie {
-  email: string,
-  count: number
+  email: string;
+  count: number;
 }
 
 export interface NotificaionSearchParams extends SearchParams {
-  notification?: string
+  notification?: string;
 }
 
+export type GetMediaFiles = Prisma.PromiseReturnType<typeof getMedia>;
 
-export type GetMediaFiles = Prisma.PromiseReturnType<typeof getMedia>
+export type UploadThingEndpoint = "productImages" | "avatar";
 
+export type Option = {
+  label: string;
+  value: string;
+  icon?: React.ComponentType<{ className?: string }>;
+};
 
-export type UploadThingEndpoint = "productImages" | "avatar"
+export interface DataTableSearchableColumn<TData> {
+  id: keyof TData;
+  title: string;
+}
+export interface DataTableFilterableColumn<TData> extends DataTableSearchableColumn<TData> {
+  options: Option[];
+}
 
+export interface ProductsPageSearchParams extends SearchParams {
+  date?: string;
+}

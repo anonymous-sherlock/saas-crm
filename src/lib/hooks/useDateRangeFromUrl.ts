@@ -1,30 +1,33 @@
-import { isValidDateString } from "@/lib/utils";
-import { subDays } from "date-fns";
 import { useSearchParams } from "next/navigation";
 import { useMemo } from "react";
 import { DateRange } from "react-day-picker";
+import { parseAndValidateDate } from "../helpers/date";
 
 // Custom hook to get the from and to dates from the URL search parameters
 function useDateRangeFromSearchParams() {
   const searchParams = useSearchParams();
-  const today = useMemo(() => new Date(), []); // Memoize today's date
+  const today = useMemo(() => new Date(), []);
 
-  const initialDate: DateRange = useMemo(() => {
+  const initialDate: DateRange | undefined = useMemo(() => {
     const dateString = searchParams.get("date");
-    if (!dateString) {
-      return { from: subDays(today, 30), to: today };
-    }
+    if (!dateString) return undefined;
 
-    const [fromDateString, toDateString] = dateString.split(".");
-    const fromDate = isValidDateString(fromDateString, today);
-    const toDate = isValidDateString(toDateString, today);
-    return { from: fromDate, to: toDate };
-  }, [searchParams, today]);
+    const [fromString, toString] = dateString.split(".");
+    const fromDate = parseAndValidateDate(fromString);
+    const toDate = parseAndValidateDate(toString);
+ 
+
+    if (fromDate) {
+      return { from: fromDate, to: toDate };
+    } else {
+      return undefined;
+    }
+  }, [searchParams]);
 
   const result = useMemo(
     () => ({
-      fromDate: initialDate.from,
-      toDate: initialDate.to,
+      fromDate: initialDate?.from,
+      toDate: initialDate?.to,
       hasDateParams: !!searchParams.get("date"),
     }),
     [initialDate, searchParams],

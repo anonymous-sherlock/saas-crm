@@ -7,14 +7,14 @@ import { ChevronLeft, HelpCircle, Info } from 'lucide-react'
 import { Session } from 'next-auth'
 import Link from 'next/link'
 import { CustomBadge } from '../../CustomBadge'
-import { Icons } from '../../Icons'
+import { Icons } from '@/components/Icons'
 import { CampaignAnalyticsChart } from '../../charts/CampaignAnalyticsChart'
-import TooltipComponent from '../../global/tooltip-component'
-import LeadsForm from '../../leads/LeadsForm'
-import { buttonVariants } from '../../ui/button'
-import { Card, CardContent } from '../../ui/card'
-import { HoverCard, HoverCardContent, HoverCardTrigger } from '../../ui/hover-card'
+import TooltipComponent from '@/components/global/tooltip-component'
+import { buttonVariants } from '@/ui/button'
+import { Card, CardContent } from '@/ui/card'
+import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/ui/hover-card'
 import { CampaignActionDropDown } from './CampaignActionDropDown'
+import { AddLeadsForm } from '@/components/leads/add-lead-form'
 
 
 interface CampaignStatsProps {
@@ -50,7 +50,7 @@ export const CampaignStats = ({ campaign: InitialCampaignData, user }: CampaignS
         </div>
 
         <div className='flex justify-end items-center gap-4'>
-          {user.role === "ADMIN" ? <LeadsForm campaignId={campaign.id} /> : null}
+          {user.role === "ADMIN" ? <AddLeadsForm campaignId={campaign.id} /> : null}
           <CampaignActionDropDown campaign={campaign} type='default' />
         </div>
       </div>

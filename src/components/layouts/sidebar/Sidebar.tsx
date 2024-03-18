@@ -73,7 +73,7 @@ const Sidebar = ({ children }: PropsWithChildren) => {
         variants={Nav_animation}
         initial={{ x: isTabletMid ? -250 : 0 }}
         animate={open ? "open" : "closed"}
-        className=" text-gray fixed top-0  z-[999] h-screen w-[16rem] max-w-[16rem]  flex-1 
+        className=" text-gray fixed top-0  z-[999] h-screen w-[14.5rem] max-w-[14.5rem]  flex-1 
             overflow-hidden bg-white shadow-xl dark:bg-gray-700
          md:relative "
       >

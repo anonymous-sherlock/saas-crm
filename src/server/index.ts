@@ -9,6 +9,8 @@ import { productRouter } from "./routers/product.router";
 import { userRouter } from "./routers/user.router";
 import { router } from "./trpc";
 import { notificationRouter } from "./routers/notification.router";
+import { mediaRouter } from "./routers/media.router";
+import { searchRouter } from "./routers/search.router";
 
 export const appRouter = router({
   auth: authRouter,
@@ -18,7 +20,9 @@ export const appRouter = router({
   lead: leadRouter,
   analytics: analyticsRouter,
   admin: adminRouter,
-  notification: notificationRouter
+  notification: notificationRouter,
+  media: mediaRouter,
+  search: searchRouter,
 });
 
 export type AppRouter = typeof appRouter;

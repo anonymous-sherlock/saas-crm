@@ -23,21 +23,20 @@ export default async function Page({ params }: PageProps) {
       id: params.productId
     },
     include: {
-      images: true
+      images: {
+        include: {
+          media: true
+        }
+      }
     }
   })
   if (!product) return notFound()
 
 
-  const label = PRODUCT_CATEGORIES.find(
-    ({ value }) => value === product.category
-  )?.label
+  const label = PRODUCT_CATEGORIES.find(({ value }) => value === product.category)?.label
 
-  const validUrls = product.images
-    .map(({ url }) =>
-      typeof url === 'string' ? url : url
-    )
-    .filter(Boolean) as string[]
+  const validUrls = product.images?.media.map(({ url }) => typeof url === 'string' ? url : url).filter(Boolean) as string[]
+
   return (
     <Card className={cn("")}>
       <div className="border h-full w-full! flex-col space-y-8 rounded-lg bg-white p-8 md:flex">

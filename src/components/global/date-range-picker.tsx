@@ -1,6 +1,7 @@
 "use client"
 import useDateRangeFromSearchParams from "@/hooks/useDateRangeFromUrl"
-import { cn, formatDateRangeForParams } from "@/lib/utils"
+import { formatDateRangeForParams } from "@/lib/helpers/date"
+import { cn, } from "@/lib/utils"
 import { Button } from "@/ui/button"
 import { Calendar } from "@/ui/calendar"
 import {
@@ -38,8 +39,6 @@ export function CalendarDateRangePicker({
   const pathname = usePathname()
   const today = new Date()
   const { fromDate, toDate, hasDateParams } = useDateRangeFromSearchParams()
-
-
   const [dateState, setDateState] = React.useState<{ date: DateRange | undefined; isChanged: boolean }>({
     date: { from: fromDate, to: toDate },
     isChanged: false,
@@ -63,39 +62,39 @@ export function CalendarDateRangePicker({
     router.push(`${pathname}?${params}`);
     setDateState(prevState => ({ ...prevState, isChanged: false }));
   };
+
   const removeDateFilter = () => {
     const params = new URLSearchParams(searchParams.toString())
     params.delete("date")
+    setDateState({ date: undefined, isChanged: false });
     router.push(`${pathname}?${params}`);
   }
   return (
-    <div className={cn("flex flex-col-reverse md:flex-row gap-2", className)}>
+    <div className={cn("flex flex-col-reverse md:flex-row gap-1", className)}>
       {dateState.isChanged && (
-        <Button variant="default" className="text-sm h-9 md:h-8" onClick={handleDateApply}>Apply</Button>
+        <Button variant="default" className="h-9 md:h-8 text-xs" onClick={handleDateApply}>Apply</Button>
       )}
       {
         hasDateParams ?
-          <Button variant="destructive" onClick={removeDateFilter} className="hover:bg-destructive-foreground/15 text-destructive-foreground h-9 md:h-8">Clear Filter</Button> : null
+          <Button variant="destructive" onClick={removeDateFilter} className="hover:bg-destructive-foreground/15 text-destructive-foreground text-xs h-9 md:h-8 shrink-0">Clear Filter</Button> : null
       }
       <Popover>
         <PopoverTrigger asChild>
-          <Button
-            id="date"
-            variant={"outline"}
+          <Button id="date" variant={"outline"}
             className={cn(
-              "h-9 md:w-[260px] grow md:h-8 md:mr-2 justify-start text-left font-normal",
+              "h-9  grow md:h-8 md:mr-1 justify-start text-left text-xs font-normal shrink-0",
               !dateState.date && "text-muted-foreground"
             )}
           >
             <CalendarIcon className="mr-2 h-4 w-4" />
             {dateState.date?.from ? (
-              dateState.date.to ? (
+              dateState.date?.to ? (
                 <>
-                  {format(dateState.date.from, "LLL dd, y")} -{" "}
-                  {format(dateState.date.to, "LLL dd, y")}
+                  {format(dateState.date?.from, "LLL dd, y")} -{" "}
+                  {format(dateState.date?.to, "LLL dd, y")}
                 </>
               ) : (
-                format(dateState.date.from, "LLL dd, y")
+                format(dateState.date?.from, "LLL dd, y")
               )
             ) : (
               <span>Pick a date</span>

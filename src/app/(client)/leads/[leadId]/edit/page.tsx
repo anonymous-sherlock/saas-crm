@@ -13,7 +13,11 @@ export default async function LeadEditPage({ params }: { params: { leadId: strin
                 include: {
                     product: {
                         include: {
-                            images: true
+                            images: {
+                                include: {
+                                    media: true
+                                }
+                            }
                         }
                     }
                 }

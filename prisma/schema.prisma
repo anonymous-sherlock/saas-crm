@@ -104,18 +104,20 @@ model User {
 }
 
 model Media {
-  id               String   @id @default(uuid())
+  id               String         @id @default(uuid())
+  key              String
   name             String
+  url              String
   size             Int?
   type             String?
-  url              String
   originalFileName String?
-  user             User?    @relation(fields: [userId], references: [id])
+  user             User?          @relation(fields: [userId], references: [id])
   userId           String?
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
-  company          Company? @relation(fields: [companyId], references: [id])
+  company          Company?       @relation(fields: [companyId], references: [id])
   companyId        String?
+  productImages    ProductImage[]
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
 
   @@map("media")
 }
@@ -183,17 +185,27 @@ model Product {
   category    String?
   campaign    Campaign[]
   owner       User           @relation(fields: [ownerId], references: [id], onDelete: Cascade)
-  images      ProductImage[]
+  images      ProductImage?
   media       ProductMedia[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
 
   @@index([ownerId], map: "Product_ownerId_fkey")
   @@fulltext([id])
   @@fulltext([name])
   @@fulltext([description])
   @@map("products")
+}
+
+model ProductImage {
+  id        String   @id @default(cuid())
+  media     Media[]
+  product   Product? @relation(fields: [productId], references: [id])
+  productId String?  @unique
+  createdAt DateTime @default(now())
+
+  @@index([productId], map: "ProductImage_productId_fkey")
+  @@map("product_images")
 }
 
 model ProductMedia {
@@ -204,23 +216,6 @@ model ProductMedia {
 
   @@index([productMediaId], map: "ProductMedia_productMediaId_fkey")
   @@map("product_media")
-}
-
-model ProductImage {
-  id               String  @id @default(cuid())
-  name             String
-  size             Int
-  type             String
-  url              String
-  originalFileName String
-  uploadPath       String?
-
-  productId String
-  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
-  createdAt DateTime @default(now())
-
-  @@index([productId], map: "ProductImage_productId_fkey")
-  @@map("product_images")
 }
 
 model Campaign {

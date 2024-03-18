@@ -4,25 +4,21 @@ import {
   HoverCardContent,
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
-import notFoundImage from "@/public/product-not-found.jpg";
-import { Product, ProductImage } from "@prisma/client";
 import { format } from "date-fns";
 import { CalendarIcon, HelpCircle } from "lucide-react";
-import Image from "next/image";
 import Link from "next/link";
 import { FC } from "react";
+import { ProductColumnDef } from "./schema";
+import notFoundImage from "@/public/product-not-found.jpg"
+import Image from "next/image";
+
 
 type ProductInfoHoverProps = {
-  product: Pick<
-    Product & {
-      images: ProductImage[];
-    },
-    "name" | "description" | "price" | "id" | "images" | "createdAt"
-  >;
+  product: ProductColumnDef
 };
 
 export const ProductInfoHover: FC<ProductInfoHoverProps> = ({ product }) => {
-  const firstProductImage = product.images && product.images[0];
+  const firstProductImage = product.images?.media?.length && product.images.media.length > 0 ? product.images.media[0] : null;
   return (
     <HoverCard closeDelay={200} openDelay={300}>
       <HoverCardTrigger asChild>
@@ -37,7 +33,7 @@ export const ProductInfoHover: FC<ProductInfoHoverProps> = ({ product }) => {
       <HoverCardContent className="w-[370px]" side="bottom">
         <div className="flex justify-start space-x-4">
           <Image
-            src={firstProductImage?.url.toString() || notFoundImage.src}
+            src={firstProductImage?.url || notFoundImage.src}
             alt={product.name}
             width={100}
             height={100}

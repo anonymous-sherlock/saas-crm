@@ -16,7 +16,7 @@ import { cn } from "@/lib/utils";
 import { RouterOutputs } from "@/server";
 import { Avatar } from "@nextui-org/react";
 import { Bell, Inbox, Undo2 } from 'lucide-react';
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { FC, useTransition } from 'react';
 import { toast } from "sonner";
 

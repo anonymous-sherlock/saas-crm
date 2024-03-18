@@ -1,3 +1,4 @@
+import { Media } from "@prisma/client";
 import { z } from "zod";
 
 export const singleImageSchema = z.object({
@@ -39,12 +40,7 @@ export const productFormSchema = z.object({
       message: "Product quantity must be a valid number or -1 for unlimited.",
     }),
 
-  productImages: z.unknown()
-    .refine((val) => {
-      if (!Array.isArray(val)) return false
-      if (val.some((file) => !(file instanceof File))) return false
-      return true
-    }, "Must be an array of File"),
+  productImages: z.custom<Media>().array(),
   mediaUrls: z.array(
     z.object({
       value: z
@@ -84,6 +80,6 @@ export const productSearch = z.object({
   limit: z.number().optional(),
   cursor: z.string(),
 });
-export type ProductFormPayload = z.infer<typeof productFormSchema>;
+export type ProductFormSchemaType = z.infer<typeof productFormSchema>;
 export type DeleteProductPayload = z.infer<typeof productDeleteScheme>;
 export type ProductSearchPayload = z.infer<typeof productSearch>;

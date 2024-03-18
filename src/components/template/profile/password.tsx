@@ -116,7 +116,7 @@ const Password = () => {
                                 Reset
                             </Button>
                             <Button
-                                className="bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 text-white radius-round h-11 px-8 py-2"
+                                className="bg-primary/90 hover:bg-primary active:bg-primary text-white radius-round h-11 px-8 py-2"
                                 type="submit"
                             >
                                 Update Password

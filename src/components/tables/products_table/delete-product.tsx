@@ -16,7 +16,6 @@ import { toast } from "@/components/ui/use-toast";
 import { Cross2Icon } from "@radix-ui/react-icons";
 import { Table } from "@tanstack/react-table";
 import { AxiosError } from "axios";
-import { useRouter } from "next/navigation";
 import React from "react";
 import { ProductColumnDef } from "./schema";
 
@@ -55,7 +54,7 @@ export function DeleteProduct<TData>({
   });
 
   function handleCampaignDelete() {
-    const rows = table.getFilteredSelectedRowModel().rows;
+    const rows = table?.getFilteredSelectedRowModel().rows;
     const payload = rows.map((row) => {
       const rowOriginal = row.original as ProductColumnDef;
       return rowOriginal.id;
@@ -65,7 +64,7 @@ export function DeleteProduct<TData>({
   }
   return (
     <>
-      {table.getFilteredSelectedRowModel().rows.length > 0 && (
+      {table?.getFilteredSelectedRowModel().rows.length > 0 && (
         <AlertDialog>
           <AlertDialogTrigger asChild>
             {children ? (
@@ -74,7 +73,7 @@ export function DeleteProduct<TData>({
               <Button
                 variant="destructive"
                 size="sm"
-                className="h-8 px-2 lg:px-3 mr-2"
+                className="h-8 px-2 lg:px-3 mr-2 border border-destructive-foreground/50"
                 disabled={isLoading}
               >
                 {isLoading ? "Deleting..." : "Delete"}

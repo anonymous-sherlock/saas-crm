@@ -10,7 +10,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, } from 
 import { Card as CardUi, CardBody as CardBodyUi, CardFooter as CardFooterUi } from "@nextui-org/card"
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Autocomplete, AutocompleteItem, Avatar, CardBody, Chip, Image, Input, Textarea } from "@nextui-org/react";
-import { Campaign, Lead, Product, ProductImage } from "@prisma/client";
+import { Campaign, Lead, Media, Product, ProductImage } from "@prisma/client";
 import { pages } from "@routes";
 import { City, Country, ICity, State } from "country-state-city";
 import { CircleUserRound, Globe, Phone } from "lucide-react";
@@ -28,7 +28,9 @@ interface LeadsEditDormProps {
   data?: Partial<Lead & {
     campaign: Campaign & {
       product: Product & {
-        images: ProductImage[];
+        images: ProductImage & {
+          media: Media[] | []
+        } | null;
       } | null;
     } | null;
   }>;
@@ -77,6 +79,7 @@ export const LeadsEditForm: FC<LeadsEditDormProps> = ({ title, data }) => {
       return b.name.length - a.name.length;
     });
     return cities;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data?.city]);
 
   async function onSubmit(values: z.infer<typeof LeadSchema>) {

@@ -1,62 +1,34 @@
 "use client";
-import { useDebounce } from "@/lib/hooks/use-debounce";
+import { PRODUCT_CATEGORIES } from "@/constants/index";
+import { useProductList } from "@/lib/hooks/use-producLists";
 import { cn } from "@/lib/utils";
 import notFoundImage from "@/public/product-not-found.jpg";
+import { campaignFormSchema } from "@/schema/campaign.schema";
+import { Button } from "@/ui/button";
+import { Command, CommandEmpty, CommandGroup, CommandItem, CommandList } from "@/ui/command";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuShortcut, DropdownMenuTrigger, } from "@/ui/dropdown-menu";
+import { Input } from "@/ui/input";
+import { Popover, PopoverContent, PopoverTrigger } from "@/ui/popover";
+import Spinner from "@/ui/spinner";
+import { useDebouncedValue } from "@mantine/hooks";
 import { Image } from "@nextui-org/react";
-import { Prisma } from "@prisma/client";
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";
 import { Check, Search } from "lucide-react";
+import NextImage from "next/image";
 import React, { useState } from "react";
 import { useFormContext } from "react-hook-form";
-import { Button } from "../../ui/button";
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandItem,
-  CommandList
-} from "../../ui/command";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuShortcut,
-  DropdownMenuTrigger,
-} from "../../ui/dropdown-menu";
-
-import { useProductList } from "@/lib/hooks/use-producLists";
-import { campaignFormSchema } from "@/schema/campaign.schema";
-import NextImage from "next/image";
 import { z } from "zod";
-import { Input } from "../../ui/input";
-import { Popover, PopoverContent, PopoverTrigger } from "../../ui/popover";
-import Spinner from "../../ui/spinner";
-import { PRODUCT_CATEGORIES } from "@/constants/index";
-
-
-type ProductWithImagesPayload = Prisma.ProductGetPayload<{
-  include: {
-    images: true
-  }
-}>
-
 
 const ProductDropdown = () => {
   const { setValue, getValues, clearErrors } = useFormContext<z.infer<typeof campaignFormSchema>>();
-  const [selectedProduct, setSelectedProduct] = useState<string | null>(getValues("productId"));
-  const [searchText, setSearchText] = useState<string | null>("");
   const [open, setOpen] = useState(false);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
-
-
-
-  const debouncedValue = useDebounce(searchText, 700);
+  const [selectedProduct, setSelectedProduct] = useState<string | null>(getValues("productId"));
+  const [searchText, setSearchText] = useState<string | null>("");
+  const [debouncedValue, cancel] = useDebouncedValue(searchText, 500);
   const { data: productSearched, isFetching, isLoading, isFetched, hasNextPage, isFetchingNextPage, fetchNextPage, refetch } = useProductList({ selectedProduct: selectedProduct, debouncedValue })
 
-  const products = productSearched?.pages.flatMap((page) => page.data)
+  const products = productSearched?.pages.flatMap((page) => page.products)
 
 
   const handlePopupTrigger = () => {
@@ -147,64 +119,62 @@ const ProductDropdown = () => {
                 {isFetching || isLoading ? <><Spinner />Fetching Products...</> : "No results found."}
               </CommandEmpty>
               <CommandGroup heading="Products">
-                {isFetched &&
-                  products &&
-                  products
-                    .map((product: ProductWithImagesPayload, i) => {
-                      const isSelected = product.id === selectedProduct;
-
-                      return (
-                        <React.Fragment key={`${product.id}-${i}`}>
-                          <CommandItem
-                            key={product.id}
-                            value={product.id}
-                            onSelect={(currentValue) => {
-                              const currentProduct = getValues("productId");
-                              const newProduct =
-                                product.id === currentProduct ? "" : product.id;
-                              setValue("productId", newProduct);
-                              setSelectedProduct(product.id);
-                              setIsPopupOpen(false);
-                              clearErrors("productId")
-                            }}
-                            className={cn("flex gap-2 cursor-pointer min-h-[40px] my-1 hover:bg-none aria-selected:bg-default-300")}
-                          >
-                            <div className="h-4 w-4">
-                              {isSelected &&
-                                <Check className={cn("w-full h-full font-semibold")} />
-                              }
+                {isFetched && products && products
+                  .map((product, i) => {
+                    const isSelected = product.id === selectedProduct;
+                    const productImage = product?.images && product?.images?.media.length ? product.images?.media[0].url : notFoundImage.src
+                    return (
+                      <React.Fragment key={`${product.id}-${i}`}>
+                        <CommandItem
+                          key={product.id}
+                          value={product.id}
+                          onSelect={(currentValue) => {
+                            const currentProduct = getValues("productId");
+                            const newProduct =
+                              product.id === currentProduct ? "" : product.id;
+                            setValue("productId", newProduct);
+                            setSelectedProduct(product.id);
+                            setIsPopupOpen(false);
+                            clearErrors("productId")
+                          }}
+                          className={cn("flex gap-2 cursor-pointer min-h-[40px] my-1 hover:bg-none aria-selected:bg-default-300")}
+                        >
+                          <div className="h-4 w-4">
+                            {isSelected &&
+                              <Check className={cn("w-full h-full font-semibold")} />
+                            }
+                          </div>
+                          <Image
+                            as={NextImage}
+                            src={productImage}
+                            alt={product.name} width={40} height={40} sizes="50px"
+                            className="w-[40] rounded-sm"
+                            style={{ width: 30 }}
+                            fallbackSrc={notFoundImage.src}
+                          />
+                          <div className="w-full w-max-[140px] truncate">
+                            <div className="ml-3 flex flex-col w-[calc(100%-10px)]">
+                              <span className="text-sm font-medium text-gray-900">
+                                {product.name}
+                              </span>
+                              <span className="text-sm truncate w-[calc(100%-30px)]">
+                                {product.description}
+                              </span>
                             </div>
-                            <Image
-                              as={NextImage}
-                              src={product.images[0]?.url || notFoundImage.src}
-                              alt={product.name} width={40} height={40} sizes="50px"
-                              className="w-[40] rounded-sm"
-                              style={{ width: 30 }}
-                              fallbackSrc={notFoundImage.src}
-                            />
-                            <div className="w-full w-max-[140px] truncate">
-                              <div className="ml-3 flex flex-col w-[calc(100%-10px)]">
-                                <span className="text-sm font-medium text-gray-900">
-                                  {product.name}
-                                </span>
-                                <span className="text-sm truncate w-[calc(100%-30px)]">
-                                  {product.description}
-                                </span>
-                              </div>
-                            </div>
-                          </CommandItem>
-                          {
-                            products.length - 1 === i ?
-                              <>
-                                {isFetchingNextPage ?
-                                  <CommandItem className="flex justify-center items-center mx-auto gap-2 p-3" disabled><Spinner /></CommandItem> : null}
-                              </>
-                              : null
+                          </div>
+                        </CommandItem>
+                        {
+                          products.length - 1 === i ?
+                            <>
+                              {isFetchingNextPage ?
+                                <CommandItem className="flex justify-center items-center mx-auto gap-2 p-3" disabled><Spinner /></CommandItem> : null}
+                            </>
+                            : null
 
-                          }
-                        </React.Fragment>
-                      );
-                    })}
+                        }
+                      </React.Fragment>
+                    );
+                  })}
                 {/* next page button */}
                 {
                   hasNextPage ? <CommandItem className="flex justify-center items-center mx-auto gap-2" disabled> <Button variant="secondary" onClick={() => fetchNextPage()} className="w-full text-black  p-1 hover:bg-primary/5" disabled={!hasNextPage}>{isFetchingNextPage ? "Loading..." : "Load more"}</Button>
@@ -218,8 +188,7 @@ const ProductDropdown = () => {
 
       <div className="grid grid-cols-2 gap-4 mt-0 sm:mt-2">
         {selectedProduct && products &&
-          products.find((p) => p.id === selectedProduct)
-            ?.images.slice(0, 2)
+          products.find((p) => p.id === selectedProduct)?.images?.media.slice(0, 2)
             .map((img) => (
               <div
                 key={img.id}

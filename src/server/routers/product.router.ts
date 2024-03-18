@@ -1,21 +1,35 @@
 import { db } from "@/db";
 import { parsePrice } from "@/lib/helpers";
-import { productFormSchema } from "@/schema/productSchema";
+import { productFormSchema } from "@/schema/product.schema";
 import { privateProcedure, router } from "@/server/trpc";
 import { fileMetaDetailsSchema } from "@/types/fileUpload";
 import { TRPCError } from "@trpc/server";
+import { endOfDay, startOfDay } from "date-fns";
 import { z } from "zod";
 
+const getAllSearchQuery = z.object({
+  date: z
+    .object({
+      from: z.date().optional(),
+      to: z.date().optional(),
+    })
+    .optional()
+    .nullable(),
+});
 export const productRouter = router({
   get: privateProcedure.input(z.object({ productId: z.string() })).query(async ({ ctx, input }) => {
-    const { userId, isImpersonating, actor } = ctx
+    const { userId, isImpersonating, actor } = ctx;
     const product = await db.product.findFirst({
       where: {
         id: input.productId,
         ownerId: isImpersonating ? actor.userId : userId,
       },
       include: {
-        images: true,
+        images: {
+          include: {
+            media: true,
+          },
+        },
         media: true,
       },
     });
@@ -23,26 +37,34 @@ export const productRouter = router({
     if (!product) throw new TRPCError({ code: "NOT_FOUND", message: "product not found" });
     return product;
   }),
-  getAll: privateProcedure.query(async ({ ctx }) => {
-    const { userId, isImpersonating, actor } = ctx;
+  getAll: privateProcedure.input(getAllSearchQuery).query(async ({ ctx, input }) => {
+    const { user, actor } = ctx;
+    const userId = actor ? actor.userId : user.id;
+    const { date } = input;
+    const today = new Date();
+    const startDay = date?.from ? startOfDay(date.from) : undefined;
+    const endDay = date?.to ? endOfDay(date.to) : (startDay ? endOfDay(startDay) : undefined);
+
+    console.log(startDay, " to ", endDay);
     const products = await db.product.findMany({
       where: {
-        ownerId: isImpersonating ? actor.userId : userId,
+        ownerId: userId,
+        createdAt: {
+          gte: startDay,
+          lte: endDay,
+        },
       },
       include: {
-        images: true,
+        images: {
+          include: {
+            media: true,
+          },
+        },
       },
-      orderBy: {
-        updatedAt: "desc",
-      },
+      orderBy: { createdAt: "desc" },
     });
 
-    if (!products) {
-      throw new TRPCError({
-        code: "NOT_FOUND",
-        message: "Products not found",
-      });
-    }
+    if (!products) throw new TRPCError({ code: "NOT_FOUND", message: "Products not found" });
 
     return products;
   }),
@@ -89,61 +111,6 @@ export const productRouter = router({
         deletedCount,
       };
     }),
-  add: privateProcedure
-    .input(
-      z.object({
-        product: productFormSchema,
-        files: z.array(fileMetaDetailsSchema),
-      }),
-    )
-    .mutation(async ({ input, ctx }) => {
-      const { productName, productCategory, productPrice, productQuantity, productDescription, productImages, mediaUrls } = input.product;
-      const { files } = input;
-      const { userId, isImpersonating, actor } = ctx;
-      const price = parsePrice(productPrice);
-
-      const newProduct = await db.product.create({
-        data: {
-          name: productName,
-          price: price,
-          quantity: Number(productQuantity),
-          description: productDescription,
-          ownerId: isImpersonating ? actor.userId : userId,
-          category: productCategory,
-          images: {
-            createMany: {
-              data: files.map((file) => ({
-                name: file.fileName,
-                originalFileName: file.originalFileName,
-                size: file.fileSize,
-                type: file.fileType,
-                url: file.fileUrl,
-                uploadPath: file.uplaodPath,
-              })),
-            },
-          },
-          media: {
-            createMany: {
-              data: (mediaUrls || [])
-                .filter((url) => url.value !== undefined && url.value.trim() !== "")
-                .map((url) => ({
-                  url: url.value!,
-                })),
-            },
-          },
-        },
-      });
-      if (!newProduct) {
-        throw new TRPCError({ code: "TIMEOUT", message: "Cannot Add New Product" });
-      }
-
-      return {
-        success: true,
-        message: `${newProduct.name} created successfully`,
-        product: newProduct,
-      };
-    }),
-
   update: privateProcedure
     .input(
       z.object({

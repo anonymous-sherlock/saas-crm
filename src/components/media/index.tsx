@@ -1,6 +1,10 @@
 "use client"
+import { trpc } from '@/app/_trpc/client'
 import { GetMediaFiles } from '@/types'
+import { useIntersection } from '@mantine/hooks'
+import { Spinner } from '@nextui-org/react'
 import { FolderSearch } from 'lucide-react'
+import { useEffect, useRef } from 'react'
 import {
   Command,
   CommandEmpty,
@@ -9,8 +13,7 @@ import {
   CommandItem,
   CommandList,
 } from '../ui/command'
-import MediaCard from './media-card'
-import MediaUploadButton from './upload-buttons'
+import { MediaCard } from './media-card'
 
 type Props = {
   data: GetMediaFiles
@@ -18,42 +21,63 @@ type Props = {
 }
 
 const MediaComponent = ({ data, companyId }: Props) => {
+  const { data: fileData, fetchNextPage, isFetchingNextPage, isLoading } = trpc.media.getMedia.useInfiniteQuery(
+    { limit: 12, },
+    { getNextPageParam: (lastPage) => lastPage.nextCursor, },
+  )
+
+  const files = fileData ? fileData.pages.flatMap((data) => data.mediafiles) : []
+
+  const lastImageRef = useRef<HTMLDivElement>(null)
+
+  const { ref, entry } = useIntersection({
+    root: lastImageRef.current,
+    threshold: 1,
+  })
+  useEffect(() => {
+    if (entry?.isIntersecting) {
+      fetchNextPage()
+    }
+  }, [entry, fetchNextPage])
+
   return (
-    <div className="flex flex-col gap-4 h-full w-full">
-      <div className="flex justify-between items-center">
-        <h1 className="text-4xl">Media Bucket</h1>
-        <MediaUploadButton companyId={companyId} />
-      </div>
-      <Command className="bg-transparent">
-        <CommandInput placeholder="Search for file name..." />
-        <CommandList className="pb-10 max-h-full ">
-          <CommandEmpty>No Media Files</CommandEmpty>
-          <CommandGroup heading="Media Files">
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-              {data?.media.map((file) => (
-                <CommandItem
-                  key={file.id}
-                  className="p-0 w-full rounded-lg !bg-transparent !font-medium !text-white"
-                >
+
+    <Command className="bg-transparent">
+      <CommandInput placeholder="Search for file name..." />
+      <CommandList className="pb-10 max-h-full ">
+        <CommandEmpty >No Media Files</CommandEmpty>
+        <CommandGroup heading="Media Files" className='col-span-4'>
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            {files?.map((file, i) => (
+              <CommandItem key={file.id} className="p-0 w-full rounded-lg !bg-transparent !font-medium !text-white" >
+                {(i === files.length - 1) ?
+                  <MediaCard file={file} ref={ref} /> :
                   <MediaCard file={file} />
-                </CommandItem>
-              ))}
-              {!data?.media.length && (
-                <div className="flex items-center justify-center w-full flex-col">
-                  <FolderSearch
-                    size={200}
-                    className="dark:text-muted text-slate-300"
-                  />
-                  <p className="text-muted-foreground ">
-                    Empty! no files to show.
-                  </p>
-                </div>
-              )}
-            </div>
-          </CommandGroup>
-        </CommandList>
-      </Command>
-    </div>
+                }
+              </CommandItem>
+            ))}
+            {isFetchingNextPage ?
+              <div className="flex items-center justify-center w-full flex-row  col-span-4">
+                <Spinner size="md" />
+                <p className="text-muted-foreground ">
+                  loading....
+                </p>
+              </div> : null}
+            {!data?.media.length && (
+              <div className="flex items-center justify-center w-full flex-col col-span-4">
+                <FolderSearch
+                  size={200}
+                  className="dark:text-muted text-slate-300"
+                />
+                <p className="text-muted-foreground ">
+                  Empty! no files to show.
+                </p>
+              </div>
+            )}
+          </div>
+        </CommandGroup>
+      </CommandList>
+    </Command>
   )
 }
 

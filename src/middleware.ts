@@ -15,27 +15,25 @@ export default withAuth(
     const isAuthRoute = authRoutes.includes(nextUrl.pathname);
 
     if (["/sign-in", "/sign-up"].includes(pathname)) {
-      if (isAuth) { return NextResponse.redirect(new URL(DEFAULT_DASHBOARD_REDIRECT, req.url)); }
+      if (isAuth) {
+        return NextResponse.redirect(new URL(DEFAULT_DASHBOARD_REDIRECT, req.url));
+      }
     }
 
-
     // check for user account if they are onboarded
-    if (!companyAccount && !pathname.startsWith(ONBOARDING_REDIRECT) && !pathname.startsWith("/dashboard")) {
+    if (!companyAccount && !pathname.startsWith(ONBOARDING_REDIRECT) && !pathname.startsWith(DEFAULT_DASHBOARD_REDIRECT)) {
       if (!isPublicRoute && !isAuthRoute && !isApiRoute) {
         return Response.redirect(new URL(ONBOARDING_REDIRECT, nextUrl));
       }
-    }
-    else if (companyAccount && companyAccount.id && pathname.startsWith(ONBOARDING_REDIRECT)) {
+    } else if (companyAccount && companyAccount.id && pathname.startsWith(ONBOARDING_REDIRECT)) {
       return Response.redirect(new URL(DEFAULT_DASHBOARD_REDIRECT, nextUrl));
     }
 
     if (pathname.startsWith("/admin")) {
       if (isAuth) {
-        if (token.role !== "ADMIN")
-          return NextResponse.redirect(new URL(DEFAULT_DASHBOARD_REDIRECT, req.url));
+        if (token.role !== "ADMIN") return NextResponse.redirect(new URL(DEFAULT_DASHBOARD_REDIRECT, req.url));
       }
     }
-
   },
   {
     callbacks: {

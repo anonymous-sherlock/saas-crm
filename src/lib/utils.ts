@@ -178,18 +178,6 @@ export function catchError(err: unknown) {
   }
 }
 
-export function isValidDateString(dateString: string | undefined, today: Date): Date {
-  if (!dateString) return today;
-  const parsedDate = parse(dateString, "yyyy-MM-dd", today);
-  return isValid(parsedDate) ? parsedDate : today;
-}
-export function formatDateRangeForParams(dateRange: DateRange | undefined): string {
-  if (!dateRange) return "";
-  const from = dateRange.from ? format(dateRange.from, "yyyy-MM-dd") : "";
-  const to = dateRange.to ? format(dateRange.to, "yyyy-MM-dd") : "";
-  return `${from}.${to}`;
-}
-
 type ServerFunction<T> = () => Promise<T>;
 export async function safeExecute<T>(serverFunction: ServerFunction<T>): Promise<T | null> {
   try {
