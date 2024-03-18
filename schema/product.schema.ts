@@ -13,7 +13,7 @@ export const productFormSchema = z.object({
   productName: z.string().min(1, { message: "Product name is required." }).min(2, { message: "Product name must be at least 2 characters." }),
   productPrice: z
     .string({ required_error: "Product price is required." })
-    .min(1, { message: "Product name is required." })
+    .min(1, { message: "Product price is required." })
     .refine(
       (value) => {
         // Remove commas (thousands separators) if they exist

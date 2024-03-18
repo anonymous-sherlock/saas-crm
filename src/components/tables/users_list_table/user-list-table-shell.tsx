@@ -6,7 +6,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
 import React, { FC } from "react";
 import { DataTableColumnHeader } from "../global/data-table-column-header";
-import { DataTable } from './data-table';
+import { DataTable } from '../global/data-table';
 import { DataTableRowActions } from './data-table-row-actions';
 import { UserListColumnDef } from './schema';
 
@@ -79,6 +79,7 @@ const UserListTableShell: FC<UserListTableShellProps> = ({ data }) => {
             </div>
           );
         },
+        enableSorting: false
       },
       {
         accessorKey: "role",
@@ -105,7 +106,6 @@ const UserListTableShell: FC<UserListTableShellProps> = ({ data }) => {
           return value.includes(row.getValue(id));
         },
         enableSorting: false,
-
       },
       {
         accessorKey: "createdAt",
@@ -117,17 +117,32 @@ const UserListTableShell: FC<UserListTableShellProps> = ({ data }) => {
             {format(row.original.createdAt, 'dd, MMM - hh:mm a')}
           </div>
         ),
-        enableSorting: false,
+        enableSorting: true,
       },
       {
         id: "actions",
         cell: ({ row }) => <DataTableRowActions row={row} />,
+        size: 50
       },
     ],
     []
   )
   return (
-    <DataTable data={data ?? []} columns={UsersColumnDef} />
+    <DataTable data={data ?? []} columns={UsersColumnDef}
+      filterableColumns={[
+        {
+          id: "role",
+          title: "Role",
+          options: USER_ROLE
+        },
+      ]}
+      searchPlaceholder="Search users..."
+      messages={{
+        filteredDataNotFoundMessage: { title: "No Users Found!", description: "Add some users to get started!" },
+        emptyDataMessage: { title: "No users Found!", description: "Add some users to get started!" }
+      }
+      }
+    />
   )
 }
 

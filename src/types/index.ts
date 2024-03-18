@@ -53,6 +53,10 @@ export interface DataTableSearchableColumn<TData> {
 export interface DataTableFilterableColumn<TData> extends DataTableSearchableColumn<TData> {
   options: Option[];
 }
+export interface DataTableVisibleColumn<TData> {
+  id: keyof TData;
+  value: boolean;
+}
 
 export interface ProductsPageSearchParams extends SearchParams {
   date?: string;

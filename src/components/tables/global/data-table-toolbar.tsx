@@ -37,7 +37,6 @@ export function DataTableToolbar<TData>({
   const handleRefreshClick = () => {
     setRotating(true);
     setTimeout(() => {
-      utils.product.getAll.invalidate()
       router.refresh()
       setRotating(false);
     }, 1000);

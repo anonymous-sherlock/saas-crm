@@ -197,8 +197,8 @@ export function ProductForm({ type, product, title, description }: ProductFormPr
                             <Command className="m-0 h-full w-full p-0">
                               <CommandInput placeholder="Search..." />
                               <CommandList>
-                                <CommandEmpty>No region found.</CommandEmpty>
-                                <CommandGroup heading="Region">
+                                <CommandEmpty>No category found.</CommandEmpty>
+                                <CommandGroup heading="Category">
                                   {PRODUCT_CATEGORIES.map((cat, index) => (
                                     <CommandItem
                                       className="my-2 cursor-pointer aria-selected:bg-default-300"

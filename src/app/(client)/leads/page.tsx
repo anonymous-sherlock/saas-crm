@@ -1,5 +1,6 @@
 import { server } from '@/app/_trpc/server';
 import { PageHeader, PageHeaderDescription, PageHeaderHeading } from '@/components/global/page-header';
+import UploadLeadFromExcel from '@/components/leads/upload-lead-from-excel';
 import { DataTableSkeleton } from '@/components/tables/global/data-table-skeleton';
 import LeadsTableShell from '@/components/tables/leads_table/leads-table-shell';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -15,21 +16,23 @@ interface LeadsPageProps {
 async function LeadsPage({ }: LeadsPageProps) {
   const user = await getCurrentUser()
   if (!user) redirect(authPages.login)
-
   const leads = await server.lead.getAll();
 
   return (
     <>
-      <PageHeader className="flex flex-col md:flex-row justify-between md:items-center">
-        <div>
-          <div className="flex space-x-4">
-            <PageHeaderHeading size="sm" className="flex-1">
-              All Leads
-            </PageHeaderHeading>
+      <PageHeader separated >
+        <div className="flex flex-col md:flex-row justify-between md:items-center">
+          <div>
+            <div className="flex space-x-4">
+              <PageHeaderHeading size="sm" className="flex-1">
+                All Leads
+              </PageHeaderHeading>
+            </div>
+            <PageHeaderDescription size="sm">
+              Manage Leads
+            </PageHeaderDescription>
           </div>
-          <PageHeaderDescription size="sm">
-            Manage Leads
-          </PageHeaderDescription>
+          <UploadLeadFromExcel />
         </div>
       </PageHeader>
       <div className="p-0 md:!pt-4">

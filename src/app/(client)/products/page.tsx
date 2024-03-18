@@ -27,20 +27,22 @@ export default async function ProductPage({ searchParams: { date } }: ProductPag
 
   return (
     <>
-      <PageHeader className="flex flex-col mb-4 md:mb-0 md:flex-row justify-between md:items-center">
-        <div>
-          <div className="flex space-x-4">
-            <PageHeaderHeading size="sm" className="flex-1">
-              All Products
-            </PageHeaderHeading>
+      <PageHeader separated >
+        <div className="flex flex-col mb-4 md:mb-0 md:flex-row justify-between md:items-center">
+          <div>
+            <div className="flex space-x-4">
+              <PageHeaderHeading size="sm" className="flex-1">
+                All Products
+              </PageHeaderHeading>
+            </div>
+            <PageHeaderDescription size="sm">
+              Manage Products
+            </PageHeaderDescription>
           </div>
-          <PageHeaderDescription size="sm">
-            Manage Products
-          </PageHeaderDescription>
+          <Link href="/products/create" className={buttonVariants({ variant: "default" })}  >
+            Add Product
+          </Link>
         </div>
-        <Link href="/products/create" className={buttonVariants({ variant: "default" })}  >
-          Add Product
-        </Link>
       </PageHeader>
       <div className="p-0 md:!pt-4">
         <React.Suspense>

@@ -68,7 +68,6 @@ export const AddLeadsForm: FC<LeadsFormProps> = ({ campaignId }) => {
             </DialogHeader>
             <div className="grid gap-4 py-4">
 
-              {/* campaign id */}
               {/* name */}
               <FormField
                 control={form.control}
@@ -106,7 +105,7 @@ export const AddLeadsForm: FC<LeadsFormProps> = ({ campaignId }) => {
                 )}
               />
 
-              {/* phone */}
+              {/* adress */}
               <FormField
                 control={form.control}
                 name="address"

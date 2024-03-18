@@ -143,6 +143,7 @@ const ProductTableShell: FC<ProductTableShellProps> = ({ data }) => {
       {
         id: "actions",
         cell: ({ row, cell }) => <DataTableRowActions row={row} />,
+        size: 50
       },
     ],
     []
@@ -162,16 +163,18 @@ const ProductTableShell: FC<ProductTableShellProps> = ({ data }) => {
         },
       ]}
       searchPlaceholder="Search product..."
-      filteredDataNotFoundMessage={
+      messages={
         {
-          title: "No Products Found",
-          description: "Upload some products to get started!"
+          filteredDataNotFoundMessage: {
+            title: "No Products Found",
+            description: "Upload some products to get started!"
+          },
+          emptyDataMessage: {
+            title: "No Products Found",
+            description: "Upload some products to get started!"
+          }
         }
       }
-      emptyDataMessage={{
-        title: "No Products Found",
-        description: "Upload some products to get started!"
-      }}
     />
   )
 }

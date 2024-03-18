@@ -54,7 +54,7 @@ const AddUserForm: FC<AddUserFormProps> = () => {
 
     <Dialog open={userModalOpen} onOpenChange={setUserModalOpen}>
       <DialogTrigger asChild>
-        <Button variant="default" size={'sm'} className='rounded-full'>Add a User</Button>
+        <Button variant="default" size={'sm'} >Add a User</Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <Form {...form}>
@@ -96,7 +96,7 @@ const AddUserForm: FC<AddUserFormProps> = () => {
                     <FormLabel className="text-right">Email</FormLabel>
                     <FormControl className='col-span-3'>
                       <Input
-                        placeholder="Enter Phone number"
+                        placeholder="Enter Email"
                         {...field}
                         className=""
                       />
@@ -119,13 +119,13 @@ const AddUserForm: FC<AddUserFormProps> = () => {
                     >
                       <FormControl>
                         <SelectTrigger className="w-full h-11">
-                          <SelectValue placeholder="Select a Traffic Source" />
+                          <SelectValue placeholder="Select a User Role" />
                         </SelectTrigger>
                       </FormControl>
 
                       <SelectContent>
                         <SelectGroup>
-                          {USER_ROLE.filter(role => !(session?.user.role === "ADMIN" && role.value === "SUPER_ADMIN")).map((role) => (
+                          {USER_ROLE.filter(role => !(session?.user.role === "ADMIN" && role.value === "SUPER_ADMIN" || role.value === "ADMIN")).map((role) => (
                             <SelectItem key={role.value} value={role.value}>
                               {role.label}
                             </SelectItem>

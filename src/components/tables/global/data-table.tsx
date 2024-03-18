@@ -1,15 +1,19 @@
 "use client";
-import { DataTableFilterableColumn, DataTableSearchableColumn } from "@/types";
+import { DataTableFilterableColumn, DataTableSearchableColumn, DataTableVisibleColumn } from "@/types";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, } from "@/ui/table";
 import { ColumnDef, ColumnFiltersState, SortingState, VisibilityState, flexRender, getCoreRowModel, getFacetedRowModel, getFacetedUniqueValues, getFilteredRowModel, getPaginationRowModel, getSortedRowModel, useReactTable, } from "@tanstack/react-table";
 import * as React from "react";
 import { DataTablePagination } from "./data-table-pagination";
 import { DataTableToolbar } from "./data-table-toolbar";
 
+const DEFAULT_REACT_TABLE_COLUMN_WIDTH = 150;
 interface EmptyMessageProps {
   title: string;
   description: string;
 }
+type ColumnKeys<T> = keyof T;
+type ColumnVisibilityState<T> = Partial<{ [K in ColumnKeys<T>]: boolean; }>;
+
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
@@ -17,8 +21,11 @@ interface DataTableProps<TData, TValue> {
   searchableColumns?: DataTableSearchableColumn<TData>[]
   searchPlaceholder?: string
   deleteRowsComponent?: React.ReactNode
-  emptyDataMessage?: EmptyMessageProps;
-  filteredDataNotFoundMessage?: EmptyMessageProps
+  messages: {
+    emptyDataMessage?: EmptyMessageProps;
+    filteredDataNotFoundMessage?: EmptyMessageProps
+  }
+  visibleColumn?: ColumnVisibilityState<TData>
 }
 
 export function DataTable<TData, TValue>({
@@ -28,17 +35,20 @@ export function DataTable<TData, TValue>({
   searchableColumns = [],
   searchPlaceholder,
   deleteRowsComponent,
-  emptyDataMessage = {
-    title: "No results found.",
-    description: ""
+  messages: {
+    emptyDataMessage = {
+      title: "No results found.",
+      description: ""
+    },
+    filteredDataNotFoundMessage = {
+      title: "No results found.",
+      description: "Clear some filter"
+    },
   },
-  filteredDataNotFoundMessage = {
-    title: "No results found.",
-    description: "Clear some filter"
-  }
+  visibleColumn
 }: DataTableProps<TData, TValue>) {
   const [rowSelection, setRowSelection] = React.useState({});
-  const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
+  const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>(visibleColumn as VisibilityState);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [globalFilter, setGlobalFilter] = React.useState("");
@@ -79,8 +89,9 @@ export function DataTable<TData, TValue>({
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => {
+                  const header_size_styles: React.CSSProperties = header.getSize() !== DEFAULT_REACT_TABLE_COLUMN_WIDTH ? { width: `${header.getSize()}px` } : {}
                   return (
-                    <TableHead key={header.id}>
+                    <TableHead key={header.id} style={header_size_styles}>
                       {header.isPlaceholder
                         ? null
                         : flexRender(

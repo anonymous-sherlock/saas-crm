@@ -1,5 +1,4 @@
 "use client";
-import { trpc } from "@/app/_trpc/client";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -12,46 +11,26 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Button, buttonVariants } from "@/components/ui/button";
-import { toast } from "@/components/ui/use-toast";
 import { Cross2Icon } from "@radix-ui/react-icons";
 import { Table } from "@tanstack/react-table";
-import { AxiosError } from "axios";
 import React from "react";
-import { ProductColumnDef } from "./schema";
+import { ProductColumnDef } from "../products_table/schema";
 
 interface DeleteProductProps<TData> {
   children?: React.ReactNode;
   table: Table<TData>;
+  onDelete: () => void
+  isDeleting: boolean
 }
 
 export function DeleteProduct<TData>({
   children,
   table,
+  onDelete,
+  isDeleting
+
 }: DeleteProductProps<TData>) {
-  const utils = trpc.useUtils();
 
-  const { mutate: deleteProducts, isLoading } = trpc.product.deleteProduct.useMutation({
-    onSuccess: (data) => {
-      toast({
-        title: `${data.deletedCount} Product Deleted succesfully`,
-        description: "",
-        variant: "success",
-      });
-      utils.product.getAll.invalidate()
-
-    },
-    onError: (err) => {
-      if (err instanceof AxiosError) {
-        if (err.response?.status === 500) {
-          return toast({
-            title: "Cannot Delete Product.",
-            description: "",
-            variant: "destructive",
-          });
-        }
-      }
-    },
-  });
 
   function handleCampaignDelete() {
     const rows = table?.getFilteredSelectedRowModel().rows;
@@ -60,7 +39,7 @@ export function DeleteProduct<TData>({
       return rowOriginal.id;
     });
 
-    deleteProducts({ productIds: [...payload] });
+
   }
   return (
     <>
@@ -74,9 +53,9 @@ export function DeleteProduct<TData>({
                 variant="destructive"
                 size="sm"
                 className="h-8 px-2 lg:px-3 mr-2 border border-destructive-foreground/50"
-                disabled={isLoading}
+                disabled={isDeleting}
               >
-                {isLoading ? "Deleting..." : "Delete"}
+                {isDeleting ? "Deleting..." : "Delete"}
                 <Cross2Icon className="ml-2 h-4 w-4" />
               </Button>
             )}
@@ -93,10 +72,10 @@ export function DeleteProduct<TData>({
               <AlertDialogCancel>Cancel</AlertDialogCancel>
               <AlertDialogAction
                 onClick={handleCampaignDelete}
-                disabled={isLoading}
+                disabled={isDeleting}
                 className={buttonVariants({ variant: "destructive" })}
               >
-                {isLoading ? "Deleting..." : "Delete Products"}
+                {isDeleting ? "Deleting..." : "Delete Products"}
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>

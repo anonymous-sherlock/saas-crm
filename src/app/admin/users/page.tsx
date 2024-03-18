@@ -6,6 +6,10 @@ import { getCurrentUser } from "@/lib/auth"
 import { authPages } from "@routes"
 import { Ghost } from "lucide-react"
 import { redirect } from "next/navigation"
+import { PageHeader, PageHeaderDescription, PageHeaderHeading } from '@/components/global/page-header';
+import React from "react"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { DataTableSkeleton } from "@/components/tables/global/data-table-skeleton"
 
 export default async function UserListpage() {
   const user = await getCurrentUser()
@@ -18,37 +22,41 @@ export default async function UserListpage() {
     }
   })
 
+  const isAdmin = user.role === "ADMIN"
   return (
-    <div className="">
-      <ScrollArea className="w-full rounded-md" type="always">
-        <div className="border h-full flex-1 flex-col space-y-8 rounded-lg bg-white p-8 md:flex">
-          <div className="flex items-center justify-between space-y-2">
-            <div>
-              <h2 className="text-2xl font-bold tracking-tight">
-                Welcome Admin!
-              </h2>
-              <p className="text-muted-foreground">
-                Here&apos;s a list of all your users!
-              </p>
+    <div className="flex flex-col gap-4">
+      <PageHeader className="" separated >
+        <div className="flex flex-col md:flex-row justify-between md:items-center">
+          <div>
+            <div className="flex space-x-4">
+              <PageHeaderHeading size="sm" className="flex-1">
+                All Users
+              </PageHeaderHeading>
             </div>
-            {user.role === "ADMIN" ?
-              <AddUserForm /> : null
-            }
+            <PageHeaderDescription size="sm">
+              Manage Users
+            </PageHeaderDescription>
           </div>
-          {users.length === 0 ? (
-            <div className="!mb-20 !mt-20 flex flex-col items-center gap-2">
-              <Ghost className="h-8 w-8 text-zinc-800" />
-              <h3 className="text-xl font-semibold">
-                Pretty empty around here
-              </h3>
-              <p>Let&apos;s upload your first product.</p>
-            </div>
-          ) : (
-            <UserListTableShell data={users} />
-          )}
+          {isAdmin ? <AddUserForm /> : null}
         </div>
-        <ScrollBar orientation="horizontal" className="w-full" />
-      </ScrollArea>
+      </PageHeader>
+      <div className="p-0">
+        <React.Suspense>
+          <Card className="!mt-0">
+            <CardHeader>
+              <CardTitle>Welcome back!</CardTitle>
+              <CardDescription>
+                Here&apos;s a list of all the users!.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <React.Suspense fallback={<DataTableSkeleton columnCount={6} />}>
+                <UserListTableShell data={users ?? []} />
+              </React.Suspense>
+            </CardContent>
+          </Card>
+        </React.Suspense>
+      </div>
     </div>
   )
 }
