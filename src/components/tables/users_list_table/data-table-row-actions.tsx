@@ -17,6 +17,7 @@ import { useRouter } from "next/navigation";
 import { useTransition } from "react";
 import { toast as hotToast } from "react-hot-toast";
 import { UserListSchema } from "./schema";
+import { allowedAdminRoles } from "@/lib/auth.permission";
 interface DataTableRowActionsProps<TData> {
   row: Row<TData>;
 }
@@ -26,7 +27,7 @@ export function DataTableRowActions<TData>({ row }: DataTableRowActionsProps<TDa
   const router = useRouter();
   const { setOpen: setModalOpen } = useModal();
   const [isDeletingUser, startTransition] = useTransition();
-  const isAdmin = session?.user?.role === "ADMIN";
+  const isAdmin = allowedAdminRoles.some((role) => role === session?.user.role);
 
   const parsedUser = UserListSchema.safeParse(row.original);
   if (!parsedUser.success) return null;
@@ -64,7 +65,7 @@ export function DataTableRowActions<TData>({ row }: DataTableRowActionsProps<TDa
   };
 
   const handleDelteUser = () => {
-    startTransition(()=>{
+    startTransition(() => {
       hotToast.promise(
         deleteUsers({ userIds: [user.id] }).then((data) => {
           if (data.success) {
@@ -77,7 +78,7 @@ export function DataTableRowActions<TData>({ row }: DataTableRowActionsProps<TDa
           error: "Could not delete user.",
         },
       );
-    })
+    });
   };
   const iconClasses = "text-xl text-default-500 pointer-events-none flex-shrink-0";
 
@@ -117,16 +118,40 @@ export function DataTableRowActions<TData>({ row }: DataTableRowActionsProps<TDa
             {isAdmin ? (
               <Listbox variant="faded" aria-label="User Quick View menu">
                 <ListboxSection title="Quick actions" aria-label="View actions">
-                  <ListboxItem key="view-leads" aria-label="View Leads" startContent={<Icons.ViewLeadsIcon className={iconClasses} />} href={`/admin/users/${user.id}/leads`} as={Link}>
+                  <ListboxItem
+                    key="view-leads"
+                    aria-label="View Leads"
+                    startContent={<Icons.ViewLeadsIcon className={iconClasses} />}
+                    href={`/admin/users/${user.id}/leads`}
+                    as={Link}
+                  >
                     View Leads
                   </ListboxItem>
-                  <ListboxItem key="view-campaigns" aria-label="View Campaigns" startContent={<Icons.ViewLeadsIcon className={iconClasses} />} href={`/admin/users/${user.id}/campaigns`} as={Link}>
+                  <ListboxItem
+                    key="view-campaigns"
+                    aria-label="View Campaigns"
+                    startContent={<Icons.ViewLeadsIcon className={iconClasses} />}
+                    href={`/admin/users/${user.id}/campaigns`}
+                    as={Link}
+                  >
                     View Campaigns
                   </ListboxItem>
-                  <ListboxItem key="view-products" aria-label="View Products" startContent={<Icons.ViewLeadsIcon className={iconClasses} />} href={`/admin/users/${user.id}/products`} as={Link}>
+                  <ListboxItem
+                    key="view-products"
+                    aria-label="View Products"
+                    startContent={<Icons.ViewLeadsIcon className={iconClasses} />}
+                    href={`/admin/users/${user.id}/products`}
+                    as={Link}
+                  >
                     View Products
                   </ListboxItem>
-                  <ListboxItem key="view-user-details" aria-label="View Leads" startContent={<Icons.ImpersonateUserIcon className={iconClasses} />} href={`/admin/users/${user.id}`} as={Link}>
+                  <ListboxItem
+                    key="view-user-details"
+                    aria-label="View Leads"
+                    startContent={<Icons.ImpersonateUserIcon className={iconClasses} />}
+                    href={`/admin/users/${user.id}`}
+                    as={Link}
+                  >
                     View User Details
                   </ListboxItem>
                 </ListboxSection>

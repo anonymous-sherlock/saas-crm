@@ -8,9 +8,14 @@ type LeadsGetAllArgs = {
 type GetAllUsersLeadsArgs = {
   date?: { from: Date | undefined; to: Date | undefined };
 };
+type GetCampaignLeadsArgs = {
+  campaignId: string;
+  userId: string;
+  date?: { from: Date | undefined; to: Date | undefined };
+};
 
 export class LeadApi {
-  constructor(private readonly opts?: LeadApiArgs) {}
+  constructor(private readonly opts?: LeadApiArgs) { }
   async getAllLeads({ date, userId }: LeadsGetAllArgs) {
     try {
       const leads = await db.lead.findMany({
@@ -32,7 +37,6 @@ export class LeadApi {
           },
         },
       });
-
       return leads;
     } catch (error) {
       console.error("Error occurred during getAllLeads:", error);
@@ -81,6 +85,38 @@ export class LeadApi {
       return leads;
     } catch (error) {
       console.error("Error occurred during getAllUsersLeads:", error);
+      return [];
+    }
+  }
+  async getCampaignLeads({ campaignId, date, userId }: GetCampaignLeadsArgs) {
+    try {
+      const leads = await db.lead.findMany({
+        orderBy: { createdAt: "desc" },
+        where: {
+          userId: userId,
+          OR: [
+            { campaignId: campaignId },
+            { campaign: { code: campaignId } }
+          ],
+          createdAt: {
+            gte: date?.from,
+            lte: date?.to,
+          },
+        },
+        include: {
+          campaign: {
+            select: {
+              name: true,
+              code: true,
+              id: true,
+            },
+          },
+        },
+      });
+      return leads;
+
+    } catch (error) {
+      console.error("Error occurred during getCampaignLeads:", error);
       return [];
     }
   }

@@ -1,11 +1,12 @@
 "use client";
 import { CustomBadge } from "@/components/CustomBadge";
-import TooltipComponent from "@/components/global/tooltip-component";
 import { LEADS_STATUS } from "@/constants/index";
 import { cn } from "@/lib/utils";
+import { Option } from "@/types";
 import { Checkbox } from "@/ui/checkbox";
+import { Tooltip } from "@nextui-org/react";
 import { ColumnDef } from "@tanstack/react-table";
-import { format, formatDistanceToNow } from "date-fns";
+import { format } from "date-fns";
 import React, { FC } from "react";
 import { DataTable } from "../global/data-table";
 import { DataTableColumnHeader } from "../global/data-table-column-header";
@@ -13,7 +14,6 @@ import { DataTableRowActions } from "./data-table-row-actions";
 import { DeleteLead } from "./delete-lead";
 import { DownloadLeadsBtn } from "./download-leads-button";
 import { LeadColumnDef } from "./schema";
-import { Option } from "@/types";
 
 interface LeadsTableShellProps {
   data: LeadColumnDef[];
@@ -25,9 +25,16 @@ const LeadsTableShell: FC<LeadsTableShellProps> = ({ data }) => {
       {
         id: "select",
         header: ({ table }) => (
-          <Checkbox checked={table.getIsAllPageRowsSelected()} onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)} aria-label="Select all" className="translate-y-[2px]" />
+          <Checkbox
+            checked={table.getIsAllPageRowsSelected()}
+            onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+            aria-label="Select all"
+            className="translate-y-[2px]"
+          />
         ),
-        cell: ({ row }) => <Checkbox checked={row.getIsSelected()} onCheckedChange={(value) => row.toggleSelected(!!value)} aria-label="Select row" className="translate-y-[2px]" />,
+        cell: ({ row }) => (
+          <Checkbox checked={row.getIsSelected()} onCheckedChange={(value) => row.toggleSelected(!!value)} aria-label="Select row" className="translate-y-[2px]" />
+        ),
         enableSorting: false,
         enableHiding: false,
       },
@@ -36,40 +43,49 @@ const LeadsTableShell: FC<LeadsTableShellProps> = ({ data }) => {
         header: ({ column }) => <DataTableColumnHeader column={column} title="Lead Id" />,
         cell: ({ row }) => <div className="w-[75px] truncate">{row.getValue("id")}</div>,
         enableSorting: false,
-        enableHiding: false
+        enableHiding: false,
       },
       {
-        id: "code",
+        id: "campaign.code",
         accessorFn: (row) => row.campaign.code,
-        header: ({ column }) => <DataTableColumnHeader column={column} title="Campaign Code" />,
+        filterFn: (row, id, value) => {
+          return row.original.campaign.code.includes(value);
+        },
+        enableSorting: false,
+        enableHiding: false,
+      },
+      {
+        id: "campaign",
+        accessorFn: (row) => row.campaign.name,
+        header: ({ column }) => <DataTableColumnHeader column={column} title="Campaign" />,
         cell: ({ row }) => (
-          <div className="w-[75px] truncate">
-            <span className="text-muted-foreground">#</span>
-            {row.original.campaign.code}
+          <div className="w-[150px] truncate cursor-default">
+            <Tooltip
+              delay={200}
+              content={
+                <div className="px-4 py-4">
+                  <div className="text-small font-semibold">
+                    Campaign Name : <span className="font-normal">{row.original.name}</span>
+                  </div>
+                  <div className="text-small font-semibold">
+                    Campaign Code : <span className="font-normal">{row.original.campaign.code}</span>
+                  </div>
+                </div>
+              }
+            >
+              <div className="truncate text-xs">
+                <span className="text-muted-foreground">#</span>
+                {row.original.campaign.code} - {row.original.campaign.name}
+              </div>
+            </Tooltip>
           </div>
         ),
         enableSorting: false,
         enableGlobalFilter: true,
         enableColumnFilter: true,
         filterFn: (row, id, value) => {
-          return row.original.campaign.code.includes(value);
+          return row.original.campaign.name.includes(value) || row.original.campaign.code.includes(value);
         },
-      },
-      {
-        id: "campaignName",
-        accessorFn: (row) => row.campaign.name,
-        header: ({ column }) => <DataTableColumnHeader column={column} title="Campaign Name" />,
-        cell: ({ row }) => (
-          <div className="truncate">
-            <TooltipComponent delayDuration={300} message={`${row.original.campaign.code} - ${row.original.campaign.name}`}>
-              <span className="cursor-default truncate">{`${row.original.campaign.name.substring(0, 16)}`}</span>
-            </TooltipComponent>
-          </div>
-        ),
-        filterFn: (row, id, value) => {
-          return row.original.campaign.name.includes(value);
-        },
-        enableSorting: false,
       },
       {
         accessorKey: "name",
@@ -147,6 +163,7 @@ const LeadsTableShell: FC<LeadsTableShellProps> = ({ data }) => {
         enableSorting: false,
       },
       {
+        id: "IP Address",
         accessorKey: "ip",
         header: ({ column }) => <DataTableColumnHeader column={column} title="IP" />,
         cell: ({ row }) => {
@@ -159,12 +176,13 @@ const LeadsTableShell: FC<LeadsTableShellProps> = ({ data }) => {
         enableSorting: false,
       },
       {
+        id: "Created At",
         accessorKey: "createdAt",
         header: ({ column }) => <DataTableColumnHeader column={column} title="Lead Date" />,
         cell: ({ row }) => {
           return (
             <div className="flex items-center max-w-[180px]">
-              <span className="truncate mr-1 ">{format(row.original.createdAt,"yyyy-MM-dd HH:mm:ss")}</span>
+              <span className="truncate mr-1 ">{format(row.original.createdAt, "yyyy-MM-dd HH:mm:ss")}</span>
             </div>
           );
         },
@@ -227,6 +245,7 @@ const LeadsTableShell: FC<LeadsTableShellProps> = ({ data }) => {
     return options;
   }, [data]);
 
+  console.log(data)
   return (
     <DataTable
       data={data ?? []}
@@ -244,11 +263,12 @@ const LeadsTableShell: FC<LeadsTableShellProps> = ({ data }) => {
         },
       ]}
       searchPlaceholder="Search Leads..."
-      visibleColumn={{
-        id: false,
-        ip: false,
-        region: false,
-      }}
+      visibleColumn={[
+        {id:"campaign.code",value:false},
+        {id:"id",value:false},
+        {id:"ip",value:false},
+        {id:"region",value:false}
+      ]}
       messages={{
         filteredDataNotFoundMessage: { title: "No Leads Found!", description: "" },
         emptyDataMessage: { title: "No Leads Found!", description: "" },

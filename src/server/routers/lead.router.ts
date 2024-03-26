@@ -8,27 +8,6 @@ import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
 export const leadRouter = router({
-  getCampaignLeads: privateProcedure
-    .input(
-      z.object({
-        campaignId: z.string(),
-      }),
-    )
-    .query(async ({ ctx, input }) => {
-      const { userId, isImpersonating, actor } = ctx;
-      const { campaignId } = input;
-
-      const leads = await db.lead.findMany({
-        orderBy: {
-          createdAt: "desc",
-        },
-        where: {
-          userId: isImpersonating ? actor.userId : userId,
-          campaignId: campaignId,
-        },
-      });
-      return leads;
-    }),
   updateStatus: privateProcedure
     .input(
       z.object({
@@ -67,69 +46,18 @@ export const leadRouter = router({
         updatedLead,
       };
     }),
-  deleteLead: privateProcedure
-    .input(
-      z.object({
-        leadIds: z
-          .string({
-            required_error: "Lead Id is required to delete a Lead",
-          })
-          .array(),
-      }),
-    )
-    .mutation(async ({ ctx, input }) => {
-      const { userId, isImpersonating, actor } = ctx;
-      const { leadIds } = input;
-      const leads = await db.lead.findMany({
-        where: {
-          userId: isImpersonating ? actor.userId : userId,
-          id: {
-            in: leadIds,
-          },
-        },
-      });
-      if (!leads)
-        throw new TRPCError({
-          code: "NOT_FOUND",
-          message: "Leads not found",
-        });
-
-      const deletedLead = await db.lead.deleteMany({
-        where: {
-          userId: isImpersonating ? actor.userId : userId,
-          id: {
-            in: leadIds,
-          },
-        },
-      });
-      const deletedCount = deletedLead.count;
-      return {
-        success: "true",
-        deletedLead,
-        deletedCount,
-      };
-    }),
-
   add: privateProcedure.input(AddLeadFormSchema).mutation(async ({ ctx, input }) => {
-    const { userId, req, actor, isImpersonating } = ctx;
+    const { req } = ctx;
     const { name, phone, address, campaignId } = input;
-    console.log("trpc campaign id", campaignId)
 
-    const campaign = await db.campaign.findUnique({
-      where: {
-        id: campaignId,
-      },
-    });
+    const campaign = await db.campaign.findUnique({ where: { id: campaignId, }, });
 
     if (!campaign) throw new TRPCError({ code: "NOT_FOUND", message: "Campaign not found" });
     const userIp = req.headers.get("x-forwarded-for") || req.headers.get("x-real-ip");
     const ipInfo = await getIpInfo(userIp);
 
-    const existingLead = await db.lead.findFirst({
-      where: {
-        OR: [{ phone: phone }],
-      },
-    });
+    const existingLead = await db.lead.findFirst({ where: { OR: [{ phone: phone }], }, });
+
     const newLead = await db.lead.create({
       data: {
         name,
@@ -142,7 +70,7 @@ export const leadRouter = router({
         region_code: ipInfo.region_code,
         country_code: ipInfo.country_code,
         zipcode: ipInfo.postal,
-        userId: isImpersonating ? actor.userId : userId,
+        userId: campaign.userId,
         campaignId: campaign.id,
         status: existingLead ? ("Trashed" ? (campaign.status === "OnHold" ? "OnHold" : "Approved") : "Trashed") : determineLeadStatus({ name, phone }),
       },

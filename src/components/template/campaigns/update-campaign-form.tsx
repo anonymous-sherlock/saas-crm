@@ -12,7 +12,7 @@ type Props = {
 export const UpdateCampaignForm = ({ campaignId, userId }: Props) => {
   const { data: campaign, isLoading, isFetching } = trpc.campaign.get.useQuery({ camapaingId: campaignId, userId: userId });
 
-  if (isLoading || isFetching || !campaign) {
+  if (isLoading || !campaign) {
     return (
       <div>
         <Spinner size="md" />

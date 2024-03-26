@@ -1,7 +1,20 @@
 "use client";
-import { DataTableDeleteRowsButtonType, DataTableDownloadRowsButtonType, DataTableFilterableColumn, DataTableSearchableColumn } from "@/types";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, } from "@/ui/table";
-import { ColumnDef, ColumnFiltersState, SortingState, VisibilityState, flexRender, getCoreRowModel, getFacetedRowModel, getFacetedUniqueValues, getFilteredRowModel, getPaginationRowModel, getSortedRowModel, useReactTable, } from "@tanstack/react-table";
+import { DataTableDeleteRowsButtonType, DataTableDownloadRowsButtonType, DataTableFilterableColumn, DataTableSearchableColumn, DataTableVisibleColumn } from "@/types";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/ui/table";
+import {
+  ColumnDef,
+  ColumnFiltersState,
+  SortingState,
+  VisibilityState,
+  flexRender,
+  getCoreRowModel,
+  getFacetedRowModel,
+  getFacetedUniqueValues,
+  getFilteredRowModel,
+  getPaginationRowModel,
+  getSortedRowModel,
+  useReactTable,
+} from "@tanstack/react-table";
 import * as React from "react";
 import { DataTablePagination } from "./data-table-pagination";
 import { DataTableToolbar } from "./data-table-toolbar";
@@ -11,23 +24,20 @@ interface EmptyMessageProps {
   title: string;
   description: string;
 }
-type ColumnKeys<T> = keyof T;
-type ColumnVisibilityState<T> = Partial<{ [K in ColumnKeys<T>]: boolean; }>;
-
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
-  filterableColumns?: DataTableFilterableColumn<TData>[]
-  searchableColumns?: DataTableSearchableColumn<TData>[]
-  searchPlaceholder?: string
-  DeleteRowsAction?: DataTableDeleteRowsButtonType<TData>
-  DownloadRowAction?: DataTableDownloadRowsButtonType<TData>
+  filterableColumns?: DataTableFilterableColumn<TData>[];
+  searchableColumns?: DataTableSearchableColumn<TData>[];
+  visibleColumn?: DataTableVisibleColumn<TData>[];
+  searchPlaceholder?: string;
+  DeleteRowsAction?: DataTableDeleteRowsButtonType<TData>;
+  DownloadRowAction?: DataTableDownloadRowsButtonType<TData>;
   messages: {
     emptyDataMessage?: EmptyMessageProps;
-    filteredDataNotFoundMessage?: EmptyMessageProps
-  }
-  visibleColumn?: ColumnVisibilityState<TData>
+    filteredDataNotFoundMessage?: EmptyMessageProps;
+  };
 }
 
 export function DataTable<TData, TValue>({
@@ -36,16 +46,19 @@ export function DataTable<TData, TValue>({
   filterableColumns = [],
   searchableColumns = [],
   searchPlaceholder,
-  messages: {
-    emptyDataMessage = { title: "No results found.", description: "" },
-    filteredDataNotFoundMessage = { title: "No results found.", description: "Clear some filter" },
-  },
+  messages: { emptyDataMessage = { title: "No results found.", description: "" }, filteredDataNotFoundMessage = { title: "No results found.", description: "Clear some filter" } },
   visibleColumn,
   DownloadRowAction,
-  DeleteRowsAction
+  DeleteRowsAction,
 }: DataTableProps<TData, TValue>) {
   const [rowSelection, setRowSelection] = React.useState({});
-  const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>(visibleColumn as VisibilityState);
+  const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>(() => {
+    const initialVisibility: VisibilityState = {};
+    visibleColumn?.forEach((col) => {
+      initialVisibility[col.id as string] = col.value;
+    });
+    return initialVisibility;
+  });
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [globalFilter, setGlobalFilter] = React.useState("");
@@ -75,7 +88,8 @@ export function DataTable<TData, TValue>({
   });
   return (
     <div className="space-y-4">
-      <DataTableToolbar table={table}
+      <DataTableToolbar
+        table={table}
         filterableColumns={filterableColumns}
         searchableColumns={searchableColumns}
         searchPlaceholder={searchPlaceholder}
@@ -87,15 +101,10 @@ export function DataTable<TData, TValue>({
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => {
-                  const header_size_styles: React.CSSProperties = header.getSize() !== DEFAULT_REACT_TABLE_COLUMN_WIDTH ? { width: `${header.getSize()}px` } : {}
+                  const header_size_styles: React.CSSProperties = header.getSize() !== DEFAULT_REACT_TABLE_COLUMN_WIDTH ? { width: `${header.getSize()}px` } : {};
                   return (
                     <TableHead key={header.id} style={header_size_styles}>
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
+                      {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
                     </TableHead>
                   );
                 })}
@@ -105,16 +114,10 @@ export function DataTable<TData, TValue>({
           <TableBody>
             {table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() && "selected"}
-                >
+                <TableRow key={row.id} data-state={row.getIsSelected() && "selected"}>
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id} className="p-2 px-4">
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
+                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </TableCell>
                   ))}
                 </TableRow>
@@ -122,11 +125,11 @@ export function DataTable<TData, TValue>({
             ) : (
               <TableRow>
                 <TableCell colSpan={columns.length} className="h-24 text-center bg-[#F9F9FA]">
-                  {data.length === 0 ?
+                  {data.length === 0 ? (
                     <EmptyMessage title={emptyDataMessage.title} description={emptyDataMessage.description} />
-                    :
+                  ) : (
                     <EmptyMessage title={filteredDataNotFoundMessage.title} description={filteredDataNotFoundMessage.description} />
-                  }
+                  )}
                 </TableCell>
               </TableRow>
             )}

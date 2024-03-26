@@ -20,7 +20,7 @@ import { toast as hotToast } from "react-hot-toast";
 import { z } from "zod";
 import { AgeFields } from "./AgeFields";
 import CountryRegion from "./CountryRegion";
-import ProductDropdown from "./ProductDropdown";
+import { ProductDropdown } from "./product-dropdown";
 import WorkingHours from "./WorkingHours";
 
 interface CampaignFormProps {

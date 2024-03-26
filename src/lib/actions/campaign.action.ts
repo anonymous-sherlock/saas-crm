@@ -173,15 +173,13 @@ export async function deleteCampaigns(rawInput: z.infer<typeof campaignDeleteSch
   const parserData = campaignDeleteSchema.safeParse(rawInput);
   if (!parserData.success) return { error: parserData.error.message ?? "Bad Request" };
 
-  const currentUser = await getCurrentUser()
-  if (!currentUser) return { error: "Unauthorized: Please log in to your account" };
-  const { authUserId } = await getAuthUser();
+  const { authUserId, authUserRole } = await getAuthUser();
+  if (!authUserId) return { error: "Unauthorized: Please log in to your account" };
   const user = await getUserByUserId(parserData.data.userId);
   if (!user) return { error: "User not found" };
-  const isAdmin = allowedAdminRoles.some((role) => role === currentUser.role);
+  const isAdmin = allowedAdminRoles.some((role) => role === authUserRole);
   const isUserAuthorized = authUserId === user.id || isAdmin;
-
-  if (!isUserAuthorized) return { error: "Unauthorized: You don't have permission to delete campaigns for other users" };
+  if (!isUserAuthorized) return { error: "Unauthorized: You don't have permission to delete products for other users" };
 
   const campaigns = await db.campaign.findMany({ where: { userId: user.id, id: { in: rawInput.campaignIds } } });
   if (!campaigns) return { error: "Campaign not found" };

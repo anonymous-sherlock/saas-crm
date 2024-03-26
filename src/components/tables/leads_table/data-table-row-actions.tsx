@@ -2,59 +2,52 @@
 
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";
 import { Row } from "@tanstack/react-table";
-
-import { Button } from "@/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
-  DropdownMenuSub,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
-  DropdownMenuTrigger,
-} from "@/ui/dropdown-menu";
 import { trpc } from "@/app/_trpc/client";
-import { LeadStatus } from "@prisma/client";
-import { useState } from "react";
-import { toast as hotToast } from "react-hot-toast";
 import { Icons } from "@/components/Icons";
+import { CustomDeleteAlertDailog } from "@/components/global/custom-delete-alert-dailog";
 import { Separator } from "@/components/ui/separator";
 import { LEADS_STATUS } from "@/constants/index";
+import { deleteLeads } from "@/lib/actions/lead.action";
+import { allowedAdminRoles } from "@/lib/auth.permission";
 import { cn } from "@/lib/utils";
-import { Listbox, ListboxItem, ListboxSection, Spinner } from "@nextui-org/react";
+import { useModal } from "@/providers/modal-provider";
+import { Button } from "@/ui/button";
+import { Listbox, ListboxItem, ListboxSection, Popover, PopoverContent, PopoverTrigger, Spinner, type Selection } from "@nextui-org/react";
+import { LeadStatus } from "@prisma/client";
 import { pages } from "@routes";
-import { DeleteLeadAlert } from "./delete-lead-alert";
-import { LeadSchema } from "./schema";
+import { ChevronRightIcon, Loader2 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { useState, useTransition } from "react";
+import { toast as hotToast } from "react-hot-toast";
+import { LeadSchema } from "./schema";
 
 interface DataTableRowActionsProps<TData> {
   row: Row<TData>;
 }
 
 export function DataTableRowActions<TData>({ row }: DataTableRowActionsProps<TData>) {
-  const utils = trpc.useUtils();
-  const { data: session, status } = useSession();
-  const isAdmin = session?.user?.role === "ADMIN";
   const router = useRouter();
+  const { setOpen: setModalOpen } = useModal();
+  const [statusOpen, setStatusOpen] = useState<boolean>(false);
+  const { data: session, status } = useSession();
+  const isAdmin = allowedAdminRoles.some((role) => role === session?.user.role);
   const lead = LeadSchema.parse(row.original);
   const [leadStatus, setLeadStatus] = useState<LeadStatus>(lead.status);
+  const [isDeletingLead, startDeleteTransition] = useTransition();
+
   const { mutateAsync: updateStatus, isLoading: isUpdatingStatus } = trpc.lead.updateStatus.useMutation({
     onSuccess: (data) => {
       setLeadStatus(data.updatedLead.status);
       router.refresh();
     },
   });
-  const { mutateAsync: deleteLead, isLoading: isDeletingLead } = trpc.lead.deleteLead.useMutation({
-    onSuccess: (data) => {
-      router.refresh();
-    },
-  });
 
-  function handleStatusChange(status: LeadStatus) {
+  function handleStatusChange(status: Selection) {
+    const newStatus = Array.from(status)[0] as LeadStatus;
+    setStatusOpen(!statusOpen);
     hotToast.promise(
-      updateStatus({ leadId: lead.id, leadStatus: status }).then((res) => router.refresh()),
+      updateStatus({ leadId: lead.id, leadStatus: newStatus }).then((res) => router.refresh()),
       {
         loading: "Updating lead status...",
         success: "Lead status updated successfully!",
@@ -64,10 +57,19 @@ export function DataTableRowActions<TData>({ row }: DataTableRowActionsProps<TDa
   }
 
   function handleDeleteLead() {
-    hotToast.promise(deleteLead({ leadIds: [lead.id] }), {
-      loading: "Deleting lead...",
-      success: "Lead deleted successfully!",
-      error: "Could not delete lead.",
+    startDeleteTransition(() => {
+      hotToast.promise(
+        deleteLeads({ leadIds: [lead.id], userId: lead.userId }).then((data) => {
+          if (data.success) {
+            router.refresh();
+          }
+        }),
+        {
+          loading: "Deleting lead...",
+          success: "Lead deleted successfully!",
+          error: "Could not delete lead.",
+        },
+      );
     });
   }
 
@@ -77,17 +79,17 @@ export function DataTableRowActions<TData>({ row }: DataTableRowActionsProps<TDa
     <>
       {isUpdatingStatus || isDeletingLead ? (
         <div className="flex items-center justify-center">
-          <Spinner size="sm" />
+          <Spinner size="sm" color={isDeletingLead ? "danger" : "primary"} />
         </div>
       ) : (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
+        <Popover placement="left-start" style={{ zIndex: 200 }}>
+          <PopoverTrigger>
             <Button variant="ghost" className="flex h-8 w-8 p-0 data-[state=open]:bg-muted">
               <DotsHorizontalIcon className="h-4 w-4" />
               <span className="sr-only">Open menu</span>
             </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
+          </PopoverTrigger>
+          <PopoverContent>
             <Listbox variant="faded" aria-label="lead quick actions menu">
               <ListboxSection title="Quick actions" aria-label="Quick actions">
                 <ListboxItem key="edit" startContent={<Icons.EditIcon className={iconClasses} />} href={`${pages.leads}/${lead.id}/edit`}>
@@ -109,31 +111,75 @@ export function DataTableRowActions<TData>({ row }: DataTableRowActionsProps<TDa
             <Separator className="my-1" />
             {isAdmin ? (
               <>
-                <DropdownMenuSub>
-                  <DropdownMenuSubTrigger className={cn("aria-selected:bg-transparent focus:bg-transparent p-1", "!bg-transparent")}>
-                    <Listbox variant="faded" aria-label="Lead status dropdown menu">
-                      <ListboxItem key="status" aria-label="Lead status" startContent={<Icons.PlayCircleIcon className={iconClasses} />}>
+                <Popover isOpen={statusOpen} onOpenChange={() => setStatusOpen(false)} placement="left-start">
+                  <PopoverTrigger className="aria-expanded:scale-[1]">
+                    <Listbox variant="faded" aria-label="lead status dropdown menu">
+                      <ListboxItem
+                        key="status"
+                        aria-label="lead status"
+                        startContent={<Icons.PlayCircleIcon className={iconClasses} />}
+                        endContent={<ChevronRightIcon className={cn(iconClasses, "size-4")} />}
+                        onClick={() => setStatusOpen(!statusOpen)}
+                      >
                         Lead status
                       </ListboxItem>
                     </Listbox>
-                  </DropdownMenuSubTrigger>
-                  <DropdownMenuSubContent>
-                    <DropdownMenuRadioGroup value={leadStatus} onValueChange={(e) => handleStatusChange(e as LeadStatus)}>
+                  </PopoverTrigger>
+                  <PopoverContent>
+                    <Listbox
+                      aria-label="lead selection"
+                      variant="flat"
+                      disallowEmptySelection
+                      selectionMode="single"
+                      selectedKeys={[leadStatus]}
+                      onSelectionChange={(key) => handleStatusChange(key)}
+                    >
                       {LEADS_STATUS.map((status) => (
-                        <DropdownMenuRadioItem key={status.value} value={status.value}>
-                          {status.icon && <status.icon className="mr-2 h-4 w-4 text-muted-foreground" />}
-                          {status.label}
-                        </DropdownMenuRadioItem>
+                        <ListboxItem key={status.value} value={status.value} textValue={status.value} className={cn("", leadStatus === status.value && "bg-default-200")}>
+                          <div className="flex gap-2 justify-start items-center">
+                            {status.icon && <status.icon className="mr-2 h-4 w-4 text-muted-foreground" />}
+                            <span>{status.label}</span>
+                          </div>
+                        </ListboxItem>
                       ))}
-                    </DropdownMenuRadioGroup>
-                  </DropdownMenuSubContent>
-                </DropdownMenuSub>
+                    </Listbox>
+                  </PopoverContent>
+                </Popover>
+
                 <Separator className="my-1" />
               </>
             ) : null}
-            <DeleteLeadAlert onDelete={handleDeleteLead} isDeleting={isDeletingLead} />
-          </DropdownMenuContent>
-        </DropdownMenu>
+
+            {isAdmin ? (
+              <Listbox variant="faded" aria-label="Leads Danger zone menu">
+                <ListboxSection title="Danger zone" aria-label="Danger zone">
+                  <ListboxItem
+                    key="delete"
+                    className="text-danger"
+                    color="danger"
+                    aria-label="Permanently delete Lead"
+                    description="Permanently delete Lead"
+                    onClick={() => {
+                      setModalOpen(
+                        <CustomDeleteAlertDailog
+                          title="Are you absolutely sure?"
+                          description="This action cannot be undone. This will permanently delete this
+                        lead from our servers."
+                          isDeleting={isDeletingLead}
+                          onDelete={handleDeleteLead}
+                          actionText="Delete User"
+                        />,
+                      );
+                    }}
+                    startContent={isDeletingLead ? <Loader2 className="h-4 w-4 animate-spin" /> : <Icons.DeleteIcon className={cn(iconClasses, "text-danger")} />}
+                  >
+                    Delete
+                  </ListboxItem>
+                </ListboxSection>
+              </Listbox>
+            ) : null}
+          </PopoverContent>
+        </Popover>
       )}
     </>
   );

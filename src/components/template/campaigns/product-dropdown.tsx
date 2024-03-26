@@ -8,12 +8,11 @@ import notFoundImage from "@/public/product-not-found.jpg";
 import { campaignFormSchema } from "@/schema/campaign.schema";
 import { Button } from "@/ui/button";
 import { Command, CommandEmpty, CommandGroup, CommandItem, CommandList } from "@/ui/command";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuShortcut, DropdownMenuTrigger } from "@/ui/dropdown-menu";
 import { Input } from "@/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@nextui-org/popover";
 import Spinner from "@/ui/spinner";
 import { useDebouncedValue } from "@mantine/hooks";
-import { Image } from "@nextui-org/react";
+import { Dropdown, DropdownItem, DropdownMenu, DropdownTrigger, Image } from "@nextui-org/react";
 import { DotsHorizontalIcon, PlusCircledIcon } from "@radix-ui/react-icons";
 import { Check, Search } from "lucide-react";
 import NextImage from "next/image";
@@ -28,7 +27,7 @@ interface ProductDropdownProps {
     name: string;
   };
 }
-const ProductDropdown = ({ user }: ProductDropdownProps) => {
+export const ProductDropdown = ({ user }: ProductDropdownProps) => {
   const { setValue, getValues, clearErrors } = useFormContext<z.infer<typeof campaignFormSchema>>();
   const [open, setOpen] = useState(false);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
@@ -100,31 +99,29 @@ const ProductDropdown = ({ user }: ProductDropdownProps) => {
               </span>
             </p>
 
-            <DropdownMenu open={open} onOpenChange={setOpen}>
-              <DropdownMenuTrigger asChild>
+            <Dropdown isOpen={open} onOpenChange={setOpen}>
+              <DropdownTrigger aria-label="Remove Selected Product">
                 <Button variant="ghost" size="sm">
                   <DotsHorizontalIcon />
                 </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-[200px]">
-                <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                <DropdownMenuGroup>
-                  <DropdownMenuSeparator />
-
-                  <DropdownMenuItem
-                    className="text-red-600 hover:text-red-600 cursor-pointer"
-                    onClick={() => {
-                      setSelectedProduct(null);
-                      setValue("productId", "");
-                      setSearchText("");
-                    }}
-                  >
-                    Remove
-                    <DropdownMenuShortcut>⌘⌫</DropdownMenuShortcut>
-                  </DropdownMenuItem>
-                </DropdownMenuGroup>
-              </DropdownMenuContent>
-            </DropdownMenu>
+              </DropdownTrigger>
+              <DropdownMenu className="w-[200px]" variant="flat" aria-label="Remove Selected Product">
+                <DropdownItem
+                  key="delete"
+                  shortcut="⌘⇧D"
+                  className="text-danger"
+                  color="danger"
+                  aria-label="Remove Selected Product"
+                  onClick={() => {
+                    setSelectedProduct(null);
+                    setValue("productId", "");
+                    setSearchText("");
+                  }}
+                >
+                  Remove
+                </DropdownItem>
+              </DropdownMenu>
+            </Dropdown>
           </div>
         </PopoverTrigger>
         <PopoverContent
@@ -187,7 +184,7 @@ const ProductDropdown = ({ user }: ProductDropdownProps) => {
                             const currentProduct = getValues("productId");
                             const newProduct = product.id === currentProduct ? "" : product.id;
                             setValue("productId", newProduct);
-                            setSelectedProduct(product.id);
+                            setSelectedProduct(newProduct);
                             setIsPopupOpen(false);
                             clearErrors("productId");
                           }}
@@ -267,5 +264,3 @@ const ProductDropdown = ({ user }: ProductDropdownProps) => {
     </>
   );
 };
-
-export default ProductDropdown;

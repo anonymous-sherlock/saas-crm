@@ -1,10 +1,10 @@
 "use server";
-
-import { Lead } from "@prisma/client";
-import { getActorUser, getCurrentUser } from "../auth";
 import { db } from "@/db";
 import { LeadSchema, LeadSchemaType } from "@/schema/lead.schema";
+import { getAuthUser, getCurrentUser } from "../auth";
+import { z } from "zod";
 import { getUserByUserId } from "../data/user.data";
+import { allowedAdminRoles } from "../auth.permission";
 
 interface upsertLeadDetailsProps {
   data: Partial<LeadSchemaType>;
@@ -13,7 +13,7 @@ interface upsertLeadDetailsProps {
 export async function upsertLeadDetails({ data, leadId }: upsertLeadDetailsProps) {
   try {
     const user = await getCurrentUser();
-    if (!user) return { error: "Unauthorized: Please log in to your account" };
+    if (!user) return { error: "Unauthorized: Please log in to your account" }
     if (!leadId) return { error: "Lead id not provide" };
     const parsedData = LeadSchema.partial().safeParse(data);
 
@@ -28,56 +28,25 @@ export async function upsertLeadDetails({ data, leadId }: upsertLeadDetailsProps
   }
 }
 
-interface getCampaignLeadsProps {
-  campaignId: string;
-}
-export async function getCampaignLeads({ campaignId }: getCampaignLeadsProps) {
-  try {
-    if (!campaignId) throw new Error("Campaign id not provided");
-    const user = await getCurrentUser();
-    const actor = await getActorUser(user);
-    if (!user) throw new Error("Unauthorized: Please log in to your account");
-    const leads = await db.lead.findMany({
-      orderBy: { createdAt: "desc" },
-      where: {
-        userId: actor ? actor.userId : user.id,
-        campaign: {
-          OR: [{ code: campaignId }, { id: campaignId }],
-        },
-      },
-      include: {
-        campaign: {
-          select: {
-            name: true,
-            code: true,
-            id: true,
-          },
-        },
-      },
-    });
-    return leads;
-  } catch (error) {
-    console.error("Error fetching leads:", error);
-    return [];
-  }
-}
 
-interface getAllLeadsProps {
-  userId: string;
-}
-export async function getAllLeads({ userId }: getAllLeadsProps) {
-  const user = getUserByUserId(userId)
-  const leads = await db.lead.findMany({
-    orderBy: { createdAt: "desc" },
-    where: { userId: userId },
-    include: {
-      campaign: {
-        select: {
-          name: true,
-          code: true,
-          id: true,
-        },
-      },
-    },
-  });
+const leadDeleteSchema = z.object({
+  leadIds: z.string({ required_error: "Lead Id is required to delete a lead" }).array(),
+  userId: z.string(),
+});
+export async function deleteLeads(rawInput: z.infer<typeof leadDeleteSchema>) {
+  const parserData = leadDeleteSchema.safeParse(rawInput);
+  if (!parserData.success) return { error: parserData.error.message ?? "Bad Request" };
+
+  const { authUserId, authUserRole } = await getAuthUser();
+  if (!authUserId) return { error: "Unauthorized: Please log in to your account" };
+  const user = await getUserByUserId(parserData.data.userId);
+  if (!user) return { error: "User not found" };
+  const isAdmin = allowedAdminRoles.some((role) => role === authUserRole);
+  const isUserAuthorized = authUserId === user.id || isAdmin;
+  if (!isUserAuthorized) return { error: "Unauthorized: You don't have permission to delete lead for other users" };
+
+  const leads = await db.lead.findMany({ where: { userId: user.id, id: { in: rawInput.leadIds } } });
+  if (!leads) return { error: "Leads not found" };
+  const deletedLeads = await db.lead.deleteMany({ where: { userId: user.id, id: { in: rawInput.leadIds } } });
+  return { success: `Successfully deleted ${deletedLeads.count} lead${deletedLeads.count > 1 ? "s" : ""}` };
 }

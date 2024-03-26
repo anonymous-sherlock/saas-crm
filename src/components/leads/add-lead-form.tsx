@@ -35,7 +35,6 @@ export const AddLeadsForm: FC<LeadsFormProps> = ({ campaignId }) => {
     onSuccess: (data) => {
       setLeadModelOpen(false)
       form.reset()
-      utils.lead.getCampaignLeads.invalidate()
       utils.analytics.getCampaignAnalytics.invalidate({ campaignId: data.lead.campaignId })
       router.refresh()
     }

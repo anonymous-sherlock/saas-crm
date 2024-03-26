@@ -1,6 +1,5 @@
 "use client";
 import { CustomBadge } from "@/components/CustomBadge";
-import TooltipComponent from "@/components/global/tooltip-component";
 import { LEADS_STATUS } from "@/constants/index";
 import { cn } from "@/lib/utils";
 import { Option } from "@/types";
@@ -49,11 +48,26 @@ const AdminAllLeadsTableShell: FC<AdminAllLeadsTableShellProps> = ({ data }) => 
       {
         id: "code",
         accessorFn: (row) => row.campaign.code,
-        header: ({ column }) => <DataTableColumnHeader column={column} title="Campaign Code" />,
+        header: ({ column }) => <DataTableColumnHeader column={column} title="Campaign" />,
         cell: ({ row }) => (
           <div className="w-[75px] truncate">
-            <span className="text-muted-foreground">#</span>
-            {row.original.campaign.code}
+            <Tooltip
+              content={
+                <div className="px-4 py-4">
+                  <div className="text-small font-semibold">
+                    Campaign Name : <span className="font-normal">{row.original.campaign.name}</span>
+                  </div>
+                  <div className="text-small font-semibold">
+                    Campaign Code : <span className="font-normal">{row.original.campaign.code}</span>
+                  </div>
+                </div>
+              }
+            >
+              <div>
+                <span className="text-muted-foreground">#</span>
+                {row.original.campaign.code}
+              </div>
+            </Tooltip>
           </div>
         ),
         enableSorting: false,
@@ -213,7 +227,6 @@ const AdminAllLeadsTableShell: FC<AdminAllLeadsTableShellProps> = ({ data }) => 
     [],
   );
 
-
   const country = React.useMemo(() => {
     const countries = data.map((lead) => lead?.country).filter((country) => country !== null);
     const countryInTable = new Set(countries);
@@ -250,11 +263,11 @@ const AdminAllLeadsTableShell: FC<AdminAllLeadsTableShellProps> = ({ data }) => 
         },
       ]}
       searchPlaceholder="Search Leads..."
-      visibleColumn={{
-        id: false,
-        ip: false,
-        region: false,
-      }}
+      visibleColumn={[
+        { id: "id", value: false },
+        { id: "ip", value: false },
+        { id: "region", value: false },
+      ]}
       messages={{
         filteredDataNotFoundMessage: { title: "No Leads Found!", description: "" },
         emptyDataMessage: { title: "No Leads Found!", description: "" },

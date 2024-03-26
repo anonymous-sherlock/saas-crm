@@ -3,7 +3,7 @@ import { trpc } from "@/app/_trpc/client";
 import { Icons } from "@/components/Icons";
 import TooltipComponent from "@/components/global/tooltip-component";
 import { AddLeadsForm } from "@/components/leads/add-lead-form";
-import { CAMPAIGN_STATUS } from "@/constants/index";
+import { CAMPAIGN_STATUS, PRODUCT_CATEGORIES } from "@/constants/index";
 import { allowedAdminRoles } from "@/lib/auth.permission";
 import { cn } from "@/lib/utils";
 import { RouterOutputs } from "@/server";
@@ -16,6 +16,7 @@ import Link from "next/link";
 import { CustomBadge } from "../../CustomBadge";
 import { CampaignAnalyticsChart } from "../../charts/CampaignAnalyticsChart";
 import { CampaignActionDropDown } from "./campaign-action-dropdown";
+import { Tooltip } from "@nextui-org/react";
 
 interface CampaignStatsProps {
   campaign: RouterOutputs["campaign"]["get"];
@@ -35,6 +36,7 @@ export const CampaignStats = ({ campaign: InitialCampaignData }: CampaignStatsPr
       keepPreviousData: true,
     },
   );
+
   return (
     <main className="mx-auto max-w-7xl md:p-2">
       <Link href="/campaigns" className={cn(buttonVariants({ variant: "secondary" }), "rounded-full")}>
@@ -67,9 +69,9 @@ export const CampaignStats = ({ campaign: InitialCampaignData }: CampaignStatsPr
             <div className="flex items-center gap-3 mb-2">
               <p className="font-medium text-lg text-muted-foreground flex items-center gap-2">
                 Overview
-                <TooltipComponent message="Campaign Overview" delayDuration={300}>
+                <Tooltip showArrow={true} content="Campaign Overview" className="p-4">
                   <HelpCircle className="w-4 h-4 text-muted-foreground" />
-                </TooltipComponent>
+                </Tooltip>
               </p>
             </div>
 
@@ -90,9 +92,9 @@ export const CampaignStats = ({ campaign: InitialCampaignData }: CampaignStatsPr
             <div className="flex items-center gap-3 justify-between">
               <p className="font-medium text-lg text-muted-foreground flex items-center gap-2">
                 Status
-                <TooltipComponent message="Campaign Status" delayDuration={300}>
+                <Tooltip showArrow={true} content="Campaign Status" className="p-4">
                   <HelpCircle className="w-4 h-4 text-muted-foreground" />
-                </TooltipComponent>
+                </Tooltip>
               </p>
               <CustomBadge badgeValue={campaign.status} status={CAMPAIGN_STATUS} />
             </div>
@@ -103,7 +105,7 @@ export const CampaignStats = ({ campaign: InitialCampaignData }: CampaignStatsPr
               Product Price - <span className="font-medium truncate">{campaign.product?.price}</span>
             </div>
             <div className="text-sm my-2">
-              Product Category - <span className="font-medium truncate">{campaign.product?.category}</span>
+              Product Category - <span className="font-medium truncate">{PRODUCT_CATEGORIES.find((cat) => cat.value === campaign.product?.category)?.label}</span>
             </div>
           </CardContent>
         </Card>
@@ -113,9 +115,9 @@ export const CampaignStats = ({ campaign: InitialCampaignData }: CampaignStatsPr
             <div className="flex items-center gap-3 mb-2">
               <p className="font-medium text-lg text-muted-foreground flex items-center gap-2">
                 Targeting
-                <TooltipComponent message="Targeting" delayDuration={300}>
+                <Tooltip showArrow={true} content="Targeting" className="p-4">
                   <HelpCircle className="w-4 h-4 text-muted-foreground" />
-                </TooltipComponent>
+                </Tooltip>
               </p>
             </div>
 

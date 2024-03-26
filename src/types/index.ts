@@ -53,12 +53,12 @@ export interface DataTableSearchableColumn<TData> {
   id: keyof TData | NestedKey<TData>
   title: string;
 }
+export interface DataTableVisibleColumn<TData> {
+  id: keyof TData | NestedKey<TData>
+  value: boolean;
+}
 export interface DataTableFilterableColumn<TData> extends DataTableSearchableColumn<TData> {
   options: Option[];
-}
-export interface DataTableVisibleColumn<TData> {
-  id: keyof TData;
-  value: boolean;
 }
 
 export interface ProductsPageSearchParams extends SearchParams {

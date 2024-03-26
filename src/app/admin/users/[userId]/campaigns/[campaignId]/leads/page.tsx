@@ -4,8 +4,8 @@ import { DataTableSkeleton } from "@/components/tables/global/data-table-skeleto
 import LeadsTableShell from "@/components/tables/leads_table/leads-table-shell";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { db } from "@/db";
-import { getCampaignLeads } from "@/lib/actions/lead.action";
-import { safeExecute } from "@/lib/utils";
+import { getDateFromParams } from "@/lib/helpers/date";
+import { lead } from "@/server/api/lead";
 import { notFound } from "next/navigation";
 import React from "react";
 
@@ -14,11 +14,16 @@ interface UserCampaignLeadsPageProps {
     userId: string;
     campaignId: string;
   };
+  searchParams: {
+    date?: string;
+  };
 }
-async function CampaignLeadsPage({ params: { campaignId, userId } }: UserCampaignLeadsPageProps) {
+async function CampaignLeadsPage({ params: { campaignId, userId }, searchParams: { date } }: UserCampaignLeadsPageProps) {
   const campaign = await db.campaign.findFirst({ where: { OR: [{ code: campaignId }, { id: campaignId }] } });
   if (!campaign) notFound();
-  const leads = await safeExecute(() => getCampaignLeads({ campaignId: campaign.id }));
+
+  const { from, to } = getDateFromParams(date);
+  const leads = await lead.getCampaignLeads({ date: { from, to }, campaignId: campaign.id, userId: campaign.userId });
 
   return (
     <>

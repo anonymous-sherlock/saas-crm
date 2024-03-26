@@ -37,7 +37,6 @@ export const CampaignAnalyticsChart = ({ campaignId }: CampaignAnalyticsChartPro
     <>
       <div className="flex flex-col md:flex-row gap-2 items-start justify-between md:items-center mb-2">
         <p className="font-medium">Compare Leads Performance</p>
-        <DatePickerWithRange />
       </div>
       {isFetching || isLoading || !data ? (
         <Skeleton height={400} className="my-4" count={1} />

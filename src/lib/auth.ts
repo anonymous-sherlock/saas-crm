@@ -38,10 +38,10 @@ export const getAuthUser = async () => {
     const authUserEmail = actor ? actor.actorEmail : user.email;
     const authUserCompany = actor ? actor.company : user.company;
     const authUserImage = actor ? actor.image : user.image;
-    const role = actor ? null : user.role
-    return { authUserId, authUserName, authUserEmail, authUserImage, authUserCompany, role: role };
+    const authUserRole = user.role
+    return { authUserId, authUserName, authUserEmail, authUserImage, authUserCompany, authUserRole };
   } catch (error) {
     console.error("Error retrieving authenticated user:", error);
-    return { authUserId: undefined, authUserName: undefined, authUserImage: undefined, authUserEmail: undefined, authUserCompany: undefined, role: undefined };
+    return { authUserId: undefined, authUserName: undefined, authUserImage: undefined, authUserEmail: undefined, authUserCompany: undefined, authUserRole: undefined };
   }
 };

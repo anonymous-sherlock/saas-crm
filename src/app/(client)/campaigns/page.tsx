@@ -4,7 +4,7 @@ import UserCampaginsFilterTabs from "@/components/tabs/campaigns-filter-tabs";
 import CampaignsResults from "@/components/template/campaigns/CampaignListResult";
 import { UploadCampaignButton } from "@/components/template/campaigns/upload-campaign-button";
 import { getAllCampaigns } from "@/lib/actions/campaign.action";
-import { getActorUser, getAuthUser, getCurrentUser } from "@/lib/auth";
+import { getAuthUser } from "@/lib/auth";
 import { CampaignsFilterValues } from "@/schema/filter.schema";
 import { authPages } from "@routes";
 import { redirect } from "next/navigation";

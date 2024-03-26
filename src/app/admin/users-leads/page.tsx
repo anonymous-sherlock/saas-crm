@@ -2,7 +2,7 @@ import { PageHeader, PageHeaderDescription, PageHeaderHeading } from "@/componen
 import { DataTableSkeleton } from "@/components/tables/global/data-table-skeleton";
 import AdminAllLeadsTableShell from "@/components/tables/leads_table/admin-all-leads-table-shell";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { getAuthUser, getCurrentUser } from "@/lib/auth";
+import { getCurrentUser } from "@/lib/auth";
 import { allowedAdminRoles } from "@/lib/auth.permission";
 import { getDateFromParams } from "@/lib/helpers/date";
 import { lead } from "@/server/api/lead";
