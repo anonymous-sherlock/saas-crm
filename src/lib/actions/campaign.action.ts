@@ -1,12 +1,13 @@
 "use server";
 import { db } from "@/db";
 import { CampaignFormType, campaignFormSchema } from "@/schema/campaign.schema";
-import { getActorUser, getCurrentUser } from "../auth";
-import { generateCampaignCodeID } from "../utils";
 import { CampaignsFilterValues } from "@/schema/filter.schema";
 import { Prisma } from "@prisma/client";
 import { z } from "zod";
+import { getAuthUser, getCurrentUser } from "../auth";
+import { allowedAdminRoles } from "../auth.permission";
 import { getUserByUserId } from "../data/user.data";
+import { generateCampaignCodeID } from "../utils";
 
 type findCampaignByCodeProps = {
   campaignCode: string;
@@ -163,5 +164,30 @@ export async function getAllCampaigns({ filterValues, page: searchPage = 1, user
   const [campaigns, totalResults] = await Promise.all([campaignsPromise, countPromise]);
   return { campaigns, totalResults, campaignsPerPage, page };
 }
+
+const campaignDeleteSchema = z.object({
+  campaignIds: z.string({ required_error: "campaign Id is required to delete a campaign" }).array(),
+  userId: z.string(),
+});
+export async function deleteCampaigns(rawInput: z.infer<typeof campaignDeleteSchema>) {
+  const parserData = campaignDeleteSchema.safeParse(rawInput);
+  if (!parserData.success) return { error: parserData.error.message ?? "Bad Request" };
+
+  const currentUser = await getCurrentUser()
+  if (!currentUser) return { error: "Unauthorized: Please log in to your account" };
+  const { authUserId } = await getAuthUser();
+  const user = await getUserByUserId(parserData.data.userId);
+  if (!user) return { error: "User not found" };
+  const isAdmin = allowedAdminRoles.some((role) => role === currentUser.role);
+  const isUserAuthorized = authUserId === user.id || isAdmin;
+
+  if (!isUserAuthorized) return { error: "Unauthorized: You don't have permission to delete campaigns for other users" };
+
+  const campaigns = await db.campaign.findMany({ where: { userId: user.id, id: { in: rawInput.campaignIds } } });
+  if (!campaigns) return { error: "Campaign not found" };
+  const deletedCampaigns = await db.campaign.deleteMany({ where: { userId: user.id, id: { in: rawInput.campaignIds } } });
+  return { success: `Successfully deleted ${deletedCampaigns.count} campaign${deletedCampaigns.count > 1 ? "s" : ""}` };
+}
+
 
 export type getAllCampaignsType = Awaited<ReturnType<typeof getAllCampaigns>>;

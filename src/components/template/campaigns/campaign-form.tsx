@@ -1,28 +1,27 @@
 "use client";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { Card, CardContent, CardTitle } from "../../ui/card";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/ui/form";
 import { trpc } from "@/app/_trpc/client";
+import { FormError } from "@/components/global/form-error";
+import { FormSuccess } from "@/components/global/form-success";
+import { upsertCampaignDetails } from "@/lib/actions/campaign.action";
+import { revalidatePage } from "@/lib/actions/revalidate.action";
 import { cn } from "@/lib/utils";
+import { useModal } from "@/providers/modal-provider";
 import { campaignFormSchema } from "@/schema/campaign.schema";
-import { useRouter } from "next/navigation";
-import { toast as hotToast } from "react-hot-toast";
-import { z } from "zod";
 import { Button } from "@/ui/button";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/ui/form";
+import Spinner from "@/ui/spinner";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Input as NextInput, Select as NextSelect, SelectItem as NextSelectItem, Textarea as NextTextarea } from "@nextui-org/react";
 import { Campaign, Gender, Product, TargetRegion, TrafficSource } from "@prisma/client";
-import Spinner from "@/ui/spinner";
+import { useRouter } from "next/navigation";
+import React, { useState } from "react";
+import { useForm } from "react-hook-form";
+import { toast as hotToast } from "react-hot-toast";
+import { z } from "zod";
 import { AgeFields } from "./AgeFields";
 import CountryRegion from "./CountryRegion";
 import ProductDropdown from "./ProductDropdown";
 import WorkingHours from "./WorkingHours";
-import { FormSuccess } from "@/components/global/form-success";
-import { FormError } from "@/components/global/form-error";
-import React, { useState } from "react";
-import { upsertCampaignDetails } from "@/lib/actions/campaign.action";
-import { useModal } from "@/providers/modal-provider";
-import { revalidatePage } from "@/lib/actions/revalidate.action";
 
 interface CampaignFormProps {
   data?: Partial<
@@ -97,13 +96,13 @@ const CampaignForm = ({ data, type, user }: CampaignFormProps) => {
 
   async function onSubmit(values: z.infer<typeof campaignFormSchema>) {
     const { loading, success, error } = getMessagesByType(type);
-
     startTransition(async () => {
       hotToast.promise(
         upsertCampaignDetails({ data: values, campaignId: data?.id, type, userId: user.id }).then(async (data) => {
           if (data?.success) {
             setSuccess(data.success);
             utils.campaign.getAll.invalidate();
+            utils.campaign.get.invalidate();
             await revalidatePage("/");
             form.reset();
             router.refresh();
@@ -235,7 +234,6 @@ const CampaignForm = ({ data, type, user }: CampaignFormProps) => {
               )}
             />
             {/* target age field */}
-
             <AgeFields />
           </div>
 
@@ -287,13 +285,11 @@ const CampaignForm = ({ data, type, user }: CampaignFormProps) => {
             <React.Fragment>
               {type === "create" ? (
                 <>
-                  {" "}
-                  <Spinner /> Creating Campaign...
+                  <Spinner /> Creating...
                 </>
               ) : (
                 <>
-                  {" "}
-                  <Spinner /> Updating Campaign...
+                  <Spinner /> Updating...
                 </>
               )}
             </React.Fragment>

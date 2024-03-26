@@ -351,11 +351,11 @@ export function ProductForm({ type, product, userId }: ProductFormProps) {
             <React.Fragment>
               {type === "create" ? (
                 <>
-                  <Spinner /> Creating Product...
+                  <Spinner /> Creating...
                 </>
               ) : (
                 <>
-                  <Spinner /> Updating Product...
+                  <Spinner /> Updating...
                 </>
               )}
             </React.Fragment>

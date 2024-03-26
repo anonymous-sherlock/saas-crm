@@ -1,6 +1,5 @@
 import { db } from "@/db";
 import { generateCampaignCodeID } from "@/lib/utils";
-import { campaignFormSchema } from "@/schema/campaign.schema";
 import { privateProcedure, router } from "@/server/trpc";
 import { CampaignStatus, Prisma } from "@prisma/client";
 import { TRPCError } from "@trpc/server";
@@ -17,6 +16,14 @@ export const campaignRouter = router({
       include: {
         targetRegion: true,
         product: true,
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            image: true,
+          }
+        },
         _count: {
           select: {
             leads: true,
@@ -33,41 +40,6 @@ export const campaignRouter = router({
       targetAge: parsedTargetAge,
     };
   }),
-  create: privateProcedure.input(z.object({ campaign: campaignFormSchema })).mutation(async ({ ctx, input }) => {
-    const { userId, isImpersonating, actor } = ctx;
-    const { campaignName, campaignDescription, productId, callCenterTeamSize, leadsRequirements, targetAge, targetCountry, targetGender, targetRegion, trafficSource, workingDays, workingHours } =
-      input.campaign;
-    const campaignCode = generateCampaignCodeID();
-
-    const newCampaign = await db.campaign.create({
-      data: {
-        code: campaignCode,
-        name: campaignName,
-        description: campaignDescription,
-        callCenterTeamSize,
-        leadsRequirements,
-        targetCountry,
-        targetGender: targetGender,
-        trafficSource: trafficSource,
-        workingDays,
-        workingHours,
-        targetAge: targetAge,
-        targetRegion: {
-          createMany: {
-            data: (targetRegion || []).map((region) => ({
-              regionName: region.toString(),
-            })),
-          },
-        },
-        user: { connect: { id: actor ? actor.userId : userId } },
-        product: { connect: { id: productId } },
-      },
-    });
-    return {
-      success: `${newCampaign.name} campaign created successfully `,
-      campaign: newCampaign,
-    };
-  }),
   updateStatus: privateProcedure
     .input(
       z.object({
@@ -78,28 +50,13 @@ export const campaignRouter = router({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const { userId, isImpersonating, actor } = ctx;
       const { campaignId, campaignStatus } = input;
-      const campaign = await db.campaign.findFirst({
-        where: {
-          userId: isImpersonating ? actor.userId : userId,
-          id: campaignId,
-        },
-      });
-      if (!campaign) {
-        throw new TRPCError({
-          code: "NOT_FOUND",
-          message: "Campaign with this id not found",
-        });
-      }
+      const campaign = await db.campaign.findFirst({ where: { id: campaignId, }, });
+      if (!campaign) throw new TRPCError({ code: "NOT_FOUND", message: "Campaign with this id not found", });
+
       const updatedCampaign = await db.campaign.update({
-        where: {
-          userId: isImpersonating ? actor.userId : userId,
-          id: campaignId,
-        },
-        data: {
-          status: campaignStatus,
-        },
+        where: { id: campaignId, },
+        data: { status: campaignStatus, },
       });
       return {
         success: "true",
@@ -152,18 +109,15 @@ export const campaignRouter = router({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const { userId, actor, isImpersonating } = ctx;
       const { campaignId } = input;
       const campaign = await db.campaign.findFirst({
         where: {
-          userId: isImpersonating ? actor.userId : userId,
           id: campaignId,
         },
         include: { targetRegion: true },
       });
-      if (!campaign) {
-        throw new TRPCError({ code: "NOT_FOUND", message: "Campaign with this id not found" });
-      }
+      if (!campaign) throw new TRPCError({ code: "NOT_FOUND", message: "Campaign with this id not found" });
+
 
       const copiedCampaign = await db.campaign.create({
         data: {

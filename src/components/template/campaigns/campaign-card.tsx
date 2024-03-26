@@ -1,6 +1,6 @@
 "use client";
 import { CustomBadge } from "@/components/CustomBadge";
-import { CampaignActionDropDown } from "@/components/template/campaigns/CampaignActionDropDown";
+import { CampaignActionDropDown } from "@/components/template/campaigns/campaign-action-dropdown";
 import { Button } from "@/components/ui/button";
 import { CAMPAIGN_STATUS } from "@/constants/index";
 import { Tooltip } from "@nextui-org/react";
@@ -32,11 +32,11 @@ export const CampaignCard: FC<CampaignCardProps> = ({ campaign, leadsCount }) =>
               <div className="flex flex-col items-start ">
                 <Tooltip
                   content={
-                    <div className="px-1 py-2">
-                      <div className="text-small font-font-semibold">
+                    <div className="px-4 py-4">
+                      <div className="text-small font-semibold">
                         Campaign Name : <span className="font-normal">{campaign.name}</span>
                       </div>
-                      <div className="text-small font-font-semibold">
+                      <div className="text-small font-semibold">
                         Campaign Code : <span className="font-normal">{campaign.code}</span>
                       </div>
                     </div>

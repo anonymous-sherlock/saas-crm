@@ -1,19 +1,23 @@
+"use client"
 import { trpc } from "@/app/_trpc/client";
 import { Icons } from "@/components/Icons";
+import { CustomDeleteAlertDailog } from "@/components/global/custom-delete-alert-dailog";
+import { CustomModal } from "@/components/global/custom-modal";
 import { Separator } from "@/components/ui/separator";
 import { CAMPAIGN_STATUS } from "@/constants/index";
+import { deleteCampaigns } from "@/lib/actions/campaign.action";
 import { cn } from "@/lib/utils";
+import { useModal } from "@/providers/modal-provider";
 import { Button } from "@/ui/button";
 import { Listbox, ListboxItem, ListboxSection, Popover, PopoverContent, PopoverTrigger, Spinner, type Selection } from "@nextui-org/react";
 import { CampaignStatus } from "@prisma/client";
 import { pages } from "@routes";
 import { ChevronRightIcon, Loader2, MoreVertical } from "lucide-react";
 import { useSession } from "next-auth/react";
-import { useParams, usePathname, useRouter } from "next/navigation";
-import React, { useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import React, { useState, useTransition } from "react";
 import { toast as hotToast } from "react-hot-toast";
-import { CustomDeleteAlertDailog } from "@/components/global/custom-delete-alert-dailog";
-import { useModal } from "@/providers/modal-provider";
+import { UpdateCampaignForm } from "./update-campaign-form";
 
 interface CampaignActionDropDownProps {
   campaign: {
@@ -21,22 +25,23 @@ interface CampaignActionDropDownProps {
     name: string;
     code: string;
     status: CampaignStatus;
+    userId: string;
   };
   children?: React.ReactNode;
   type?: "custom" | "default";
 }
 
 export const CampaignActionDropDown = ({ campaign, children, type = "default" }: CampaignActionDropDownProps) => {
-  const [selectedStatus, setSelectedStatus] = React.useState<CampaignStatus>(campaign.status);
-  const [statusOpen, setStatusOpen] = useState<boolean>(false);
   const { data: session } = useSession();
   const { setOpen: setModalOpen } = useModal();
+  const [selectedStatus, setSelectedStatus] = React.useState<CampaignStatus>(campaign.status);
+  const [statusOpen, setStatusOpen] = useState<boolean>(false);
   const pathname = usePathname();
-  const { userId } = useParams<{ userId: string }>();
-  const utils = trpc.useUtils();
-  const router = useRouter();
   const isAdmin = session?.user?.role === "ADMIN";
-  const viewLeadsRoute = pathname.startsWith(pages.admin) ? `${pages.admin}/users/${userId}/${campaign.id}/leads` : `${pages.campaign}/${campaign.id}/leads`;
+  const viewLeadsRoute = pathname.startsWith(pages.admin) ? `${pages.admin}/users/${campaign.userId}/${campaign.id}/leads` : `${pages.campaign}/${campaign.id}/leads`;
+  const router = useRouter();
+  const utils = trpc.useUtils();
+  const [isDeletingCampaign, startDeleteTransition] = useTransition();
   const { mutateAsync: copyCampaign, isLoading: isCopyingCampaign } = trpc.campaign.copyCampaign.useMutation({
     onSuccess: () => {
       utils.campaign.getAll.invalidate();
@@ -47,12 +52,6 @@ export const CampaignActionDropDown = ({ campaign, children, type = "default" }:
   const { mutateAsync: updateStatus, isLoading: isUpdatingStatus } = trpc.campaign.updateStatus.useMutation({
     onSuccess: (data) => {
       setSelectedStatus(data.updatedCampaign.status);
-      utils.campaign.getAll.invalidate();
-      router.refresh();
-    },
-  });
-  const { mutateAsync: deleteCampaign, isLoading: isDeletingCampaign } = trpc.campaign.deleteCampaign.useMutation({
-    onSuccess: (data) => {
       utils.campaign.getAll.invalidate();
       router.refresh();
     },
@@ -88,10 +87,19 @@ export const CampaignActionDropDown = ({ campaign, children, type = "default" }:
     }
   }
   function handleCampaignDelete() {
-    hotToast.promise(deleteCampaign({ campaignIds: [campaign.id] }), {
-      loading: "Deleting campaign...",
-      success: "Campaign deleted successfully!",
-      error: "Could not delete campaign.",
+    startDeleteTransition(() => {
+      hotToast.promise(
+        deleteCampaigns({ campaignIds: [campaign.id], userId: campaign.userId }).then((data) => {
+          if (data.success) {
+            router.refresh();
+          }
+        }),
+        {
+          loading: "Deleting campaign...",
+          success: "Campaign deleted successfully!",
+          error: "Could not delete campaign.",
+        },
+      );
     });
   }
 
@@ -146,7 +154,17 @@ export const CampaignActionDropDown = ({ campaign, children, type = "default" }:
             <ListboxItem key="view-leads" startContent={<Icons.ViewLeadsIcon className={iconClasses} />} href={viewLeadsRoute}>
               View Leads
             </ListboxItem>
-            <ListboxItem key="edit" startContent={<Icons.EditIcon className={iconClasses} />} href={`${pages.campaign}/${campaign.id}/edit`}>
+            <ListboxItem
+              key="edit"
+              startContent={<Icons.EditIcon className={iconClasses} />}
+              onClick={() => {
+                setModalOpen(
+                  <CustomModal size="5xl" title="Update Campaign Details ">
+                    <UpdateCampaignForm campaignId={campaign.id} userId={campaign.userId} />
+                  </CustomModal>,
+                );
+              }}
+            >
               Edit campaign
             </ListboxItem>
             <ListboxItem

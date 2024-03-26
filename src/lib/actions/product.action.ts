@@ -4,7 +4,7 @@ import { db } from "@/db";
 import { ProductFormSchemaType, productFormSchema } from "@/schema/product.schema";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
-import { getActorUser, getCurrentUser } from "../auth";
+import { getActorUser, getAuthUser, getCurrentUser } from "../auth";
 import { allowedAdminRoles } from "../auth.permission";
 import { getUserByUserId } from "../data/user.data";
 
@@ -145,16 +145,14 @@ export async function deleteProducts(rawInput: z.infer<typeof productDeleteSchem
   const parserData = productDeleteSchema.safeParse(rawInput);
   if (!parserData.success) return { error: parserData.error.message ?? "Bad Request" };
 
-  const authUser = await getCurrentUser();
-  if (!authUser) return { error: "Unauthorized: Please log in to your account" };
+  const currentUser = await getCurrentUser()
+  if (!currentUser) return { error: "Unauthorized: Please log in to your account" };
+  const { authUserId } = await getAuthUser();
 
-  const actor = await getActorUser(authUser);
-  const userId = actor ? actor.userId : authUser.id;
-
-  const user = await getUserByUserId(userId);
+  const user = await getUserByUserId(parserData.data.userId);
   if (!user) return { error: "User not found" };
-  const isAdmin = allowedAdminRoles.some((role) => role === authUser.role);
-  const isUserAuthorized = authUser.id === user.id || isAdmin;
+  const isAdmin = allowedAdminRoles.some((role) => role === currentUser.role);
+  const isUserAuthorized = authUserId === user.id || isAdmin;
 
   if (!isUserAuthorized) return { error: "Unauthorized: You don't have permission to delete products for other users" };
 

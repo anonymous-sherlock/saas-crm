@@ -15,7 +15,7 @@ import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { CustomBadge } from "../../CustomBadge";
 import { CampaignAnalyticsChart } from "../../charts/CampaignAnalyticsChart";
-import { CampaignActionDropDown } from "./CampaignActionDropDown";
+import { CampaignActionDropDown } from "./campaign-action-dropdown";
 
 interface CampaignStatsProps {
   campaign: RouterOutputs["campaign"]["get"];
