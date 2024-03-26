@@ -1,47 +1,52 @@
-import CampaignsResults from '@/components/admin/campaign/CampaignListResult';
-import { PageHeader, PageHeaderDescription, PageHeaderHeading } from '@/components/global/page-header';
-import { CampaignSearchInput } from '@/components/search/campaign-search-input';
-import UserCampaginsFilterTabs from '@/components/tabs/campaigns-filter-tabs';
-import { getAllCampaigns } from '@/lib/actions/campaign.action';
-import { getActorUser, getCurrentUser } from '@/lib/auth';
-import { CampaignsFilterValues } from '@/schema/filter.schema';
+import { PageHeader, PageHeaderDescription, PageHeaderHeading } from "@/components/global/page-header";
+import { CampaignSearchInput } from "@/components/search/campaign-search-input";
+import UserCampaginsFilterTabs from "@/components/tabs/campaigns-filter-tabs";
+import CampaignsResults from "@/components/template/campaigns/CampaignListResult";
+import { UploadCampaignButton } from "@/components/template/campaigns/upload-campaign-button";
+import { getAllCampaigns } from "@/lib/actions/campaign.action";
+import { getActorUser, getAuthUser, getCurrentUser } from "@/lib/auth";
+import { CampaignsFilterValues } from "@/schema/filter.schema";
+import { authPages } from "@routes";
+import { redirect } from "next/navigation";
 
 interface CampaignsPageProps {
   searchParams: {
     q?: string;
     page?: string;
-    status?: CampaignsFilterValues["status"]
+    status?: CampaignsFilterValues["status"];
   };
 }
 async function CampaignsPage({ searchParams: { page, q, status } }: CampaignsPageProps) {
   const filterValues: CampaignsFilterValues = { q, status };
-  const user = await getCurrentUser();
-  const actor = await getActorUser(user)
-  const userId = actor ? actor.userId : user?.id
-  const pageNumber = page && page ? parseInt(page) : undefined
-  const data = await getAllCampaigns({ filterValues, page: pageNumber, userId })
-  
+  const { authUserId, authUserName } = await getAuthUser();
+  if (!authUserId) redirect(authPages.login);
+  const pageNumber = page && page ? parseInt(page) : undefined;
+  const data = await getAllCampaigns({ filterValues, page: pageNumber, userId: authUserId });
+
   return (
-    <div className='flex flex-col gap-4'>
-      <PageHeader className="flex flex-col md:flex-row justify-between md:items-center">
-        <div>
-          <div className="flex space-x-4">
-            <PageHeaderHeading size="sm" className="flex-1">
+    <div className="flex flex-col gap-4">
+      <PageHeader separated className="block md:grid">
+        <div className="flex flex-col md:flex-row justify-between md:items-center">
+          <div className="">
+            <PageHeaderHeading size="sm" className="flex-1 capitalize">
               My Campaigns
             </PageHeaderHeading>
+            <PageHeaderDescription size="sm">Manage Campaigns</PageHeaderDescription>
           </div>
-          <PageHeaderDescription size="sm">
-            Manage Campaigns
-          </PageHeaderDescription>
+          <div className="flex gap-2 justify-self-end flex-wrap md:flex-nowrap">
+            <UserCampaginsFilterTabs defaultValues={filterValues} />
+            <UploadCampaignButton
+              user={{
+                id: authUserId,
+                name: authUserName,
+              }}
+            />
+          </div>
         </div>
-        <UserCampaginsFilterTabs defaultValues={filterValues} />
       </PageHeader>
-      <CampaignSearchInput baseUrl='/campaigns' placeholder='Search campaigns' className="bg-white h-11" defaultValues={filterValues} />
-      <CampaignsResults
-        data={data}
-        baseUrl='/campaigns'
-      />
+      <CampaignSearchInput baseUrl="/campaigns" placeholder="Search campaigns" className="bg-white h-11" defaultValues={filterValues} />
+      <CampaignsResults data={data} />
     </div>
-  )
+  );
 }
-export default CampaignsPage
+export default CampaignsPage;

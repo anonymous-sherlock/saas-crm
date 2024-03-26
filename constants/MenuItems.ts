@@ -1,5 +1,5 @@
 import { SubMenuTypes } from "@/types";
-import { BarChartBig, Folders, LayoutDashboard, Settings, UserRoundCog } from "lucide-react";
+import { AreaChart, BarChartBig, Circle, Folders, LayoutDashboard, Settings, UserRoundCog } from "lucide-react";
 import { BsPerson } from "react-icons/bs";
 // import { MdDashboard, MdLeaderboard } from "react-icons/md";
 import { RiBuilding3Line } from "react-icons/ri";
@@ -34,23 +34,30 @@ export const subMenusList: SubMenuTypes[] = [
     label: "Admin",
     icon: UserRoundCog,
     menus: [
-    
       {
         id: "1",
         label: "All Users",
         url: "/admin/users",
+        icon: Circle,
       },
       {
         id: "2",
-        label: "All Users Campaigns",
-        url: "/admin/user-campaigns",
+        label: "All Users Leads",
+        url: "/admin/users-leads",
+        icon: Circle,
       },
       {
         id: "3",
+        label: "All Users Campaigns",
+        url: "/admin/users-campaigns",
+        icon: Circle,
+      },
+      {
+        id: "4",
         label: "Notifications",
         url: "/admin/notifications",
+        icon: Circle,
       },
-
     ],
     isAdmin: true,
   },
@@ -63,28 +70,32 @@ export const subMenusList: SubMenuTypes[] = [
         id: "1",
         label: "All Products",
         url: "/products",
+        icon: Circle,
       },
       {
         id: "2",
         label: "New Products",
         url: "/products/create",
+        icon: Circle,
       },
     ],
   },
   {
     name: "analytics",
     label: "campaign",
-    icon: TbReportAnalytics,
+    icon: AreaChart,
     menus: [
       {
         id: "1",
         label: "Campaigns",
         url: "/campaigns",
+        icon: Circle,
       },
       {
         id: "2",
         label: "New Campaign",
         url: "/campaigns/create",
+        icon: Circle,
       },
     ],
   },

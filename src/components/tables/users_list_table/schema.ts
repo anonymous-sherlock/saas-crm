@@ -1,7 +1,7 @@
 import { Company, Role, User } from "@prisma/client";
 import { z } from "zod";
 
-export type UserListColumnDef = Pick<User, "id" | "name" | "email" | "emailVerified" | "image" | "role" | "createdAt" | "updatedAt"> & {
+export type UserListColumnDef = Pick<User, "id" | "name" | "email" | "emailVerified" | "active" | "image" | "role" | "createdAt" | "updatedAt"> & {
   company: Pick<Company, "id" | "name" | "address"> | undefined | null;
 };
 export const UserListSchema = z.object({

@@ -2,11 +2,11 @@
 import { campaignFormSchema } from "@/schema/campaign.schema";
 import { useFormContext } from "react-hook-form";
 import { z } from "zod";
-import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "../../ui/form";
+import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/ui/form";
 import { Select, SelectItem } from "@nextui-org/react";
 import { cn } from "@/lib/utils";
 
-const AgeFields = () => {
+export const AgeFields = () => {
   const { control, watch } = useFormContext<z.infer<typeof campaignFormSchema>>();
   const minAge = watch("targetAge.min");
 
@@ -80,4 +80,3 @@ const AgeFields = () => {
   );
 };
 
-export default AgeFields;

@@ -11,19 +11,19 @@ type Actor = {
   actorEmail: string;
   image: string | undefined | null;
   company: {
-    id: string | undefined,
-    name: string | undefined,
-    address: string | undefined
-  }
-
-}
+    id: string | undefined;
+    name: string | undefined;
+    address: string | undefined;
+  };
+};
 
 type UserWithActor = User & {
   id: UserId;
+  name: string;
   role: Role;
   isImpersonating: boolean;
   actor: Actor;
-  company: Pick<Company, "id" | "name" | "address">
+  company: Pick<Company, "id" | "name" | "address">;
 };
 
 declare module "next-auth/jwt" {
@@ -32,7 +32,7 @@ declare module "next-auth/jwt" {
     role: Role;
     isImpersonating: boolean;
     actor: Actor;
-    company: Pick<Company, "id" | "name" | "address">
+    company: Pick<Company, "id" | "name" | "address">;
   }
 }
 

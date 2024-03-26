@@ -1,26 +1,25 @@
 import { db } from "@/db";
-import { endOfDay, startOfDay } from "date-fns";
-import { Session } from "next-auth";
 
 type ProductApiArgs = {};
 type ProductGetAllArgs = {
   userId?: string;
   date?: { from: Date | undefined; to: Date | undefined };
 };
+type GetSingleProductArgs = {
+  userId: string;
+  productId: string;
+};
+
 export class ProductApi {
-  private user: Session["user"] | undefined = undefined;
   constructor(private readonly opts?: ProductApiArgs) {}
-  async getAll({ date, userId }: ProductGetAllArgs) {
+  async getAllProducts({ date, userId }: ProductGetAllArgs) {
     try {
-      const today = new Date();
-      const startDay = date?.from ? startOfDay(date.from) : undefined;
-      const endDay = date?.to ? endOfDay(date.to) : startDay ? endOfDay(startDay) : undefined;
       const products = await db.product.findMany({
         where: {
           ownerId: userId,
           createdAt: {
-            gte: startDay,
-            lte: endDay,
+            gte: date?.from,
+            lte: date?.to,
           },
         },
         include: {
@@ -35,7 +34,28 @@ export class ProductApi {
 
       return products;
     } catch (error) {
+      console.error("Error occurred during getAllProducts:", error);
       return [];
+    }
+  }
+  async getSingleProduct({ userId, productId }: GetSingleProductArgs) {
+    try {
+      const product = await db.product.findFirst({
+        where: { ownerId: userId, id: productId },
+        include: {
+          images: {
+            include: {
+              media: true,
+            },
+          },
+          media: true,
+        },
+        orderBy: { createdAt: "desc" },
+      });
+      return product;
+    } catch (error) {
+      console.error("Error occurred during getSingleProduct:", error);
+      return null;
     }
   }
 }

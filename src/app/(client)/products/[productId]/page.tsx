@@ -1,6 +1,6 @@
 import ImageSlider from '@/components/ImageSlider';
 import { Badge } from "@/components/ui/badge";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { PRODUCT_CATEGORIES } from "@/constants/index";
 import { db } from "@/db";

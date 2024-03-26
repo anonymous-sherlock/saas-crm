@@ -15,13 +15,14 @@ const getNotifictionsOutputSchema = z.object({
 export const notificationRouter = router({
   getNotifictions: privateProcedure.output(getNotifictionsOutputSchema).query(async ({ ctx }) => {
     const actor = ctx.actor;
+    const userId = actor ? actor.userId : ctx.userId;
     const unReadNotificationsPromise = db.notification.findMany({
-      where: { userId: actor ? actor.userId : ctx.userId, isRead: false, archived: false },
+      where: { userId: userId, isRead: false, archived: false },
       include: { user: true },
     });
 
     const archievedNotificationsPromise = db.notification.findMany({
-      where: { userId: actor ? actor.userId : ctx.userId, archived: true },
+      where: { userId: userId, archived: true },
       include: { user: true },
     });
 

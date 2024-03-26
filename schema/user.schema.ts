@@ -30,15 +30,18 @@ export const newUserSchema = z.object({
   email: z.string({ required_error: "Email is required" }).email("Invalid email address"),
   password: passwordSchema,
   role: z.nativeEnum(Role),
+  active: z.boolean(),
+  emailVerified: z.optional(z.boolean()),
 });
 
-export const UserFormSchema = z.object({
+export const UserProfileFormSchema = z.object({
   name: z.string(),
-  email: z.string(),
-  emailVerified: z.date().nullable(),
-  image: z.string().nullable(),
+  email: z.string().email(),
+  image: z.optional(z.string().nullable()),
   role: z.nativeEnum(Role),
   active: z.boolean(),
+  emailVerified: z.optional(z.boolean()),
 });
 
-export type UserFormSchemaType = z.infer<typeof UserFormSchema>;
+export type UserProfileFormSchemaType = z.infer<typeof UserProfileFormSchema>;
+export type NewUserSchemaType = z.infer<typeof newUserSchema>;

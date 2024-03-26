@@ -1,4 +1,5 @@
-import { Campaign, Lead, LeadStatus } from "@prisma/client";
+import { GetAllUsersLeads } from "@/types/queries";
+import { Campaign, Lead, LeadStatus, Media, Product, User } from "@prisma/client";
 import { z } from "zod";
 
 export type LeadColumnDef = Pick<Lead, "id" | "name" | "ip" | "phone" | "address" | "country" | "region" | "city" | "zipcode" | "status" | "createdAt" | "updatedAt" | "userId"> & {
@@ -27,3 +28,5 @@ export const LeadSchema = z.object({
 });
 
 export type LeadColumnType = z.infer<typeof LeadSchema>;
+
+export type AdminLeadColumnDef = GetAllUsersLeads[number];

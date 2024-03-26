@@ -10,7 +10,6 @@ module.exports = withUt({
     "./src/**/*.{ts,tsx}",
     "./constants/**/*.{ts,tsx}",
     "./node_modules/@nextui-org/theme/dist/**/*.{js,ts,jsx,tsx}"
-
   ],
   theme: {
     container: {

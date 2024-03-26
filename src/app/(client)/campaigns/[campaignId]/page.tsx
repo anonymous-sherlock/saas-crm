@@ -5,17 +5,16 @@ import { authPages } from "@routes";
 import { notFound, redirect } from "next/navigation";
 
 export default async function CampaginStatsPage({ params }: { params: { campaignId: string } }) {
-
-  const user = await getCurrentUser()
-  if (!user) redirect(authPages.login)
+  const user = await getCurrentUser();
+  if (!user) redirect(authPages.login);
 
   try {
-    const campaign = await server.campaign.get({ camapaingId: params.campaignId })
+    const campaign = await server.campaign.get({ camapaingId: params.campaignId, userId: user.id });
     if (campaign) {
-      return <CampaignStats campaign={campaign} user={user} />
+      return <CampaignStats campaign={campaign} />;
     }
   } catch (error) {
-    console.log(error)
-    return notFound()
+    console.log(error);
+    return notFound();
   }
 }

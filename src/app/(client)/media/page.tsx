@@ -1,7 +1,7 @@
 import { PageHeader, PageHeaderDescription, PageHeaderHeading } from '@/components/global/page-header'
 import MediaComponent from '@/components/media'
 import MediaUploadButton from '@/components/media/upload-buttons'
-import { OnboardingForm } from '@/components/onboarding/onboardingForm'
+import { OnboardingForm } from '@/components/forms/onboarding-form'
 import { getMedia } from '@/lib/actions/media.action'
 import { getActorUser, getCurrentUser } from '@/lib/auth'
 import React from 'react'

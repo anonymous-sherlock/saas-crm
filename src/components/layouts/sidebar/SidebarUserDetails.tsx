@@ -1,16 +1,9 @@
 import CrispChatOpen from "@/components/CrispChatOpen";
-import {
-  CiCreditCard1,
-  HiOutlineUser
-} from "@/components/Icons";
+import { CiCreditCard1, HiOutlineUser } from "@/components/Icons";
 import { UserAvatar } from "@/components/layouts/UserAvatar";
 import SignOutButton from "@/components/ui/SignOutButton";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import {
-  HoverCard,
-  HoverCardContent,
-  HoverCardTrigger,
-} from "@/components/ui/hover-card";
+import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
 import { Separator } from "@/components/ui/separator";
 import { getCurrentUser } from "@/lib/auth";
 import { generateInitialFromName } from "@/lib/utils";
@@ -23,22 +16,10 @@ export const SidebarUserDetails = async () => {
       {/* user image */}
       <HoverCardTrigger asChild>
         <div className="flex cursor-pointer items-center justify-start gap-2 border-y p-4">
-          <Avatar>
-            <AvatarImage
-              src={user?.image ?? ""}
-              alt={user?.name ?? ""}
-            />
-            <AvatarFallback>
-              {generateInitialFromName(user?.name ?? "")}
-            </AvatarFallback>
-          </Avatar>
+          {user && <UserAvatar user={user} />}
           <span className="truncate">
-            <span className="block text-sm text-gray-900 dark:text-white">
-              {user?.name}
-            </span>
-            <span className="block truncate text-sm text-gray-500 dark:text-gray-400">
-              {user?.email}
-            </span>
+            <span className="block text-sm text-gray-900 dark:text-white">{user?.name}</span>
+            <span className="block truncate text-sm text-gray-500 dark:text-gray-400">{user?.email}</span>
           </span>
         </div>
       </HoverCardTrigger>
@@ -47,12 +28,8 @@ export const SidebarUserDetails = async () => {
           <div className="flex items-center justify-start gap-2 border-y p-4">
             {user && <UserAvatar user={user} />}
             <div>
-              <span className="block text-sm text-gray-900 dark:text-white">
-                {user?.name}
-              </span>
-              <span className="block truncate  text-sm text-gray-500 dark:text-gray-400">
-                {user?.email}
-              </span>
+              <span className="block text-sm text-gray-900 dark:text-white">{user?.name}</span>
+              <span className="block truncate  text-sm text-gray-500 dark:text-gray-400">{user?.email}</span>
             </div>
           </div>
         </div>
@@ -68,7 +45,7 @@ export const SidebarUserDetails = async () => {
           </li>
           <li>
             <Link
-              href="/biling"
+              href="/settings/billing"
               className="m-1 flex items-center justify-start gap-2 rounded-sm p-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-600 dark:hover:text-white"
             >
               <CiCreditCard1 size={16} className="mr-2 text-gray-400" />
@@ -117,4 +94,3 @@ export const SidebarUserDetails = async () => {
     </HoverCard>
   );
 };
-

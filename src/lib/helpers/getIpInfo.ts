@@ -12,7 +12,7 @@ export async function getIpInfo(ipAddress: string | null = null): Promise<IpInfo
     return ipInfoData
 
   } catch (error) {
-    console.error('Error getting IP information:', error);
+    console.error('Error getting IP information:',);
     return {
       ip: ipAddress ?? "",
       country_name: "",

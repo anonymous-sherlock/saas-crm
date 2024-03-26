@@ -8,7 +8,6 @@ import { AuthError } from "@/exceptions/authError";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { compare } from "bcrypt";
 
-
 function getGoogleCredentials(): { clientId: string; clientSecret: string } {
   const clientId = env.GOOGLE_CLIENT_ID;
   const clientSecret = env.GOOGLE_CLIENT_SECRET;
@@ -54,8 +53,8 @@ export const authOptions: NextAuthOptions = {
     CredentialsProvider({
       name: "Credentials",
       credentials: {
-        email: { type: "email", },
-        password: { type: "password", },
+        email: { type: "email" },
+        password: { type: "password" },
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
@@ -83,39 +82,40 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
   callbacks: {
-    async session({ token, session, }) {
+    async session({ token, session }) {
       if (token) {
         session.user.id = token.id;
-        session.user.name = token.name;
+        session.user.name = token.name ?? "";
         session.user.email = token.email;
         session.user.image = token.picture;
         session.user.role = token.role;
         session.user.actor = token.actor;
         session.user.isImpersonating = token.isImpersonating;
         session.user.company = token.company;
-
       }
       return session;
     },
     async jwt({ token, user, trigger, session, profile, account }) {
       const dbUser = await db.user.findFirst({
-        where: {
-          email: token.email!,
-        }, include: {
+        where: { email: token.email! },
+        include: {
           company: {
             select: {
               id: true,
               name: true,
               address: true,
-            }
-          }
-        }
+            },
+          },
+        },
       });
       if (trigger === "update") {
         return { ...token, ...session.user };
       }
 
-      if (!dbUser) { token.id = user!.id; return token; }
+      if (!dbUser) {
+        token.id = user!.id;
+        return token;
+      }
 
       return {
         id: dbUser.id,
@@ -125,9 +125,8 @@ export const authOptions: NextAuthOptions = {
         role: dbUser.role,
         isImpersonating: token.isImpersonating,
         actor: token.actor,
-        company: dbUser.company
+        company: dbUser.company,
       };
-
     },
     async redirect({ url, baseUrl }) {
       try {
@@ -147,10 +146,9 @@ export const authOptions: NextAuthOptions = {
     async linkAccount({ user }) {
       await db.user.update({
         where: { id: user.id },
-        data: { emailVerified: new Date() }
-      })
+        data: { emailVerified: new Date(), active: true },
+      });
     },
   },
   debug: env.NODE_ENV === "development" ? true : false,
 };
-

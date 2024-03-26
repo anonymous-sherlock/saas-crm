@@ -1,12 +1,8 @@
-"use client"
+"use client";
 import { trpc } from "@/app/_trpc/client";
 import { NotificationsTabs } from "@/components/tabs/notifications-tabs";
 import { Button } from "@/components/ui/button";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+import { Popover, PopoverContent, PopoverTrigger } from "@nextui-org/react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import Spinner from "@/components/ui/spinner";
@@ -15,75 +11,74 @@ import { removedNotificationFromArchive, updateNotificationReadStatus, updateUnR
 import { cn } from "@/lib/utils";
 import { RouterOutputs } from "@/server";
 import { Avatar } from "@nextui-org/react";
-import { Bell, Inbox, Undo2 } from 'lucide-react';
+import { Bell, Inbox, Undo2 } from "lucide-react";
 import { useSearchParams } from "next/navigation";
-import { FC, useTransition } from 'react';
+import { FC, useTransition } from "react";
 import { toast } from "sonner";
 
-
 interface NotifiationProps {
-  notifications: RouterOutputs["notification"]["getNotifictions"]
+  notifications: RouterOutputs["notification"]["getNotifictions"];
 }
 
 const Notifiation: FC<NotifiationProps> = ({ notifications }: NotifiationProps) => {
-  const searchParams = useSearchParams()
-  const notificationType = searchParams.get('notification') === "archive" ? "archive" : "inbox"
+  const searchParams = useSearchParams();
+  const notificationType = searchParams.get("notification") === "archive" ? "archive" : "inbox";
   const { data: allNotifications } = trpc.notification.getNotifictions.useQuery(undefined, {
-    initialData: notifications
-  })
-  const [isArchieving, startArchieveTransition] = useTransition()
+    initialData: notifications,
+  });
+  const [isArchieving, startArchieveTransition] = useTransition();
 
-  const utils = trpc.useUtils()
+  const utils = trpc.useUtils();
   async function handleMarkAsRead(id: string) {
-    if (!id) { toast.info("Notification cannot mark as read") }
+    if (!id) {
+      toast.info("Notification cannot mark as read");
+    }
     await updateNotificationReadStatus({ id }).then(() => {
-      utils.notification.getNotifictions.invalidate()
-    })
+      utils.notification.getNotifictions.invalidate();
+    });
   }
 
   async function handleArchievedRemoved(id: string) {
-    if (!id) { toast.info("Notification cannot mark as read") }
+    if (!id) {
+      toast.info("Notification cannot mark as read");
+    }
     await removedNotificationFromArchive({ id }).then(() => {
-      utils.notification.getNotifictions.invalidate()
-    })
+      utils.notification.getNotifictions.invalidate();
+    });
   }
   async function handleArchievedAll() {
     startArchieveTransition(async () => {
       await updateUnReadNotificationsToArchieved().then(() => {
-        utils.notification.getNotifictions.invalidate()
-      })
-    })
+        utils.notification.getNotifictions.invalidate();
+      });
+    });
   }
   return (
-    <Popover>
+    <Popover backdrop="opaque" placement="bottom-end" showArrow>
       <PopoverTrigger>
-        <div className="relative rounded-full w-8 h-8 bg-primary flex items-center justify-center text-white">
+        <div className="relative rounded-full w-8 h-8 bg-primary flex items-center justify-center text-white cursor-pointer">
           <Bell size={16} />
-          {allNotifications.unReadNotifications.length > 0 && <span className='-top-1 animate-custom-ping right-0 absolute z-50 w-[10px] h-[10px] bg-red-500 rounded-full' />}
+          {allNotifications.unReadNotifications.length > 0 && <span className="-top-1 animate-custom-ping right-0 absolute z-50 w-[10px] h-[10px] bg-red-500 rounded-full" />}
         </div>
       </PopoverTrigger>
-      <PopoverContent className="p-0 max-w-[400px] min-w-[400px] overflow-hidden" side="bottom" align="end" alignOffset={5} >
-        <div>
+      <PopoverContent className="p-0 max-w-[340px] min-w-[320px] md:max-w-[400px] md:min-w-[400px] overflow-hidden">
+        <div className="w-full">
           <NotificationsTabs />
-          <ScrollArea orientation="vertical" className="h-[400px]" >
-            {notificationType === "inbox" ?
+          <ScrollArea orientation="vertical" className="h-[400px]">
+            {notificationType === "inbox" ? (
               <>
                 {allNotifications.unReadNotifications?.map((notification) => {
-                  const NOTIFY = NOTIFICATION_ICON.find((val) => val.key === notification.icon)
+                  const NOTIFY = NOTIFICATION_ICON.find((val) => val.key === notification.icon);
                   return (
                     <div key={notification.id} className="w-full hover:bg-[#FAFAFA] border-b flex py-4 group group-hover/notification-card relative">
                       <div className="w-[60px]  shrink-0 flex justify-center items-start">
-                        {notification.icon ?
-
-                          <div className={cn("ring-1 w-[36px] h-[36px] rounded-full flex justify-center items-center",
-                            NOTIFY?.color?.bgColor,
-                            NOTIFY?.color?.textColor,
-                            NOTIFY?.color?.ringColor
-                          )}>
+                        {notification.icon ? (
+                          <div className={cn("ring-1 w-[36px] h-[36px] rounded-full flex justify-center items-center", NOTIFY?.color?.bgColor, NOTIFY?.color?.textColor, NOTIFY?.color?.ringColor)}>
                             {NOTIFY?.icon && <NOTIFY.icon className="w-5 h-5" />}
-                          </div> :
+                          </div>
+                        ) : (
                           <Avatar isBordered src={String(notification.user.image)} size="sm" />
-                        }
+                        )}
                       </div>
                       <div className="w-[80%] line-clamp-3 pr-4">
                         <p className="text-[14px] ">{notification.message}</p>
@@ -94,34 +89,24 @@ const Notifiation: FC<NotifiationProps> = ({ notifications }: NotifiationProps) 
                         </Button>
                       </div>
                     </div>
-                  )
-                }
-
-                )}
-                {allNotifications.unReadNotifications?.length === 0 && (
-                  <div className="flex items-center justify-center text-muted-foreground mt-4 mb-4">
-                    You have no notifications
-                  </div>
-                )}
+                  );
+                })}
+                {allNotifications.unReadNotifications?.length === 0 && <div className="flex items-center justify-center text-muted-foreground mt-4 mb-4">You have no notifications</div>}
               </>
-              :
+            ) : (
               <>
                 {allNotifications.archievedNotifications?.map((notification) => {
-                  const NOTIFY = NOTIFICATION_ICON.find((val) => val.key === notification.icon)
+                  const NOTIFY = NOTIFICATION_ICON.find((val) => val.key === notification.icon);
                   return (
                     <div key={notification.id} className="w-full hover:bg-[#FAFAFA] border-b flex py-4 group group-hover/notification-card relative">
                       <div className="w-[60px]  shrink-0 flex justify-center items-start">
-                        {notification.icon ?
-
-                          <div className={cn("ring-1 w-[36px] h-[36px] rounded-full flex justify-center items-center",
-                            NOTIFY?.color?.bgColor,
-                            NOTIFY?.color?.textColor,
-                            NOTIFY?.color?.ringColor
-                          )}>
+                        {notification.icon ? (
+                          <div className={cn("ring-1 w-[36px] h-[36px] rounded-full flex justify-center items-center", NOTIFY?.color?.bgColor, NOTIFY?.color?.textColor, NOTIFY?.color?.ringColor)}>
                             {NOTIFY?.icon && <NOTIFY.icon className="w-5 h-5" />}
-                          </div> :
+                          </div>
+                        ) : (
                           <Avatar isBordered src={String(notification.user.image)} size="sm" />
-                        }
+                        )}
                       </div>
                       <div className="w-[80%] line-clamp-3 pr-4">
                         <p className="text-[14px] ">{notification.message}</p>
@@ -132,19 +117,13 @@ const Notifiation: FC<NotifiationProps> = ({ notifications }: NotifiationProps) 
                         </Button>
                       </div>
                     </div>
-                  )
-                }
-
-                )}
-                {allNotifications.archievedNotifications?.length === 0 && (
-                  <div className="flex items-center justify-center text-muted-foreground mt-4 mb-4">
-                    You have no archieved notifications
-                  </div>
-                )}
+                  );
+                })}
+                {allNotifications.archievedNotifications?.length === 0 && <div className="flex items-center justify-center text-muted-foreground mt-4 mb-4">You have no archieved notifications</div>}
               </>
-            }
+            )}
           </ScrollArea>
-          {notificationType !== "archive" ?
+          {notificationType !== "archive" ? (
             <>
               <Separator />
               <div className="w-full flex gap-2 justify-center items-center p-2">
@@ -153,11 +132,11 @@ const Notifiation: FC<NotifiationProps> = ({ notifications }: NotifiationProps) 
                 </Button>
               </div>
             </>
-            : null}
+          ) : null}
         </div>
       </PopoverContent>
-    </Popover >
-  )
-}
+    </Popover>
+  );
+};
 
-export default Notifiation
+export default Notifiation;

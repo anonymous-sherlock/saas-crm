@@ -14,15 +14,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/ui/select";
+import { DataTableDeleteRowsButtonType } from "@/types";
 
 interface DataTablePaginationProps<TData> {
   table: Table<TData>
-  deleteComponent?: React.ReactNode
+  DeleteRowsAction?: DataTableDeleteRowsButtonType<TData>
 }
 
 export function DataTablePagination<TData>({
   table,
-  deleteComponent
+  DeleteRowsAction
 }: DataTablePaginationProps<TData>) {
   return (
     <div className="flex flex-col items-center justify-between gap-2 sm:flex-row">
@@ -31,7 +32,7 @@ export function DataTablePagination<TData>({
           {table.getFilteredSelectedRowModel().rows.length} of{" "}
           {table.getFilteredRowModel().rows.length} row(s) selected.
         </span>
-        {deleteComponent && deleteComponent}
+        {DeleteRowsAction && <DeleteRowsAction table={table} />}
       </div>
       <nav role="navigation" aria-label="pagination" className="mx-auto flex w-full justify-center sm:justify-end">
         <div className="flex flex-col-reverse items-center gap-2 sm:flex-row">

@@ -1,7 +1,7 @@
 "use client";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { PRODUCT_CATEGORIES } from "@/constants/index";
-import { RouterOutputs } from "@/server";
+import { GetAllProductsType } from "@/types/queries";
 import { Checkbox } from "@/ui/checkbox";
 import { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
@@ -149,7 +149,7 @@ const ProductTableShell: FC<ProductTableShellProps> = ({ data }) => {
     []
   )
   const category = React.useMemo(() => {
-    const categoriesInTable = new Set((data as RouterOutputs["product"]["getAll"]).map(product => product?.category));
+    const categoriesInTable = new Set((data as GetAllProductsType).map(product => product?.category));
     return PRODUCT_CATEGORIES.filter(cat => categoriesInTable.has(cat.value));
   }, [data]);
 

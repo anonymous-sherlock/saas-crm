@@ -7,14 +7,12 @@ import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
 export const campaignRouter = router({
-  get: privateProcedure.input(z.object({ camapaingId: z.string() })).query(async ({ ctx, input }) => {
-    const { userId, isImpersonating, actor } = ctx;
-    const { camapaingId } = input;
-
+  get: privateProcedure.input(z.object({ camapaingId: z.string(), userId: z.string() })).query(async ({ ctx, input }) => {
+    const { camapaingId, userId } = input;
     const campaign = await db.campaign.findFirst({
       where: {
         id: camapaingId,
-        userId: isImpersonating ? actor.userId : userId,
+        userId: userId,
       },
       include: {
         targetRegion: true,
@@ -35,55 +33,41 @@ export const campaignRouter = router({
       targetAge: parsedTargetAge,
     };
   }),
-  create: privateProcedure
-    .input(z.object({ campaign: campaignFormSchema, }),)
-    .mutation(async ({ ctx, input }) => {
-      const { userId, isImpersonating, actor } = ctx;
-      const {
-        campaignName,
-        campaignDescription,
-        productId,
+  create: privateProcedure.input(z.object({ campaign: campaignFormSchema })).mutation(async ({ ctx, input }) => {
+    const { userId, isImpersonating, actor } = ctx;
+    const { campaignName, campaignDescription, productId, callCenterTeamSize, leadsRequirements, targetAge, targetCountry, targetGender, targetRegion, trafficSource, workingDays, workingHours } =
+      input.campaign;
+    const campaignCode = generateCampaignCodeID();
+
+    const newCampaign = await db.campaign.create({
+      data: {
+        code: campaignCode,
+        name: campaignName,
+        description: campaignDescription,
         callCenterTeamSize,
         leadsRequirements,
-        targetAge,
         targetCountry,
-        targetGender,
-        targetRegion,
-        trafficSource,
+        targetGender: targetGender,
+        trafficSource: trafficSource,
         workingDays,
         workingHours,
-      } = input.campaign;
-      const campaignCode = generateCampaignCodeID();
-
-      const newCampaign = await db.campaign.create({
-        data: {
-          code: campaignCode,
-          name: campaignName,
-          description: campaignDescription,
-          callCenterTeamSize,
-          leadsRequirements,
-          targetCountry,
-          targetGender: targetGender,
-          trafficSource: trafficSource,
-          workingDays,
-          workingHours,
-          targetAge: targetAge,
-          targetRegion: {
-            createMany: {
-              data: (targetRegion || []).map((region) => ({
-                regionName: region.toString(),
-              })),
-            },
+        targetAge: targetAge,
+        targetRegion: {
+          createMany: {
+            data: (targetRegion || []).map((region) => ({
+              regionName: region.toString(),
+            })),
           },
-          user: { connect: { id: actor ? actor.userId : userId, }, },
-          product: { connect: { id: productId, }, },
         },
-      });
-      return {
-        success: `${newCampaign.name} campaign created successfully `,
-        campaign: newCampaign,
-      };
-    }),
+        user: { connect: { id: actor ? actor.userId : userId } },
+        product: { connect: { id: productId } },
+      },
+    });
+    return {
+      success: `${newCampaign.name} campaign created successfully `,
+      campaign: newCampaign,
+    };
+  }),
   updateStatus: privateProcedure
     .input(
       z.object({
@@ -160,11 +144,12 @@ export const campaignRouter = router({
     return campaignsData;
   }),
   copyCampaign: privateProcedure
-    .input(z.object({
-      campaignId: z.string({
-        required_error: "Campaign Id is required to copy a campaign",
+    .input(
+      z.object({
+        campaignId: z.string({
+          required_error: "Campaign Id is required to copy a campaign",
+        }),
       }),
-    }),
     )
     .mutation(async ({ ctx, input }) => {
       const { userId, actor, isImpersonating } = ctx;
@@ -174,10 +159,10 @@ export const campaignRouter = router({
           userId: isImpersonating ? actor.userId : userId,
           id: campaignId,
         },
-        include: { targetRegion: true }
+        include: { targetRegion: true },
       });
       if (!campaign) {
-        throw new TRPCError({ code: "NOT_FOUND", message: "Campaign with this id not found", });
+        throw new TRPCError({ code: "NOT_FOUND", message: "Campaign with this id not found" });
       }
 
       const copiedCampaign = await db.campaign.create({
@@ -195,7 +180,6 @@ export const campaignRouter = router({
           workingHours: campaign.workingHours as Prisma.InputJsonValue,
           productId: campaign.productId,
           userId: campaign.userId,
-
         },
       });
 

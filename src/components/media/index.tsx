@@ -21,7 +21,7 @@ type Props = {
 }
 
 const MediaComponent = ({ data, companyId }: Props) => {
-  const { data: fileData, fetchNextPage, isFetchingNextPage, isLoading } = trpc.media.getMedia.useInfiniteQuery(
+  const { data: fileData, fetchNextPage, isFetchingNextPage, isLoading } = trpc.media.getUserMedia.useInfiniteQuery(
     { limit: 12, },
     { getNextPageParam: (lastPage) => lastPage.nextCursor, },
   )

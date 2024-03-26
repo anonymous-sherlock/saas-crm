@@ -18,7 +18,7 @@ export async function handleAuthorization({ apiKey = "", bearerToken = "" }: Han
   const validApiKey = await db.apiKey.findFirst({
     where: {
       key: apiKey,
-      enabled: true,
+      active: true,
     },
   });
   if (!validApiKey) {

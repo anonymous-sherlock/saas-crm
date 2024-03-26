@@ -1,5 +1,5 @@
 "use client";
-import { DataTableFilterableColumn, DataTableSearchableColumn, DataTableVisibleColumn } from "@/types";
+import { DataTableDeleteRowsButtonType, DataTableDownloadRowsButtonType, DataTableFilterableColumn, DataTableSearchableColumn } from "@/types";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, } from "@/ui/table";
 import { ColumnDef, ColumnFiltersState, SortingState, VisibilityState, flexRender, getCoreRowModel, getFacetedRowModel, getFacetedUniqueValues, getFilteredRowModel, getPaginationRowModel, getSortedRowModel, useReactTable, } from "@tanstack/react-table";
 import * as React from "react";
@@ -14,13 +14,15 @@ interface EmptyMessageProps {
 type ColumnKeys<T> = keyof T;
 type ColumnVisibilityState<T> = Partial<{ [K in ColumnKeys<T>]: boolean; }>;
 
+
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
   filterableColumns?: DataTableFilterableColumn<TData>[]
   searchableColumns?: DataTableSearchableColumn<TData>[]
   searchPlaceholder?: string
-  deleteRowsComponent?: React.ReactNode
+  DeleteRowsAction?: DataTableDeleteRowsButtonType<TData>
+  DownloadRowAction?: DataTableDownloadRowsButtonType<TData>
   messages: {
     emptyDataMessage?: EmptyMessageProps;
     filteredDataNotFoundMessage?: EmptyMessageProps
@@ -34,18 +36,13 @@ export function DataTable<TData, TValue>({
   filterableColumns = [],
   searchableColumns = [],
   searchPlaceholder,
-  deleteRowsComponent,
   messages: {
-    emptyDataMessage = {
-      title: "No results found.",
-      description: ""
-    },
-    filteredDataNotFoundMessage = {
-      title: "No results found.",
-      description: "Clear some filter"
-    },
+    emptyDataMessage = { title: "No results found.", description: "" },
+    filteredDataNotFoundMessage = { title: "No results found.", description: "Clear some filter" },
   },
-  visibleColumn
+  visibleColumn,
+  DownloadRowAction,
+  DeleteRowsAction
 }: DataTableProps<TData, TValue>) {
   const [rowSelection, setRowSelection] = React.useState({});
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>(visibleColumn as VisibilityState);
@@ -82,6 +79,7 @@ export function DataTable<TData, TValue>({
         filterableColumns={filterableColumns}
         searchableColumns={searchableColumns}
         searchPlaceholder={searchPlaceholder}
+        DownloadRowAction={DownloadRowAction}
       />
       <div className="rounded-md border overflow-x-auto w-full">
         <Table>
@@ -135,7 +133,7 @@ export function DataTable<TData, TValue>({
           </TableBody>
         </Table>
       </div>
-      <DataTablePagination table={table} deleteComponent={deleteRowsComponent} />
+      <DataTablePagination table={table} DeleteRowsAction={DeleteRowsAction} />
     </div>
   );
 }

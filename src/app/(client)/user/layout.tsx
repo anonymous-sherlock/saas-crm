@@ -15,9 +15,9 @@ export default async function ProfileLayout({
     children,
 }: ProfileLayoutProps) {
     return (
-        <Shell className="!p-0">
+        <Shell className="!p-0 gap-2">
             <div className="flex flex-col gap-2 pr-1 xxs:flex-row">
-                <PageHeader className="flex-1">
+                <PageHeader className="flex-1" separated>
                     <PageHeaderHeading size="sm" className="!text-[1.6rem]">Profile Settings</PageHeaderHeading>
                     <PageHeaderDescription size="sm">
                         Manage your Account

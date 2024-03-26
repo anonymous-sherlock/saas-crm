@@ -4,6 +4,7 @@ import { Lead } from "@prisma/client";
 import { getActorUser, getCurrentUser } from "../auth";
 import { db } from "@/db";
 import { LeadSchema, LeadSchemaType } from "@/schema/lead.schema";
+import { getUserByUserId } from "../data/user.data";
 
 interface upsertLeadDetailsProps {
   data: Partial<LeadSchemaType>;
@@ -59,4 +60,24 @@ export async function getCampaignLeads({ campaignId }: getCampaignLeadsProps) {
     console.error("Error fetching leads:", error);
     return [];
   }
+}
+
+interface getAllLeadsProps {
+  userId: string;
+}
+export async function getAllLeads({ userId }: getAllLeadsProps) {
+  const user = getUserByUserId(userId)
+  const leads = await db.lead.findMany({
+    orderBy: { createdAt: "desc" },
+    where: { userId: userId },
+    include: {
+      campaign: {
+        select: {
+          name: true,
+          code: true,
+          id: true,
+        },
+      },
+    },
+  });
 }

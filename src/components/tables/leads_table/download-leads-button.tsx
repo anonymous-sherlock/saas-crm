@@ -1,12 +1,12 @@
 import { Button } from "@/components/ui/button";
 import { Table } from "@tanstack/react-table";
+import xlsx, { IJsonSheet } from "json-as-xlsx";
 import { DownloadIcon } from "lucide-react";
 import { LeadColumnType, LeadSchema } from "./schema";
-import xlsx, { IJsonSheet, getJsonSheetRow } from "json-as-xlsx"
 
 
 interface DownloadLeadsBtnProps<TData> {
-  table: Table<TData>
+  table: Table<TData>,
 }
 export function DownloadLeadsBtn<TData>({ table, }: DownloadLeadsBtnProps<TData>) {
   function downloadToExcel() {

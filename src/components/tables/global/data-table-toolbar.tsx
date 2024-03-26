@@ -3,7 +3,7 @@ import { trpc } from "@/app/_trpc/client";
 import { CalendarDateRangePicker } from "@/components/global/date-range-picker";
 import TooltipComponent from "@/components/global/tooltip-component";
 import { cn } from "@/lib/utils";
-import { DataTableFilterableColumn, DataTableSearchableColumn } from "@/types";
+import { DataTableFilterableColumn, DataTableSearchableColumn,DataTableDownloadRowsButtonType } from "@/types";
 import { Button } from "@/ui/button";
 import { Input } from "@/ui/input";
 import { Cross2Icon } from "@radix-ui/react-icons";
@@ -18,15 +18,16 @@ interface DataTableToolbarProps<TData> {
   table: Table<TData>;
   filterableColumns?: DataTableFilterableColumn<TData>[]
   searchableColumns?: DataTableSearchableColumn<TData>[]
-  searchPlaceholder?: string
+  searchPlaceholder?: string,
+  DownloadRowAction?: DataTableDownloadRowsButtonType<TData>
 }
 
 export function DataTableToolbar<TData>({
   table,
   filterableColumns = [],
   searchableColumns = [],
-  searchPlaceholder = "Search here..."
-
+  searchPlaceholder = "Search here...",
+  DownloadRowAction
 }: DataTableToolbarProps<TData>) {
   const isFiltered = table.getState().columnFilters.length > 0;
   const [isRotating, setRotating] = useState(false);
@@ -63,7 +64,7 @@ export function DataTableToolbar<TData>({
                       .getColumn(String(column.id))
                       ?.setFilterValue(event.target.value)
                   }
-                  className="md:h-8 h-9 grow md:grow-0 w-[150px] lg:w-[250px]"
+                  className="h-8 grow md:grow-0 w-[150px] lg:w-[250px]"
                 />
               )
             ))
@@ -73,9 +74,10 @@ export function DataTableToolbar<TData>({
               placeholder={searchPlaceholder}
               value={table.getState().globalFilter}
               onChange={(e) => table.setGlobalFilter(String(e.target.value))}
-              className="md:h-8 h-9 grow md:grow-0 w-[150px] lg:w-[250px]"
+              className="h-8 grow md:grow-0 w-[150px] lg:w-[250px]"
             />
           )}
+          {DownloadRowAction && <DownloadRowAction table={table} />}
           <TooltipComponent message="Refetch Data" delayDuration={250} >
             <Button variant="outline" size="sm" className="h-8 w-8 p-2 border-dashed" onClick={handleRefreshClick} >
               <RefreshCw color="#000" className={cn("",

@@ -32,10 +32,10 @@ model Account {
 model Notification {
   id        String   @id @default(uuid())
   message   String
-  companyId String
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   company   Company? @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  companyId String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   isRead    Boolean  @default(false)
@@ -93,7 +93,7 @@ model User {
   passwordResetTokens PasswordResetToken[]
   activateTokens      ActivateToken[]
   apiKeys             ApiKey[]
-  BearerToken         BearerToken[]
+  bearerTokens        BearerToken[]
   campaigns           Campaign[]
   leads               Lead[]
   products            Product[]
@@ -150,13 +150,13 @@ model ActivateToken {
 model ApiKey {
   id        String   @id @default(cuid())
   key       String   @unique
-  enabled   Boolean  @default(true)
+  active    Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@unique([userId, key, enabled])
+  @@unique([userId, key, active])
   @@index([userId], map: "ApiKey_userId_fkey")
   @@map("api_key")
 }

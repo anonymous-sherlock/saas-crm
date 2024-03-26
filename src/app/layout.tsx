@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 import Providers from "@/providers/index";
 import { UiProvider } from "@/providers/next-ui";
 import favicon from "@/public/favicon.png";
-import "@/styles/globals.css";
+import "./globals.css";
 import dynamic from "next/dynamic";
 import { Inter } from "next/font/google";
 import { Toaster as HotToast } from "react-hot-toast";

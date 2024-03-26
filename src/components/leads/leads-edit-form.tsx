@@ -147,7 +147,7 @@ export const LeadsEditForm: FC<LeadsEditDormProps> = ({ title, data }) => {
                       <FormControl>
                         <Input
                           type="text"
-                          size="sm"
+                          size="md"
                           placeholder="Customer Name"
                           classNames={{ inputWrapper: "border" }}
                           startContent={
@@ -195,7 +195,7 @@ export const LeadsEditForm: FC<LeadsEditDormProps> = ({ title, data }) => {
                         <Autocomplete
                           defaultItems={Country.getAllCountries()}
                           defaultFilter={autoCompleteFilter}
-                          size="sm"
+                          size="md"
                           inputProps={{
                             classNames: { inputWrapper: "border" }
                           }}

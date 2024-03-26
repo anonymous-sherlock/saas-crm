@@ -1,5 +1,5 @@
-import TitleSection from '@/components/landing-page/title-section'
-import { OnboardingForm } from '@/components/onboarding/onboardingForm'
+import TitleSection from '@/components/global/title-section'
+import { OnboardingForm } from '@/components/forms/onboarding-form'
 import { Shell } from '@/components/shells/shell'
 import { getCurrentIsOnboarded, getCurrentUser } from '@/lib/auth'
 import { redirect } from 'next/navigation'

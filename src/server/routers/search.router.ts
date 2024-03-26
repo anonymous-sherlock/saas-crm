@@ -6,13 +6,13 @@ const productSearchInput = z.object({
   q: z.string().nullish(),
   limit: z.number().min(1).max(100).nullish(),
   cursor: z.string().nullish(),
+  userId: z.string(),
 });
 export const searchRouter = router({
   getProducts: privateProcedure.input(productSearchInput).query(async ({ ctx, input }) => {
     const limit = input.limit ?? 50;
-    const { cursor, q } = input;
-    const { user, actor } = ctx;
-    const userId = actor ? actor.userId : user.id;
+    const { cursor, q, userId } = input;
+
     const searchString = q
       ?.split(" ")
       .filter((word) => word.length > 0)

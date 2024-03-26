@@ -1,7 +1,7 @@
 import { DashboardCharts } from '@/components/dashboard/DashboardCharts';
 import OverviewCard from '@/components/dashboard/OverviewCard';
 import { Card, CardContent } from '@/components/ui/card';
-import { getCurrentIsOnboarded, getCurrentUser } from '@/lib/auth';
+import { getCurrentIsOnboarded } from '@/lib/auth';
 import { cn } from '@/lib/utils';
 import { ONBOARDING_REDIRECT } from '@routes';
 import { type Metadata } from 'next';

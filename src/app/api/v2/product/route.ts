@@ -82,3 +82,4 @@ export async function GET(req: NextRequest, res: NextResponse) {
     return NextResponse.json({ error: "Something went wrong", brief: error }, { status: 500 });
   }
 }
+

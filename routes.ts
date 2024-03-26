@@ -21,6 +21,8 @@ export const authPages = {
 export type Pages = {
   product: string;
   campaign: string;
+  leads: string;
+  admin: string
 };
 /**
  * The default onboarding redirect path after logging in
@@ -29,7 +31,8 @@ export type Pages = {
 export const pages = {
   product: "/products",
   campaign: "/campaigns",
-  leads: "/leads"
+  leads: "/leads",
+  admin: "/admin",
 };
 
 /**

@@ -1,13 +1,6 @@
 import { Media } from "@prisma/client";
 import { z } from "zod";
 
-export const singleImageSchema = z.object({
-  name: z.string(),
-  size: z.number(),
-  type: z.string(),
-  // You can add more validations as needed, e.g., for file type, size, etc.
-});
-
 export const productFormSchema = z.object({
   id: z.string().optional(),
   productName: z.string().min(1, { message: "Product name is required." }).min(2, { message: "Product name must be at least 2 characters." }),
@@ -57,16 +50,6 @@ export const productFormSchema = z.object({
   ),
 });
 
-export const ACCEPTED_IMAGE_EXTENSIONS = ["jpg", "jpeg", "png", "webp", "svg"];
-
-// delete product payload
-
-export const productDeleteScheme = z.object({
-  id: z.string({
-    required_error: "product id is required",
-  }),
-});
-
 // product searhc payload
 export const productSearch = z.object({
   name: z
@@ -81,5 +64,4 @@ export const productSearch = z.object({
   cursor: z.string(),
 });
 export type ProductFormSchemaType = z.infer<typeof productFormSchema>;
-export type DeleteProductPayload = z.infer<typeof productDeleteScheme>;
 export type ProductSearchPayload = z.infer<typeof productSearch>;

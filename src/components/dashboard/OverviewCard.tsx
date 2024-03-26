@@ -1,12 +1,11 @@
 "use client";
-import { Icons } from "@/components/Icons";
-import { FC } from "react";
-import { Card, CardContent } from "../ui/card";
 import { trpc } from "@/app/_trpc/client";
-import Skeleton from "react-loading-skeleton";
-import { TrendingDown, TrendingUp } from "lucide-react";
+import { Icons } from "@/components/Icons";
 import { cn } from "@/lib/utils";
-import { IoMdArrowDropdown, IoMdArrowDropup } from "react-icons/io";
+import { TrendingDown, TrendingUp } from "lucide-react";
+import { FC } from "react";
+import Skeleton from "react-loading-skeleton";
+import { Card, CardContent } from "../ui/card";
 import { OverviewCount } from "./OverviewCount";
 
 interface OverviewCardProps { }
@@ -17,7 +16,7 @@ const OverviewCard: FC<OverviewCardProps> = ({ }) => {
   const { data, isLoading, isFetched } = trpc.analytics.getDashboardAnalytics.useQuery()
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 mb-6">
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mb-6">
       <Card>
         <CardContent className="p-6 flex justify-between items-center">
           <div>

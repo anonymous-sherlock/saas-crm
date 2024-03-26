@@ -1,135 +1,128 @@
 "use client";
+import { Icons } from "@/components/Icons";
+import { CustomDeleteAlertDailog } from "@/components/global/custom-delete-alert-dailog";
+import { CustomModal } from "@/components/global/custom-modal";
+import { ProductForm } from "@/components/template/products/ProductForm";
+import { Separator } from "@/components/ui/separator";
+import { deleteProducts } from "@/lib/actions/product.action";
+import { cn } from "@/lib/utils";
+import { useModal } from "@/providers/modal-provider";
+import { GetSingleProductType } from "@/types/queries";
+import { Button } from "@/ui/button";
+import { Listbox, ListboxItem, ListboxSection, Popover, PopoverContent, PopoverTrigger, Spinner } from "@nextui-org/react";
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";
 import { Row } from "@tanstack/react-table";
-import { trpc } from "@/app/_trpc/client";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import { toast } from "@/components/ui/use-toast";
-import { toast as hotToast } from "react-hot-toast";
-import { Button, buttonVariants } from "@/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuShortcut,
-  DropdownMenuTrigger,
-} from "@/ui/dropdown-menu";
-import { AxiosError } from "axios";
+import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useTransition } from "react";
+import { toast as hotToast } from "react-hot-toast";
 import { productRowSchema } from "./schema";
-import Spinner from "@/components/ui/spinner";
-import Link from "next/link";
-
 interface DataTableRowActionsProps<TData> {
   row: Row<TData>;
 }
 
-export function DataTableRowActions<TData>({
-  row,
-}: DataTableRowActionsProps<TData>) {
+export function DataTableRowActions<TData>({ row }: DataTableRowActionsProps<TData>) {
+  const { setOpen } = useModal();
   const router = useRouter();
-  const utils = trpc.useUtils();
+  const { setOpen: setModalOpen } = useModal();
+  const [isDeleting, startDeleteTransition] = useTransition();
+  const iconClasses = "text-xl text-default-500 pointer-events-none flex-shrink-0";
 
   const product = productRowSchema.parse(row.original);
-  const { mutate: deleteProduct, isLoading } = trpc.product.deleteProduct.useMutation({
-    onSuccess: (data) => {
-      toast({
-        title: `${data.deletedCount} Product Deleted succesfully`,
-        description: "",
-        variant: "success",
-      });
-      utils.product.getAll.invalidate()
-      router.refresh()
-    },
-    onError: (err) => {
-      if (err instanceof AxiosError) {
-        if (err.response?.status === 500) {
-          return toast({
-            title: "Cannot Delete Product.",
-            description: "",
-            variant: "destructive",
-          });
-        }
-      }
-    },
 
-  });
-
-  function handleRowClick() {
-    const currentRow = product;
-    const payload = currentRow.id;
-
-    deleteProduct({ productIds: [payload] });
+  function handleProductDelete() {
+    startDeleteTransition(async () => {
+      hotToast.promise(
+        deleteProducts({ productIds: [product.id], userId: product.ownerId }).then((data) => {
+          if (data.success) {
+            router.refresh();
+          }
+        }),
+        {
+          loading: "Deleting product...",
+          success: "Product deleted successfully!",
+          error: "Could not delete product.",
+        },
+      );
+    });
   }
-  return (
-    <>
-      {isLoading ? (
-        <div className="flex items-center justify-center">
-          <Spinner /> {/* Replace with your loading indicator component */}
-        </div>
-      ) : (
-        <AlertDialog>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="ghost"
-                className="flex h-8 w-8 p-0 data-[state=open]:bg-muted"
-              >
-                <DotsHorizontalIcon className="h-4 w-4" />
-                <span className="sr-only">Open menu</span>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-[160px]">
-              <DropdownMenuItem className="cursor-pointer"><Link href={`/products/${product.id}/edit`} className="w-full">Edit</Link></DropdownMenuItem>
-              <DropdownMenuItem className="cursor-pointer"><Link href={`/products/${product.id}`} className="w-full">View Product</Link></DropdownMenuItem>
-              <DropdownMenuItem className="cursor-pointer"
-                onClick={() => {
-                  navigator.clipboard.writeText(product.id.toString());
-                  hotToast.success('Successfully copied product ID')
 
-                }}
-              >Copy Product ID</DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <AlertDialogTrigger asChild>
-                <DropdownMenuItem className="text-red-600 cursor-pointer" disabled={isLoading}>
-                  Delete
-                  <DropdownMenuShortcut>⌘⌫</DropdownMenuShortcut>
-                </DropdownMenuItem>
-              </AlertDialogTrigger>
-            </DropdownMenuContent>
-          </DropdownMenu>
-          {/* dialog content */}
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-              <AlertDialogDescription>
-                This action cannot be undone. This will permanently delete your
-                Products and its related campaign from our servers.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction
-                onClick={handleRowClick}
-                disabled={isLoading}
-                className={buttonVariants({ variant: "destructive" })}
-              >
-                {isLoading ? "Deleting..." : "Delete Product"}
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
-      )}
-    </>
+  if (isDeleting) {
+    return (
+      <div className="flex items-center justify-center">
+        <Spinner size="sm" color="danger" labelColor="danger" />
+      </div>
+    );
+  }
+
+  return (
+    <Popover
+      style={{
+        zIndex: 10,
+      }}
+    >
+      <PopoverTrigger>
+        <Button variant="ghost" className="flex h-8 w-8 p-0 data-[state=open]:bg-muted">
+          <DotsHorizontalIcon className="h-4 w-4" />
+          <span className="sr-only">Open menu</span>
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent>
+        <Listbox variant="faded" aria-label="lead quick actions menu">
+          <ListboxSection title="Quick actions" aria-label="Quick actions">
+            <ListboxItem
+              key="edit"
+              startContent={<Icons.EditIcon className={iconClasses} />}
+              onClick={() =>
+                setModalOpen(
+                  <CustomModal size="5xl" title="Update Product Details">
+                    <ProductForm product={row.original as GetSingleProductType} userId={product.ownerId} type="update" />
+                  </CustomModal>,
+                )
+              }
+            >
+              Edit Product
+            </ListboxItem>
+            <ListboxItem
+              key="copy-product-id"
+              aria-label="Copy product id"
+              startContent={<Icons.CopyIcon className={iconClasses} />}
+              onClick={() => {
+                navigator.clipboard.writeText(product.id.toString());
+                hotToast.success("Successfully Copied Lead id");
+              }}
+            >
+              Copy Product Id
+            </ListboxItem>
+          </ListboxSection>
+        </Listbox>
+        <Separator className="my-1" />
+        <Listbox variant="faded" aria-label="Product Danger zone menu">
+          <ListboxSection title="Danger zone" aria-label="Danger zone">
+            <ListboxItem
+              key="delete"
+              className="text-danger"
+              color="danger"
+              aria-label="Permanently delete product"
+              description="Permanently delete product"
+              onClick={() => {
+                setOpen(
+                  <CustomDeleteAlertDailog
+                    title="Are you absolutely sure?"
+                    description="This action cannot be undone. This will permanently delete your Products and its related campaign from our servers."
+                    isDeleting={isDeleting}
+                    onDelete={handleProductDelete}
+                    actionText="Delete Product"
+                  />,
+                );
+              }}
+              startContent={isDeleting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Icons.DeleteIcon className={cn(iconClasses, "text-danger")} />}
+            >
+              Delete
+            </ListboxItem>
+          </ListboxSection>
+        </Listbox>
+      </PopoverContent>
+    </Popover>
   );
 }

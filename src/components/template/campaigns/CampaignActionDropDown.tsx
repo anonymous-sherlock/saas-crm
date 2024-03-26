@@ -1,61 +1,62 @@
-import { trpc } from '@/app/_trpc/client'
-import { Icons } from '@/components/Icons'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuSub, DropdownMenuSubContent, DropdownMenuSubTrigger, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
-import { Separator } from '@/components/ui/separator'
-import Spinner from '@/components/ui/spinner'
-import { CAMPAIGN_STATUS } from '@/constants/index'
-import { cn } from '@/lib/utils'
-import { Button } from '@/ui/button'
-import { Listbox, ListboxItem, ListboxSection } from '@nextui-org/react'
-import { CampaignStatus } from '@prisma/client'
-import { pages } from '@routes'
-import { AreaChart, MoreVertical } from 'lucide-react'
-import { useSession } from 'next-auth/react'
-import { useRouter } from 'next/navigation'
-import { useState } from 'react'
-import { toast as hotToast } from "react-hot-toast"
-import { DeleteCampaign } from './DeleteCampaign'
+import { trpc } from "@/app/_trpc/client";
+import { Icons } from "@/components/Icons";
+import { Separator } from "@/components/ui/separator";
+import { CAMPAIGN_STATUS } from "@/constants/index";
+import { cn } from "@/lib/utils";
+import { Button } from "@/ui/button";
+import { Listbox, ListboxItem, ListboxSection, Popover, PopoverContent, PopoverTrigger, Spinner, type Selection } from "@nextui-org/react";
+import { CampaignStatus } from "@prisma/client";
+import { pages } from "@routes";
+import { ChevronRightIcon, Loader2, MoreVertical } from "lucide-react";
+import { useSession } from "next-auth/react";
+import { useParams, usePathname, useRouter } from "next/navigation";
+import React, { useState } from "react";
+import { toast as hotToast } from "react-hot-toast";
+import { CustomDeleteAlertDailog } from "@/components/global/custom-delete-alert-dailog";
+import { useModal } from "@/providers/modal-provider";
 
 interface CampaignActionDropDownProps {
   campaign: {
-    id: string
+    id: string;
     name: string;
     code: string;
-    status: CampaignStatus
-  }
-  children?: React.ReactNode
-  type?: "custom" | "default"
+    status: CampaignStatus;
+  };
+  children?: React.ReactNode;
+  type?: "custom" | "default";
 }
 
 export const CampaignActionDropDown = ({ campaign, children, type = "default" }: CampaignActionDropDownProps) => {
-  const [campaignStatus, setCampaignStatus] = useState<CampaignStatus>(campaign.status);
+  const [selectedStatus, setSelectedStatus] = React.useState<CampaignStatus>(campaign.status);
   const [statusOpen, setStatusOpen] = useState<boolean>(false);
-  const { data: session, status } = useSession()
+  const { data: session } = useSession();
+  const { setOpen: setModalOpen } = useModal();
+  const pathname = usePathname();
+  const { userId } = useParams<{ userId: string }>();
   const utils = trpc.useUtils();
-  const router = useRouter()
-  const isAdmin = session?.user?.role === 'ADMIN';
-
+  const router = useRouter();
+  const isAdmin = session?.user?.role === "ADMIN";
+  const viewLeadsRoute = pathname.startsWith(pages.admin) ? `${pages.admin}/users/${userId}/${campaign.id}/leads` : `${pages.campaign}/${campaign.id}/leads`;
   const { mutateAsync: copyCampaign, isLoading: isCopyingCampaign } = trpc.campaign.copyCampaign.useMutation({
     onSuccess: () => {
       utils.campaign.getAll.invalidate();
-      router.refresh()
-    }
-  })
+      router.refresh();
+    },
+  });
 
   const { mutateAsync: updateStatus, isLoading: isUpdatingStatus } = trpc.campaign.updateStatus.useMutation({
     onSuccess: (data) => {
-      setCampaignStatus(data.updatedCampaign.status)
+      setSelectedStatus(data.updatedCampaign.status);
       utils.campaign.getAll.invalidate();
-      router.refresh()
+      router.refresh();
     },
-
   });
   const { mutateAsync: deleteCampaign, isLoading: isDeletingCampaign } = trpc.campaign.deleteCampaign.useMutation({
     onSuccess: (data) => {
-      utils.campaign.getAll.invalidate()
-      router.refresh()
+      utils.campaign.getAll.invalidate();
+      router.refresh();
     },
-  })
+  });
 
   function handleCopyCampaign() {
     hotToast.promise(
@@ -63,122 +64,172 @@ export const CampaignActionDropDown = ({ campaign, children, type = "default" }:
         campaignId: campaign.id,
       }),
       {
-        loading: 'Copying...',
+        loading: "Copying...",
         success: "Campaign Copied successfully!",
         error: "Could not make a copy of this campaign.",
-      }
+      },
     );
   }
-  function handleStatusChange(status: CampaignStatus) {
-    hotToast.promise(
-      updateStatus({
-        campaignId: campaign.id,
-        campaignStatus: status,
-      }),
-      {
-        loading: 'Updating status...',
-        success: "Campaign status updated!",
-        error: "Could not updated campaign status.",
-      }
-    );
-
+  function handleStatusChange(status: Selection) {
+    const newStatus = Array.from(status)[0] as CampaignStatus;
+    setStatusOpen(!statusOpen);
+    if (status !== "all") {
+      hotToast.promise(
+        updateStatus({
+          campaignId: campaign.id,
+          campaignStatus: newStatus,
+        }),
+        {
+          loading: "Updating status...",
+          success: "Campaign status updated!",
+          error: "Could not updated campaign status.",
+        },
+      );
+    }
   }
   function handleCampaignDelete() {
-    hotToast.promise(
-      deleteCampaign({ campaignIds: [campaign.id] }),
-      {
-        loading: 'Deleting campaign...',
-        success: "Campaign deleted successfully!",
-        error: "Could not delete campaign.",
-      }
-    );
+    hotToast.promise(deleteCampaign({ campaignIds: [campaign.id] }), {
+      loading: "Deleting campaign...",
+      success: "Campaign deleted successfully!",
+      error: "Could not delete campaign.",
+    });
   }
 
   const iconClasses = "text-xl text-default-500 pointer-events-none flex-shrink-0";
   return (
-
-    <DropdownMenu open={statusOpen} onOpenChange={setStatusOpen}>
-      <DropdownMenuTrigger asChild>
-        {type === "custom" ?
-          isCopyingCampaign || isUpdatingStatus || isDeletingCampaign ?
-            <Button variant="secondary" disabled={isCopyingCampaign || isUpdatingStatus || isDeletingCampaign} className="flex justify-center items-center h-8 w-8 p-0 data-[state=open]:bg-muted border-2 rounded-full justify-self-end"   >
-              <Spinner className="h-4 w-4 text-muted-foreground !mx-auto" />
+    <Popover placement="left-start" style={{ zIndex: 200 }}>
+      <PopoverTrigger>
+        {type === "custom" ? (
+          isCopyingCampaign || isUpdatingStatus || isDeletingCampaign ? (
+            <Button
+              variant="secondary"
+              disabled={isCopyingCampaign || isUpdatingStatus || isDeletingCampaign}
+              className="flex justify-center items-center h-8 w-8 p-0 data-[state=open]:bg-muted border-2 rounded-full justify-self-end"
+            >
+              <Spinner size="sm" />
               <span className="sr-only">Open menu</span>
-            </Button> : children
-          :
-          <Button size="icon" variant="secondary" disabled={isCopyingCampaign || isUpdatingStatus} className={cn("rounded-full border-2 text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:opacity-50 dark:focus:ring-slate-400 disabled:pointer-events-none dark:focus:ring-offset-slate-900 border-input bg-transparent shadow-sm hover:bg-accent hover:text-accent-foreground h-10 p-2")}>
+            </Button>
+          ) : (
+            children
+          )
+        ) : (
+          <Button
+            size="icon"
+            variant="secondary"
+            disabled={isCopyingCampaign || isUpdatingStatus}
+            className={cn(
+              "rounded-full border-2 text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:opacity-50 dark:focus:ring-slate-400 disabled:pointer-events-none dark:focus:ring-offset-slate-900 border-input bg-transparent shadow-sm hover:bg-accent hover:text-accent-foreground h-10 p-2",
+            )}
+          >
             {isCopyingCampaign || isUpdatingStatus ? <Spinner /> : <MoreVertical />}
             <span className="sr-only">Open menu</span>
           </Button>
-        }
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align='end'>
+        )}
+      </PopoverTrigger>
+      <PopoverContent>
         <Listbox variant="faded" aria-label="Campaign action menu">
-          <ListboxSection title="Actions" aria-label='Actions' >
-            <ListboxItem key="new" aria-label='New campaign' description="Create a new campaign" startContent={<Icons.AddNoteIcon className={iconClasses} />} >
-              New campaign
-            </ListboxItem>
-            <ListboxItem key="copy" aria-label='Make a campaign copy' description="Make a duplicate campaign" startContent={<Icons.CopyIcon className={iconClasses} />} onClick={handleCopyCampaign}>
+          <ListboxSection title="Actions" aria-label="Actions">
+            <ListboxItem
+              key="copy"
+              aria-label="Make a campaign copy"
+              description="Make a duplicate campaign"
+              startContent={<Icons.CopyIcon className={iconClasses} />}
+              onClick={handleCopyCampaign}
+            >
               Make a campaign copy
             </ListboxItem>
           </ListboxSection>
         </Listbox>
-        <Separator className='my-1' />
+        <Separator className="my-1" />
         <Listbox variant="faded" aria-label="Campaign quick actions menu">
-          <ListboxSection title="Quick actions" aria-label='Quick actions'>
-          <ListboxItem key="view-leads" startContent={<Icons.ViewLeadsIcon className={iconClasses} />} href={`${pages.campaign}/${campaign.id}/leads`} >
+          <ListboxSection title="Quick actions" aria-label="Quick actions">
+            <ListboxItem key="view-leads" startContent={<Icons.ViewLeadsIcon className={iconClasses} />} href={viewLeadsRoute}>
               View Leads
             </ListboxItem>
-            <ListboxItem key="edit" startContent={<Icons.EditIcon className={iconClasses} />} href={`${pages.campaign}/${campaign.id}/edit`} >
+            <ListboxItem key="edit" startContent={<Icons.EditIcon className={iconClasses} />} href={`${pages.campaign}/${campaign.id}/edit`}>
               Edit campaign
             </ListboxItem>
-            <ListboxItem key="copy-campaign" aria-label='Copy campaign code' startContent={<Icons.CopyIcon className={iconClasses} />}
+            <ListboxItem
+              key="copy-campaign"
+              aria-label="Copy campaign code"
+              startContent={<Icons.CopyIcon className={iconClasses} />}
               onClick={() => {
                 navigator.clipboard.writeText(campaign.code.toString());
-                hotToast.success('Successfully Copied Campaign Code')
+                hotToast.success("Successfully Copied Campaign Code");
               }}
             >
               Copy campaign code
             </ListboxItem>
           </ListboxSection>
         </Listbox>
-        <Separator className='my-1' />
-        {isAdmin ?
+        <Separator className="my-1" />
+        {isAdmin ? (
           <>
-            <DropdownMenuSub>
-              <DropdownMenuSubTrigger className={cn("aria-selected:bg-transparent focus:bg-transparent p-1", "!bg-transparent")}>
-                <Listbox variant='faded' aria-label="campaign status dropdown menu">
-                  <ListboxItem key="status" aria-label='campaign status' startContent={<Icons.PlayCircleIcon className={iconClasses} />} >
+            <Popover isOpen={statusOpen} onOpenChange={() => setStatusOpen(false)} placement="right-start">
+              <PopoverTrigger className="aria-expanded:scale-[1]">
+                <Listbox variant="faded" aria-label="campaign status dropdown menu">
+                  <ListboxItem
+                    key="status"
+                    aria-label="campaign status"
+                    startContent={<Icons.PlayCircleIcon className={iconClasses} />}
+                    endContent={<ChevronRightIcon className={cn(iconClasses, "size-4")} />}
+                    onClick={() => setStatusOpen(!statusOpen)}
+                  >
                     Campaign status
                   </ListboxItem>
                 </Listbox>
-              </DropdownMenuSubTrigger>
-              <DropdownMenuSubContent>
-                <DropdownMenuRadioGroup
-                  value={campaignStatus}
-                  onValueChange={(e) => handleStatusChange(e as CampaignStatus)}
+              </PopoverTrigger>
+              <PopoverContent>
+                <Listbox
+                  aria-label="Single selection example"
+                  variant="flat"
+                  disallowEmptySelection
+                  selectionMode="single"
+                  selectedKeys={[selectedStatus]}
+                  onSelectionChange={(key) => handleStatusChange(key)}
                 >
                   {CAMPAIGN_STATUS.map((status) => (
-                    <DropdownMenuRadioItem
-                      key={status.value}
-                      value={status.value}
-                      className=""
-                    >
-                      {status.icon && (
-                        <status.icon className="mr-2 h-4 w-4 text-muted-foreground" />
-                      )}
-                      {status.label}
-                    </DropdownMenuRadioItem>
+                    <ListboxItem key={status.value} value={status.value} textValue={status.value} className={cn("", selectedStatus === status.value && "bg-default-200")}>
+                      <div className="flex gap-2 justify-start items-center">
+                        {status.icon && <status.icon className="mr-2 h-4 w-4 text-muted-foreground" />}
+                        <span>{status.label}</span>
+                      </div>
+                    </ListboxItem>
                   ))}
-                </DropdownMenuRadioGroup>
-              </DropdownMenuSubContent>
-            </DropdownMenuSub>
-            <Separator className='my-1' />
+                </Listbox>
+              </PopoverContent>
+            </Popover>
+            <Separator className="my-1" />
           </>
-          : null}
-        <DeleteCampaign campaignId={campaign.id} onDelete={handleCampaignDelete} isDeleting={isDeletingCampaign} />
-      </DropdownMenuContent>
-    </DropdownMenu >
+        ) : null}
 
-  )
-}
+        <Listbox variant="faded" aria-label="Campaign Danger zone menu">
+          <ListboxSection title="Danger zone" aria-label="Danger zone">
+            <ListboxItem
+              key="delete"
+              className="text-danger"
+              color="danger"
+              aria-label="Permanently delete campaign"
+              description="Permanently delete campaign"
+              onClick={() => {
+                setModalOpen(
+                  <CustomDeleteAlertDailog
+                    title="Are you absolutely sure?"
+                    description="This action cannot be undone. This will permanently delete your
+                    Campaign and remove your data from our servers."
+                    isDeleting={isDeletingCampaign}
+                    onDelete={handleCampaignDelete}
+                    actionText="Delete Campaign"
+                  />,
+                );
+              }}
+              startContent={isDeletingCampaign ? <Loader2 className="h-4 w-4 animate-spin" /> : <Icons.DeleteIcon className={cn(iconClasses, "text-danger")} />}
+            >
+              Delete campaign
+            </ListboxItem>
+          </ListboxSection>
+        </Listbox>
+      </PopoverContent>
+    </Popover>
+  );
+};

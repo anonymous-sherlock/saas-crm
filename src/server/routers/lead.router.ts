@@ -8,27 +8,6 @@ import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
 export const leadRouter = router({
-  getAll: privateProcedure.query(async ({ ctx }) => {
-    const { userId, isImpersonating, actor } = ctx;
-    const leads = await db.lead.findMany({
-      orderBy: {
-        createdAt: "desc",
-      },
-      where: {
-        userId: isImpersonating ? actor.userId : userId,
-      },
-      include: {
-        campaign: {
-          select: {
-            name: true,
-            code: true,
-            id: true,
-          },
-        },
-      },
-    });
-    return leads;
-  }),
   getCampaignLeads: privateProcedure
     .input(
       z.object({
@@ -134,10 +113,10 @@ export const leadRouter = router({
   add: privateProcedure.input(AddLeadFormSchema).mutation(async ({ ctx, input }) => {
     const { userId, req, actor, isImpersonating } = ctx;
     const { name, phone, address, campaignId } = input;
+    console.log("trpc campaign id", campaignId)
 
     const campaign = await db.campaign.findUnique({
       where: {
-        userId: isImpersonating ? actor.userId : userId,
         id: campaignId,
       },
     });

@@ -1,6 +1,6 @@
 "use client"
 import { cn } from '@/lib/utils'
-import { UserFormSchema, UserFormSchemaType } from '@/schema/user.schema'
+import { UserProfileFormSchema, UserProfileFormSchemaType } from '@/schema/user.schema'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Input, Select, SelectItem } from '@nextui-org/react'
 import { Role, User } from '@prisma/client'
@@ -25,8 +25,8 @@ const EditUserDetailsForm: FC<EditUserDetailsFormProps> = ({ title, data }: Edit
   const [success, setSuccess] = useState<string | undefined>("");
   const router = useRouter()
   const [isPending, startTransition] = React.useTransition()
-  const form = useForm<UserFormSchemaType>({
-    resolver: zodResolver(UserFormSchema),
+  const form = useForm<UserProfileFormSchemaType>({
+    resolver: zodResolver(UserProfileFormSchema),
     defaultValues: {
       name: data?.name || "",
       email: data?.email || "",
@@ -37,7 +37,7 @@ const EditUserDetailsForm: FC<EditUserDetailsFormProps> = ({ title, data }: Edit
     },
   });
 
-  async function onSubmit(values: UserFormSchemaType) {
+  async function onSubmit(values: UserProfileFormSchemaType) {
     console.log(values)
   }
   return (

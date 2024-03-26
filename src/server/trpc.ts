@@ -4,6 +4,7 @@ import superjson from "superjson";
 
 import { getCurrentUser } from "@/lib/auth";
 import { ZodError } from "zod";
+import { allowedAdminRoles } from "@/lib/auth.permission";
 
 export const createTRPCContext = async (opts: FetchCreateContextFnOptions) => {
   const req = opts.req;
@@ -35,11 +36,26 @@ const isAuth = middleware(async (opts) => {
       userId: user.id,
       user,
       actor: user.actor,
-      isImpersonating: user.isImpersonating
+      isImpersonating: user.isImpersonating,
     },
   });
 });
+const isAdminAuth = middleware(async (opts) => {
+  const user = await getCurrentUser();
+  if (!user || !user.id) throw new TRPCError({ code: "UNAUTHORIZED" });
+  const isAdmin = allowedAdminRoles.some((role) => role === user?.role);
+  if (!isAdmin) throw new TRPCError({ code: "UNAUTHORIZED", message: "You Don't have permission to view this route" });
 
+  return opts.next({
+    ctx: {
+      userId: user.id,
+      user,
+      actor: user.actor,
+      isImpersonating: user.isImpersonating,
+    },
+  });
+});
 export const router = t.router;
 export const publicProcedure = t.procedure;
 export const privateProcedure = t.procedure.use(isAuth);
+export const adminProcedure = t.procedure.use(isAuth);

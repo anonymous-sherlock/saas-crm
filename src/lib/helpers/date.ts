@@ -1,4 +1,4 @@
-import { format, isValid, parse } from "date-fns";
+import { endOfDay, format, isValid, parse, startOfDay } from "date-fns";
 import { DateRange } from "react-day-picker";
 
 // Helper function to check if a day string is valid
@@ -17,7 +17,11 @@ export const parseAndValidateDate = (dateString: string | undefined): Date | und
 // Function to get date range from a date string
 export const getDateFromParams = (date: string | undefined): { from: Date | undefined; to: Date | undefined } => {
   const [fromString = "", toString = ""] = date ? date.split(".") : [];
-  return { from: parseAndValidateDate(fromString), to: parseAndValidateDate(toString) };
+  const from = parseAndValidateDate(fromString);
+  const to = parseAndValidateDate(toString);
+  const startDay = from ? startOfDay(from) : undefined;
+  const endDay = to ? endOfDay(to) : startDay ? endOfDay(startDay) : undefined;
+  return { from: startDay, to: endDay };
 };
 
 // Function to format a date range for URL params

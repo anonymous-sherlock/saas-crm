@@ -1,34 +1,47 @@
-'use client'
-import { useModal } from '@/providers/modal-provider'
-import React from 'react'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-} from '@/ui/dialog'
-import { DialogTitle } from '@radix-ui/react-dialog'
+"use client";
+import { cn } from "@/lib/utils";
+import { useModal } from "@/providers/modal-provider";
+import { Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, type ModalProps } from "@nextui-org/react";
+import React from "react";
+import { Separator } from "../ui/separator";
 
-type Props = {
-  title: string
-  subheading: string
-  children: React.ReactNode
-  defaultOpen?: boolean
+interface CustomModalProps extends ModalProps {
+  title: string;
+  subheading?: string;
+  children: React.ReactNode;
+  defaultOpen?: boolean;
 }
 
-const CustomModal = ({ children, defaultOpen, subheading, title }: Props) => {
-  const { isOpen, setClose } = useModal()
+export const CustomModal = ({ children, defaultOpen, subheading, title, size, placement, scrollBehavior, className, ...props }: CustomModalProps) => {
+  const { isOpen, setClose, setOpen } = useModal();
   return (
-    <Dialog open={isOpen || defaultOpen} onOpenChange={setClose} >
-      <DialogContent className="overflow-y-scroll md:max-h-[700px] md:h-fit h-screen bg-card">
-        <DialogHeader className="pt-2 text-left">
-          <DialogTitle className="text-2xl font-bold">{title}</DialogTitle>
-          <DialogDescription>{subheading}</DialogDescription>
-          {children}
-        </DialogHeader>
-      </DialogContent>
-    </Dialog>
-  )
-}
-
-export default CustomModal
+    <Modal
+      {...props}
+      isOpen={isOpen}
+      placement={placement || "auto"}
+      onOpenChange={setOpen}
+      onClose={setClose}
+      size={size}
+      scrollBehavior={scrollBehavior || "inside"}
+      className={cn("", className)}
+      classNames={{
+        wrapper: "[--slide-exit:0px] z-[200]",
+        backdrop: "z-[200] bg-gradient-to-t from-zinc-900 to-zinc-900/10 backdrop-opacity-20",
+      }}
+    >
+      <ModalContent>
+        {(onClose) => (
+          <>
+            <ModalHeader className="flex flex-col gap-1">
+              <h3>{title}</h3>
+              <p className="text-xs text-muted-foreground">{subheading}</p>
+              <Separator className="mt-4" />
+            </ModalHeader>
+            <ModalBody>{children}</ModalBody>
+            <ModalFooter></ModalFooter>
+          </>
+        )}
+      </ModalContent>
+    </Modal>
+  );
+};
