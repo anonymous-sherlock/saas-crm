@@ -1,6 +1,6 @@
 "use client";
 import { cn } from "@/lib/utils";
-import { CampaignFormType } from "@/schema/campaign.schema";
+import { CampaignFormSchemaType } from "@/schema/campaign.schema";
 import { Autocomplete, AutocompleteItem, Avatar, Checkbox } from "@nextui-org/react";
 import { Country, State } from "country-state-city";
 import { ChevronsUpDown } from "lucide-react";
@@ -11,9 +11,9 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "../../ui/form";
 import { Popover, PopoverContent, PopoverTrigger } from "@nextui-org/popover";
 
-const CountryRegion = () => {
+export const CountryRegion = () => {
   const [regionOpen, setRegionOpen] = useState(false);
-  const { control, getValues, watch, setValue, clearErrors, formState, setError, resetField } = useFormContext<CampaignFormType>();
+  const { control, getValues, watch, setValue, clearErrors, formState, setError, resetField } = useFormContext<CampaignFormSchemaType>();
   const [countryCode, setCountryCode] = useState<string | undefined>(Country.getAllCountries().find((country) => country.name === getValues("targetCountry"))?.isoCode);
   const [stateCode, setStateCode] = useState<string | undefined>("");
 
@@ -175,4 +175,3 @@ const CountryRegion = () => {
   );
 };
 
-export default CountryRegion;

@@ -47,14 +47,17 @@ export type Option = {
   icon?: React.ComponentType<{ className?: string }>;
 };
 
-type NestedKey<T> = T extends object ? `${string & keyof T}.${string}` : never;
+type DotPrefix<T extends string> = T extends "" ? "" : `.${T}`
+type DotNestedKeys<T> = (T extends object ?
+  { [K in Exclude<keyof T, symbol>]: `${K}${DotPrefix<DotNestedKeys<T[K]>>}` }[Exclude<keyof T, symbol>]
+  : "") extends infer D ? Extract<D, string> : never;
 
 export interface DataTableSearchableColumn<TData> {
-  id: keyof TData | NestedKey<TData>
+  id: DotNestedKeys<TData>
   title: string;
 }
 export interface DataTableVisibleColumn<TData> {
-  id: keyof TData | NestedKey<TData>
+  id: DotNestedKeys<TData>
   value: boolean;
 }
 export interface DataTableFilterableColumn<TData> extends DataTableSearchableColumn<TData> {
@@ -69,4 +72,3 @@ interface DataTableButtonProps<TData> {
   table: Table<TData>;
 }
 export type DataTableDownloadRowsButtonType<TData> = React.ComponentType<DataTableButtonProps<TData>>;
-export type DataTableDeleteRowsButtonType<TData> = React.ComponentType<DataTableButtonProps<TData>>;

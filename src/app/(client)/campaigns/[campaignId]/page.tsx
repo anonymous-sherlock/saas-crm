@@ -1,6 +1,6 @@
 import { server } from "@/app/_trpc/server";
-import { CampaignStats } from "@/components/template/campaigns/CampaignStats";
-import { getAuthUser, getCurrentUser } from "@/lib/auth";
+import { CampaignStats } from "@/components/template/campaigns/campaign-stats";
+import { getAuthUser } from "@/lib/auth";
 import { authPages } from "@routes";
 import { notFound, redirect } from "next/navigation";
 

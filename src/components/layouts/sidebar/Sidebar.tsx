@@ -13,10 +13,11 @@ import Link from "next/link";
 import { useMediaQuery } from "react-responsive";
 import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
+import { allowedAdminRoles } from "@/lib/auth.permission";
 
 const Sidebar = ({ children }: PropsWithChildren) => {
   const { data: session, status } = useSession();
-
+  const isAdmin = allowedAdminRoles.some((role) => role === session?.user.role);
   const isTabletMid = useMediaQuery({ query: "(max-width: 768px)" });
   const { open, setOpen, setIsTabletMid } = useNavbarStore();
   const pathname = usePathname();
@@ -93,7 +94,7 @@ const Sidebar = ({ children }: PropsWithChildren) => {
                 <div className="border-y border-slate-300 py-5 ">
                   <small className="mb-2 inline-block pl-3 text-slate-500">Analytics</small>
                   {subMenusList?.map((menu, index) => {
-                    if (menu.isAdmin && status !== "unauthenticated" && session?.user.role !== "ADMIN") {
+                    if (menu.isAdmin && status !== "unauthenticated" && !isAdmin) {
                       return null;
                     }
                     return (
@@ -105,9 +106,9 @@ const Sidebar = ({ children }: PropsWithChildren) => {
                 </div>
               )}
               {singleMenu.map((menu, index) => (
-                <li key={index} className={cn("hover:bg-gray-100 text-popover-foreground rounded-lg", pathname.includes(menu.url) && "text-blue-600 bg-slate-100")}>
+                <li key={index} className={cn("hover:bg-gray-100 text-popover-foreground rounded-lg", pathname.startsWith(menu.url) && "text-blue-600 bg-slate-100")}>
                   <Link href={menu.url} className={cn("link cursor-pointer my-1", menu.gap === true && "mt-4")} onClick={() => setOpen(!open)}>
-                    <menu.icon size={23} className={cn("min-w-max", !pathname.includes(menu.url) && "text-slate-500")} />
+                    <menu.icon size={23} className={cn("min-w-max", !pathname.startsWith(menu.url) && "text-slate-500")} />
                     {menu.label}
                   </Link>
                 </li>

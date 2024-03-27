@@ -23,7 +23,10 @@ const SubMenu: React.FC<SubMenuProps> = ({ data }) => {
   const currentRoute = pathname.split("/")[1].toLowerCase();
   return (
     <>
-      <li className={cn("link", currentRoute.match(data.label.toLowerCase()) && "text-blue-600 bg-slate-100", "hover:bg-gray-100 rounded-lg")} onClick={() => setSubMenuOpen(!subMenuOpen)}>
+      <li
+        className={cn("link", currentRoute.match(data.label.toLowerCase()) && "text-blue-600 bg-slate-100", "hover:bg-gray-100 rounded-lg")}
+        onClick={() => setSubMenuOpen(!subMenuOpen)}
+      >
         <data.icon size={23} className={cn("min-w-max", !pathname.match(data.label.toLowerCase()) && "text-slate-500")} />
         <p className="flex-1 capitalize">{data.name}</p>
         <IoIosArrowDown className={` ${subMenuOpen && "rotate-180"} duration-200 `} />
@@ -37,7 +40,7 @@ const SubMenu: React.FC<SubMenuProps> = ({ data }) => {
           return (
             <li key={menu.id} className={cn("hover:text-blue-600 hover:font-medium", isSubNavActive && "text-blue-600 bg-slate-100 rounded-md")}>
               <Link href={menu.url} className="link !bg-transparent capitalize" style={{ gap: "6px" }}>
-                {menu.icon && <menu.icon size={16} className={cn("size-3 min-w-max ", !isSubNavActive && "text-slate-500")} />}
+                {menu.icon && <menu.icon size={16} className={cn("size-3 min-w-max ", !pathname.startsWith(menu.url) && "text-slate-500")} />}
                 {menu.label}
               </Link>
             </li>

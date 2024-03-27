@@ -3,7 +3,7 @@ import { CustomModal } from "@/components/global/custom-modal";
 import { Button } from "@/components/ui/button";
 import { useModal } from "@/providers/modal-provider";
 import { FC } from "react";
-import CampaignForm from "./campaign-form";
+import { CampaignForm } from "./campaign-form";
 
 interface UploadProductButtonProps {
   user: {

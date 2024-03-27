@@ -3,8 +3,8 @@ import { FetchCreateContextFnOptions } from "@trpc/server/adapters/fetch";
 import superjson from "superjson";
 
 import { getCurrentUser } from "@/lib/auth";
-import { ZodError } from "zod";
 import { allowedAdminRoles } from "@/lib/auth.permission";
+import { ZodError } from "zod";
 
 export const createTRPCContext = async (opts: FetchCreateContextFnOptions) => {
   const req = opts.req;
@@ -56,6 +56,7 @@ const isAdminAuth = middleware(async (opts) => {
   });
 });
 export const router = t.router;
+export const createCallerFactory = t.createCallerFactory;
 export const publicProcedure = t.procedure;
 export const privateProcedure = t.procedure.use(isAuth);
 export const adminProcedure = t.procedure.use(isAuth);

@@ -17,11 +17,13 @@ export const notificationRouter = router({
     const actor = ctx.actor;
     const userId = actor ? actor.userId : ctx.userId;
     const unReadNotificationsPromise = db.notification.findMany({
+      orderBy: { createdAt: "desc" },
       where: { userId: userId, isRead: false, archived: false },
       include: { user: true },
     });
 
     const archievedNotificationsPromise = db.notification.findMany({
+      orderBy: { createdAt: "desc" },
       where: { userId: userId, archived: true },
       include: { user: true },
     });

@@ -81,6 +81,33 @@ export const leadRouter = router({
       lead: newLead,
     };
   }),
+  getLeadDetails: privateProcedure.input(z.object({ leadId: z.string() })).query(async ({ ctx, input }) => { 
+    const { leadId } = input
+    try {
+      const lead = await db.lead.findFirst({
+        where: { id: leadId },
+        include: {
+          campaign: {
+            include: {
+              product: {
+                include: {
+                  images: {
+                    include: {
+                      media: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      });
+      return lead
+    } catch (error) {
+      console.error("Error occurred during getLeadDetails:", error);
+      return null;
+    }
+  })
 });
 
 export type LeadRouter = typeof leadRouter;

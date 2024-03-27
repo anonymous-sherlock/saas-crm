@@ -1,5 +1,5 @@
 "use client";
-import { DataTableDeleteRowsButtonType, DataTableDownloadRowsButtonType, DataTableFilterableColumn, DataTableSearchableColumn, DataTableVisibleColumn } from "@/types";
+import { DataTableDownloadRowsButtonType, DataTableFilterableColumn, DataTableSearchableColumn, DataTableVisibleColumn } from "@/types";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/ui/table";
 import {
   ColumnDef,
@@ -20,7 +20,7 @@ import { DataTablePagination } from "./data-table-pagination";
 import { DataTableToolbar } from "./data-table-toolbar";
 
 const DEFAULT_REACT_TABLE_COLUMN_WIDTH = 150;
-interface EmptyMessageProps {
+interface MessageProps {
   title: string;
   description: string;
 }
@@ -32,11 +32,12 @@ interface DataTableProps<TData, TValue> {
   searchableColumns?: DataTableSearchableColumn<TData>[];
   visibleColumn?: DataTableVisibleColumn<TData>[];
   searchPlaceholder?: string;
-  DeleteRowsAction?: DataTableDeleteRowsButtonType<TData>;
+  deleteRowsAction?: () => void;
   DownloadRowAction?: DataTableDownloadRowsButtonType<TData>;
   messages: {
-    emptyDataMessage?: EmptyMessageProps;
-    filteredDataNotFoundMessage?: EmptyMessageProps;
+    emptyDataMessage?: MessageProps;
+    filteredDataNotFoundMessage?: MessageProps;
+    deleteRowMessage?: MessageProps;
   };
 }
 
@@ -46,16 +47,23 @@ export function DataTable<TData, TValue>({
   filterableColumns = [],
   searchableColumns = [],
   searchPlaceholder,
-  messages: { emptyDataMessage = { title: "No results found.", description: "" }, filteredDataNotFoundMessage = { title: "No results found.", description: "Clear some filter" } },
+  messages: {
+    emptyDataMessage = { title: "No results found.", description: "" },
+    filteredDataNotFoundMessage = { title: "No results found.", description: "Clear some filter" },
+    deleteRowMessage = {
+      title: "Are you absolutely sure?",
+      description: "This action cannot be undone. This will permanently delete your this data from our servers.",
+    },
+  },
   visibleColumn,
   DownloadRowAction,
-  DeleteRowsAction,
+  deleteRowsAction,
 }: DataTableProps<TData, TValue>) {
   const [rowSelection, setRowSelection] = React.useState({});
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>(() => {
     const initialVisibility: VisibilityState = {};
     visibleColumn?.forEach((col) => {
-      initialVisibility[col.id as string] = col.value;
+      initialVisibility[col.id] = col.value;
     });
     return initialVisibility;
   });
@@ -126,9 +134,9 @@ export function DataTable<TData, TValue>({
               <TableRow>
                 <TableCell colSpan={columns.length} className="h-24 text-center bg-[#F9F9FA]">
                   {data.length === 0 ? (
-                    <EmptyMessage title={emptyDataMessage.title} description={emptyDataMessage.description} />
+                    <Message title={emptyDataMessage.title} description={emptyDataMessage.description} />
                   ) : (
-                    <EmptyMessage title={filteredDataNotFoundMessage.title} description={filteredDataNotFoundMessage.description} />
+                    <Message title={filteredDataNotFoundMessage.title} description={filteredDataNotFoundMessage.description} />
                   )}
                 </TableCell>
               </TableRow>
@@ -136,12 +144,12 @@ export function DataTable<TData, TValue>({
           </TableBody>
         </Table>
       </div>
-      <DataTablePagination table={table} DeleteRowsAction={DeleteRowsAction} />
+      <DataTablePagination table={table} deleteRowsAction={deleteRowsAction} deleteRowMessage={deleteRowMessage} />
     </div>
   );
 }
 
-const EmptyMessage: React.FC<EmptyMessageProps> = ({ title, description }) => (
+const Message: React.FC<MessageProps> = ({ title, description }) => (
   <div className="flex h-full w-full flex-col items-center justify-center py-40 text-center">
     <h1 className="text-lg font-medium sm:text-xl">{title}</h1>
     <p className="text-xs text-muted-foreground sm:text-sm">{description}</p>

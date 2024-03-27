@@ -1,6 +1,6 @@
 import { PageHeader, PageHeaderDescription, PageHeaderHeading } from "@/components/global/page-header";
 import { DataTableSkeleton } from "@/components/tables/global/data-table-skeleton";
-import AdminAllLeadsTableShell from "@/components/tables/leads_table/admin-all-leads-table-shell";
+import {AdminAllLeadsTableShell} from "@/components/tables/leads_table/admin-all-leads-table-shell";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { getCurrentUser } from "@/lib/auth";
 import { allowedAdminRoles } from "@/lib/auth.permission";
@@ -45,7 +45,7 @@ const AllUsersLeadsPage = async ({ searchParams: { date } }: AllUsersLeadsPagePr
             </CardHeader>
             <CardContent>
               <React.Suspense fallback={<DataTableSkeleton columnCount={6} />}>
-                <AdminAllLeadsTableShell data={leads ?? []} />
+                <AdminAllLeadsTableShell data={leads ?? []} userId={user.id} />
               </React.Suspense>
             </CardContent>
           </Card>

@@ -1,7 +1,7 @@
 "use client";
 import { timeOptions, workingDayOptions } from "@/constants/time";
-import { CampaignFormType } from "@/schema/campaign.schema";
-import { Select, SelectItem, type Selection } from "@nextui-org/react";
+import { CampaignFormSchemaType } from "@/schema/campaign.schema";
+import { Select, SelectItem } from "@nextui-org/react";
 import React, { FC, useRef } from "react";
 import { useFormContext } from "react-hook-form";
 import {
@@ -16,7 +16,7 @@ import {
 interface WorkingHoursProps { }
 
 const WorkingHours: FC<WorkingHoursProps> = ({ }) => {
-  const { control, getValues, watch, setValue, setError, clearErrors } = useFormContext<CampaignFormType>();
+  const { control, getValues, watch, setValue, setError, clearErrors } = useFormContext<CampaignFormSchemaType>();
   const selectedWorkingDaysRef = useRef<Array<string>>(getValues("workingDays"));
 
   const handleDaySelectionChange = (e: React.ChangeEvent<HTMLSelectElement>) => {

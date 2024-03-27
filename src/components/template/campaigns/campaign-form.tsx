@@ -19,7 +19,7 @@ import { useForm } from "react-hook-form";
 import { toast as hotToast } from "react-hot-toast";
 import { z } from "zod";
 import { AgeFields } from "./AgeFields";
-import CountryRegion from "./CountryRegion";
+import { CountryRegion } from "./country-region";
 import { ProductDropdown } from "./product-dropdown";
 import WorkingHours from "./WorkingHours";
 
@@ -37,7 +37,7 @@ interface CampaignFormProps {
   type: "create" | "update";
 }
 
-const CampaignForm = ({ data, type, user }: CampaignFormProps) => {
+export const CampaignForm = ({ data, type, user }: CampaignFormProps) => {
   const { isOpen: isModalOpen, setClose: setCloseModal } = useModal();
   const [error, setError] = useState<string | undefined>("");
   const [success, setSuccess] = useState<string | undefined>("");
@@ -302,4 +302,3 @@ const CampaignForm = ({ data, type, user }: CampaignFormProps) => {
   );
 };
 
-export default CampaignForm;

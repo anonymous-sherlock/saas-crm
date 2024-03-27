@@ -1,6 +1,6 @@
 "use server";
 import { db } from "@/db";
-import { CampaignFormType, campaignFormSchema } from "@/schema/campaign.schema";
+import { CampaignFormSchemaType, campaignFormSchema } from "@/schema/campaign.schema";
 import { CampaignsFilterValues } from "@/schema/filter.schema";
 import { Prisma } from "@prisma/client";
 import { z } from "zod";
@@ -23,7 +23,7 @@ export async function findCampaignByCode({ campaignCode }: findCampaignByCodePro
 }
 
 interface updateCampaignDetailsProps {
-  data: Partial<CampaignFormType>;
+  data: Partial<CampaignFormSchemaType>;
   campaignId?: string;
   userId: string;
   type: "update" | "create";

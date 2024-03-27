@@ -1,31 +1,26 @@
+import { server } from "@/app/_trpc/server";
 import { LeadsEditForm } from "@/components/leads/leads-edit-form";
-import { db } from "@/db";
+import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { getCurrentUser } from "@/lib/auth";
 import { authPages } from "@routes";
 import { notFound, redirect } from "next/navigation";
 
-export default async function LeadEditPage({ params }: { params: { leadId: string } }) {
+interface LeadEditPageProps {
+  params: { leadId: string };
+}
+
+export default async function LeadEditPage({ params: { leadId } }: LeadEditPageProps) {
   const user = await getCurrentUser();
   if (!user) redirect(authPages.login);
-  const lead = await db.lead.findFirst({
-    where: { id: params.leadId },
-    include: {
-      campaign: {
-        include: {
-          product: {
-            include: {
-              images: {
-                include: {
-                  media: true,
-                },
-              },
-            },
-          },
-        },
-      },
-    },
-  });
-  if (!lead) notFound();
+  const leadDetails = await server.lead.getLeadDetails({ leadId });
+  if (!leadDetails) notFound();
 
-  return <LeadsEditForm data={lead} title="Edit Lead" />;
+  return (
+    <Card className="bg-white p-6">
+      <CardTitle>Update Leads Details</CardTitle>
+      <CardContent className="mt-8 w-full p-0">
+        <LeadsEditForm data={leadDetails} />
+      </CardContent>
+    </Card>
+  );
 }

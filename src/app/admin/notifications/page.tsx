@@ -1,15 +1,30 @@
-import AddNotificationForm from '@/components/forms/add-notification-form'
-import { db } from '@/db'
+import {AddNotificationForm} from "@/components/forms/add-notification-form";
+import { PageHeader, PageHeaderDescription, PageHeaderHeading } from "@/components/global/page-header";
+import { db } from "@/db";
 
-interface NotificationPageProps { }
+interface NotificationPageProps {}
 
-const NotificationPage = async ({ }: NotificationPageProps) => {
-    const users = await db.user.findMany()
-    return (
-        <div className='h-[calc(85dvh_-_var(--navbar-height)_-_1px)] flex justify-center items-center'>
-            <AddNotificationForm users={users} />
+const NotificationPage = async ({}: NotificationPageProps) => {
+  const users = await db.user.findMany();
+  return (
+    <>
+      <PageHeader separated>
+        <div className="flex flex-col md:flex-row justify-between md:items-center">
+          <div>
+            <div className="flex space-x-4">
+              <PageHeaderHeading size="sm" className="flex-1">
+                Notification
+              </PageHeaderHeading>
+            </div>
+            <PageHeaderDescription size="sm">Assign Notification to Users</PageHeaderDescription>
+          </div>
         </div>
-    )
-}
+      </PageHeader>
+      <div className="p-0 md:!pt-4">
+        <AddNotificationForm users={users} />
+      </div>
+    </>
+  );
+};
 
-export default NotificationPage
+export default NotificationPage;

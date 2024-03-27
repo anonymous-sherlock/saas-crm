@@ -1,4 +1,4 @@
-import CampaignForm from "@/components/template/campaigns/campaign-form";
+import { CampaignForm } from "@/components/template/campaigns/campaign-form";
 import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { getAuthUser } from "@/lib/auth";
 import { authPages } from "@routes";

@@ -23,9 +23,16 @@ const UserListTableShell: FC<UserListTableShellProps> = ({ data }) => {
       {
         id: "select",
         header: ({ table }) => (
-          <Checkbox checked={table.getIsAllPageRowsSelected()} onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)} aria-label="Select all" className="translate-y-[2px]" />
+          <Checkbox
+            checked={table.getIsAllPageRowsSelected()}
+            onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+            aria-label="Select all"
+            className="translate-y-[2px]"
+          />
         ),
-        cell: ({ row }) => <Checkbox checked={row.getIsSelected()} onCheckedChange={(value) => row.toggleSelected(!!value)} aria-label="Select row" className="translate-y-[2px]" />,
+        cell: ({ row }) => (
+          <Checkbox checked={row.getIsSelected()} onCheckedChange={(value) => row.toggleSelected(!!value)} aria-label="Select row" className="translate-y-[2px]" />
+        ),
         enableSorting: false,
         enableHiding: false,
       },
@@ -79,6 +86,7 @@ const UserListTableShell: FC<UserListTableShellProps> = ({ data }) => {
         enableSorting: false,
       },
       {
+        id: "Account Active",
         accessorKey: "active",
         header: ({ column }) => <DataTableColumnHeader column={column} title="Account Active" />,
         cell: ({ row }) => (
@@ -96,8 +104,9 @@ const UserListTableShell: FC<UserListTableShellProps> = ({ data }) => {
         enableSorting: false,
       },
       {
+        id: "Joined On",
         accessorKey: "createdAt",
-        header: ({ column }) => <DataTableColumnHeader column={column} title="joined on" />,
+        header: ({ column }) => <DataTableColumnHeader column={column} title="Joined on" />,
         cell: ({ row }) => <div className="truncate">{format(row.original.createdAt, "dd, MMM - hh:mm a")}</div>,
         enableSorting: true,
       },

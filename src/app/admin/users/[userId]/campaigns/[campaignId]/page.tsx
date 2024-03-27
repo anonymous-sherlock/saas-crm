@@ -1,5 +1,5 @@
 import { server } from "@/app/_trpc/server";
-import { CampaignStats } from "@/components/template/campaigns/CampaignStats";
+import { CampaignStats } from "@/components/template/campaigns/campaign-stats";
 import { notFound } from "next/navigation";
 
 interface UserCampaginStatsPageProps {

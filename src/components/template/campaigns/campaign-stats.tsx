@@ -1,22 +1,19 @@
 "use client";
 import { trpc } from "@/app/_trpc/client";
+import { CustomBadge } from "@/components/CustomBadge";
 import { Icons } from "@/components/Icons";
-import TooltipComponent from "@/components/global/tooltip-component";
+import { CampaignAnalyticsChart } from "@/components/charts/CampaignAnalyticsChart";
 import { AddLeadsForm } from "@/components/leads/add-lead-form";
 import { CAMPAIGN_STATUS, PRODUCT_CATEGORIES } from "@/constants/index";
 import { allowedAdminRoles } from "@/lib/auth.permission";
 import { cn } from "@/lib/utils";
 import { RouterOutputs } from "@/server";
-import { buttonVariants } from "@/ui/button";
 import { Card, CardContent } from "@/ui/card";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/ui/hover-card";
-import { ChevronLeft, HelpCircle, Info } from "lucide-react";
-import { useSession } from "next-auth/react";
-import Link from "next/link";
-import { CustomBadge } from "../../CustomBadge";
-import { CampaignAnalyticsChart } from "../../charts/CampaignAnalyticsChart";
-import { CampaignActionDropDown } from "./campaign-action-dropdown";
 import { Tooltip } from "@nextui-org/react";
+import { HelpCircle, Info } from "lucide-react";
+import { useSession } from "next-auth/react";
+import { CampaignActionDropDown } from "./campaign-action-dropdown";
 
 interface CampaignStatsProps {
   campaign: RouterOutputs["campaign"]["get"];
@@ -39,11 +36,7 @@ export const CampaignStats = ({ campaign: InitialCampaignData }: CampaignStatsPr
 
   return (
     <main className="mx-auto max-w-7xl md:p-2">
-      <Link href="/campaigns" className={cn(buttonVariants({ variant: "secondary" }), "rounded-full")}>
-        <ChevronLeft className="h-4 w-4" /> Back
-      </Link>
-
-      <div className="mt-8 flex flex-col items-start justify-between gap-4 border-b border-gray-200 pb-2 sm:flex-row sm:items-center sm:gap-0">
+      <div className="flex flex-col items-start justify-between gap-4 border-b border-gray-200 pb-2 sm:flex-row sm:items-center sm:gap-0">
         <div className="">
           <h1 className="mb-3 font-bold text-3xl text-gray-900">
             Insights for <span className="text-green-600">{campaign.name}</span>

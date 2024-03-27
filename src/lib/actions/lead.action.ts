@@ -5,6 +5,7 @@ import { getAuthUser, getCurrentUser } from "../auth";
 import { z } from "zod";
 import { getUserByUserId } from "../data/user.data";
 import { allowedAdminRoles } from "../auth.permission";
+import { revalidatePath } from "next/cache";
 
 interface upsertLeadDetailsProps {
   data: Partial<LeadSchemaType>;
@@ -22,6 +23,7 @@ export async function upsertLeadDetails({ data, leadId }: upsertLeadDetailsProps
       where: { id: leadId },
       data: parsedData.data,
     });
+    revalidatePath("/");
     return { success: `${updatedLeadDetails.name}'s customer details have been successfully updated.` };
   } catch (error) {
     return { error: "Uh oh! Something went wrong." };
@@ -48,5 +50,6 @@ export async function deleteLeads(rawInput: z.infer<typeof leadDeleteSchema>) {
   const leads = await db.lead.findMany({ where: { userId: user.id, id: { in: rawInput.leadIds } } });
   if (!leads) return { error: "Leads not found" };
   const deletedLeads = await db.lead.deleteMany({ where: { userId: user.id, id: { in: rawInput.leadIds } } });
+  revalidatePath(`/`)
   return { success: `Successfully deleted ${deletedLeads.count} lead${deletedLeads.count > 1 ? "s" : ""}` };
 }

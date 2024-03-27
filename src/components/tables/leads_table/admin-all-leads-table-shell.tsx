@@ -1,25 +1,30 @@
 "use client";
 import { CustomBadge } from "@/components/CustomBadge";
+import { Icons } from "@/components/Icons";
 import { LEADS_STATUS } from "@/constants/index";
-import { cn } from "@/lib/utils";
+import { catchError, cn } from "@/lib/utils";
 import { Option } from "@/types";
 import { Checkbox } from "@/ui/checkbox";
-import { Tooltip, User } from "@nextui-org/react";
+import { Avatar, Tooltip, User } from "@nextui-org/react";
 import { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
 import React, { FC } from "react";
+import { toast } from "sonner";
 import { DataTable } from "../global/data-table";
 import { DataTableColumnHeader } from "../global/data-table-column-header";
 import { DataTableRowActions } from "./data-table-row-actions";
-import { DeleteLead } from "./delete-lead";
 import { DownloadLeadsBtn } from "./download-leads-button";
 import { AdminLeadColumnDef } from "./schema";
+import { deleteLeads } from "@/lib/actions/lead.action";
 
 interface AdminAllLeadsTableShellProps {
   data: AdminLeadColumnDef[];
+  userId: string;
 }
 
-const AdminAllLeadsTableShell: FC<AdminAllLeadsTableShellProps> = ({ data }) => {
+export const AdminAllLeadsTableShell: FC<AdminAllLeadsTableShellProps> = ({ data, userId }) => {
+  const [isPending, startTransition] = React.useTransition();
+  const [selectedRowIds, setSelectedRowIds] = React.useState<string[]>([]);
   const LeadsColumnDef = React.useMemo<ColumnDef<AdminLeadColumnDef>[]>(
     () => [
       {
@@ -27,13 +32,24 @@ const AdminAllLeadsTableShell: FC<AdminAllLeadsTableShellProps> = ({ data }) => 
         header: ({ table }) => (
           <Checkbox
             checked={table.getIsAllPageRowsSelected()}
-            onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+            onCheckedChange={(value) => {
+              table.toggleAllPageRowsSelected(!!value);
+              setSelectedRowIds((prev) => (prev.length === data.length ? [] : data.map((row) => row.id)));
+            }}
             aria-label="Select all"
             className="translate-y-[2px]"
           />
         ),
         cell: ({ row }) => (
-          <Checkbox checked={row.getIsSelected()} onCheckedChange={(value) => row.toggleSelected(!!value)} aria-label="Select row" className="translate-y-[2px]" />
+          <Checkbox
+            checked={row.getIsSelected()}
+            onCheckedChange={(value) => {
+              row.toggleSelected(!!value);
+              setSelectedRowIds((prev) => (value ? [...prev, row.original.id] : prev.filter((id) => id !== row.original.id)));
+            }}
+            aria-label="Select row"
+            className="translate-y-[2px]"
+          />
         ),
         enableSorting: false,
         enableHiding: false,
@@ -46,12 +62,23 @@ const AdminAllLeadsTableShell: FC<AdminAllLeadsTableShellProps> = ({ data }) => 
         enableHiding: false,
       },
       {
+        id: "user.email",
+        accessorFn: (row) => row.user?.email,
+        enableSorting: false,
+        enableHiding: false,
+        filterFn: (row, id, value) => {
+          return !!row.original.user?.email && row.original.user.email.includes(value);
+        },
+      },
+      {
         id: "code",
         accessorFn: (row) => row.campaign.code,
         header: ({ column }) => <DataTableColumnHeader column={column} title="Campaign" />,
         cell: ({ row }) => (
-          <div className="w-[75px] truncate">
+          <div className="w-[75px] truncate cursor-default">
             <Tooltip
+              showArrow
+              shadow="md"
               content={
                 <div className="px-4 py-4">
                   <div className="text-small font-semibold">
@@ -78,22 +105,33 @@ const AdminAllLeadsTableShell: FC<AdminAllLeadsTableShellProps> = ({ data }) => 
         },
       },
       {
-        id: "user-email",
+        id: "User",
         accessorFn: (row) => row.user?.email,
         header: ({ column }) => <DataTableColumnHeader column={column} title="User" />,
         cell: ({ row }) => (
           <div>
-            <User
-              as="button"
-              name={row.original.user?.name}
-              description={row.original.user?.email}
-              avatarProps={{
-                size: "sm",
-                isBordered: true,
-                src: row.original.user?.image ?? "",
-                className: "shrink-0",
-              }}
-            />
+            <Tooltip
+              delay={500}
+              showArrow
+              shadow="md"
+              content={
+                <div className="px-2 py-3">
+                  <User
+                    as="button"
+                    name={row.original.user?.name}
+                    description={row.original.user?.email}
+                    avatarProps={{
+                      size: "sm",
+                      isBordered: true,
+                      src: row.original.user?.image ?? "",
+                      className: "shrink-0",
+                    }}
+                  />
+                </div>
+              }
+            >
+              <Avatar isBordered radius="lg" size="sm" src={row.original.user?.image ?? ""} className="shrink-0" fallback={<Icons.user className="h-4 w-4 text-zinc-900" />} />
+            </Tooltip>
           </div>
         ),
         enableSorting: false,
@@ -159,7 +197,6 @@ const AdminAllLeadsTableShell: FC<AdminAllLeadsTableShellProps> = ({ data }) => 
       {
         accessorKey: "region",
         header: ({ column }) => <DataTableColumnHeader column={column} title="Region" />,
-
         cell: ({ row }) => {
           const cell = row.original;
           return (
@@ -224,8 +261,22 @@ const AdminAllLeadsTableShell: FC<AdminAllLeadsTableShellProps> = ({ data }) => 
         size: 50,
       },
     ],
-    [],
+    [data],
   );
+
+  function deleteSelectedRows() {
+    toast.promise(deleteLeads({ leadIds: selectedRowIds, userId: userId }), {
+      loading: "Deleting...",
+      success: () => {
+        setSelectedRowIds([]);
+        return "Leads deleted successfully.";
+      },
+      error: (err: unknown) => {
+        setSelectedRowIds([]);
+        return catchError(err);
+      },
+    });
+  }
 
   const country = React.useMemo(() => {
     const countries = data.map((lead) => lead?.country).filter((country) => country !== null);
@@ -240,6 +291,24 @@ const AdminAllLeadsTableShell: FC<AdminAllLeadsTableShellProps> = ({ data }) => 
       return {
         label: name,
         value: name,
+      };
+    });
+
+    return options;
+  }, [data]);
+  const userEmail = React.useMemo(() => {
+    const emails = data.map((lead) => lead?.user?.email).filter((email) => email !== null);
+    const emailInTable = new Set(emails);
+    const options: Option[] = Array.from(emailInTable).map((mail) => {
+      if (!mail) {
+        return {
+          label: "No User",
+          value: "",
+        };
+      }
+      return {
+        label: mail,
+        value: mail,
       };
     });
 
@@ -261,21 +330,32 @@ const AdminAllLeadsTableShell: FC<AdminAllLeadsTableShellProps> = ({ data }) => 
           title: "Country",
           options: country,
         },
+        {
+          id: "user.email",
+          title: "User",
+          options: userEmail,
+        },
       ]}
       searchPlaceholder="Search Leads..."
       visibleColumn={[
         { id: "id", value: false },
+        { id: "user.email", value: false },
         { id: "ip", value: false },
         { id: "region", value: false },
+        { id: "campaign.name", value: false },
+        { id: "country", value: false },
       ]}
       messages={{
         filteredDataNotFoundMessage: { title: "No Leads Found!", description: "" },
         emptyDataMessage: { title: "No Leads Found!", description: "" },
+        deleteRowMessage: {
+          title: "Are you absolutely sure?",
+          description: "This action cannot be undone. This will permanently delete your Leads and remove your data from our servers.",
+        },
       }}
       DownloadRowAction={DownloadLeadsBtn}
-      DeleteRowsAction={DeleteLead}
+      deleteRowsAction={deleteSelectedRows}
     />
   );
 };
 
-export default AdminAllLeadsTableShell;

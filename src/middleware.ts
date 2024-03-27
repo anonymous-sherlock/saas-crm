@@ -2,6 +2,7 @@ import { withAuth } from "next-auth/middleware";
 import { NextResponse } from "next/server";
 import { env } from "./env.mjs";
 import { DEFAULT_DASHBOARD_REDIRECT, ONBOARDING_REDIRECT, apiAuthPrefix, apiPrefix, authRoutes, publicRoutes } from "@routes";
+import { allowedAdminRoles } from "./lib/auth.permission";
 
 export default withAuth(
   function middleware(req) {
@@ -13,6 +14,7 @@ export default withAuth(
     const isPublicRoute = publicRoutes.includes(nextUrl.pathname);
     const isApiRoute = nextUrl.pathname.startsWith(apiPrefix);
     const isAuthRoute = authRoutes.includes(nextUrl.pathname);
+    const isAdmin = allowedAdminRoles.some((role) => role === token?.role)
 
     if (["/sign-in", "/sign-up"].includes(pathname)) {
       if (isAuth) {
@@ -31,7 +33,7 @@ export default withAuth(
 
     if (pathname.startsWith("/admin")) {
       if (isAuth) {
-        if (token.role !== "ADMIN") return NextResponse.redirect(new URL(DEFAULT_DASHBOARD_REDIRECT, req.url));
+        if (!isAdmin) return NextResponse.redirect(new URL(DEFAULT_DASHBOARD_REDIRECT, req.url));
       }
     }
   },

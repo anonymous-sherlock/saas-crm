@@ -1,39 +1,57 @@
 "use client";
 import { CustomBadge } from "@/components/CustomBadge";
 import { LEADS_STATUS } from "@/constants/index";
-import { cn } from "@/lib/utils";
+import { cn, catchError } from "@/lib/utils";
 import { Option } from "@/types";
 import { Checkbox } from "@/ui/checkbox";
 import { Tooltip } from "@nextui-org/react";
 import { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
 import React, { FC } from "react";
+import { toast } from "sonner";
 import { DataTable } from "../global/data-table";
 import { DataTableColumnHeader } from "../global/data-table-column-header";
 import { DataTableRowActions } from "./data-table-row-actions";
-import { DeleteLead } from "./delete-lead";
 import { DownloadLeadsBtn } from "./download-leads-button";
 import { LeadColumnDef } from "./schema";
+import { deleteLeads } from "@/lib/actions/lead.action";
+import { allowedAdminRoles } from "@/lib/auth.permission";
+import { useSession } from "next-auth/react";
 
 interface LeadsTableShellProps {
   data: LeadColumnDef[];
+  userId: string;
 }
 
-const LeadsTableShell: FC<LeadsTableShellProps> = ({ data }) => {
-  const LeadsColumnDef = React.useMemo<ColumnDef<LeadColumnDef>[]>(
+const LeadsTableShell: FC<LeadsTableShellProps> = ({ data, userId }) => {
+  const { data: session, status } = useSession();
+  const isAdmin = allowedAdminRoles.some((role) => role === session?.user.role);
+  const [selectedRowIds, setSelectedRowIds] = React.useState<string[]>([]);
+  const LeadsColumnDef = React.useMemo<ColumnDef<LeadColumnDef, unknown>[]>(
     () => [
       {
         id: "select",
         header: ({ table }) => (
           <Checkbox
             checked={table.getIsAllPageRowsSelected()}
-            onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+            onCheckedChange={(value) => {
+              table.toggleAllPageRowsSelected(!!value);
+              setSelectedRowIds((prev) => (prev.length === data.length ? [] : data.map((row) => row.id)));
+            }}
             aria-label="Select all"
             className="translate-y-[2px]"
           />
         ),
         cell: ({ row }) => (
-          <Checkbox checked={row.getIsSelected()} onCheckedChange={(value) => row.toggleSelected(!!value)} aria-label="Select row" className="translate-y-[2px]" />
+          <Checkbox
+            checked={row.getIsSelected()}
+            onCheckedChange={(value) => {
+              row.toggleSelected(!!value);
+              setSelectedRowIds((prev) => (value ? [...prev, row.original.id] : prev.filter((id) => id !== row.original.id)));
+            }}
+            aria-label="Select row"
+            className="translate-y-[2px]"
+          />
         ),
         enableSorting: false,
         enableHiding: false,
@@ -163,7 +181,7 @@ const LeadsTableShell: FC<LeadsTableShellProps> = ({ data }) => {
         enableSorting: false,
       },
       {
-        id: "IP Address",
+        id: "ip",
         accessorKey: "ip",
         header: ({ column }) => <DataTableColumnHeader column={column} title="IP" />,
         cell: ({ row }) => {
@@ -215,16 +233,22 @@ const LeadsTableShell: FC<LeadsTableShellProps> = ({ data }) => {
         size: 50,
       },
     ],
-    [],
+    [data],
   );
-  const campaign = React.useMemo(() => {
-    const campaignInTable = new Set(data.map((lead) => lead?.campaign.name));
-    const options: Option[] = Array.from(campaignInTable).map((name) => ({
-      label: name,
-      value: name,
-    }));
-    return options;
-  }, [data]);
+
+  function deleteSelectedRows() {
+    toast.promise(deleteLeads({ leadIds: selectedRowIds, userId: userId }), {
+      loading: "Deleting...",
+      success: () => {
+        setSelectedRowIds([]);
+        return "Leads deleted successfully.";
+      },
+      error: (err: unknown) => {
+        setSelectedRowIds([]);
+        return catchError(err);
+      },
+    });
+  }
 
   const country = React.useMemo(() => {
     const countries = data.map((lead) => lead?.country).filter((country) => country !== null);
@@ -245,7 +269,6 @@ const LeadsTableShell: FC<LeadsTableShellProps> = ({ data }) => {
     return options;
   }, [data]);
 
-  console.log(data)
   return (
     <DataTable
       data={data ?? []}
@@ -264,17 +287,22 @@ const LeadsTableShell: FC<LeadsTableShellProps> = ({ data }) => {
       ]}
       searchPlaceholder="Search Leads..."
       visibleColumn={[
-        {id:"campaign.code",value:false},
-        {id:"id",value:false},
-        {id:"ip",value:false},
-        {id:"region",value:false}
+        { id: "campaign.code", value: false },
+        { id: "id", value: false },
+        { id: "ip", value: false },
+        { id: "region", value: false },
+        { id: "country", value: false },
       ]}
       messages={{
         filteredDataNotFoundMessage: { title: "No Leads Found!", description: "" },
         emptyDataMessage: { title: "No Leads Found!", description: "" },
+        deleteRowMessage: {
+          title: "Are you absolutely sure?",
+          description: "This action cannot be undone. This will permanently delete your Leads and remove your data from our servers.",
+        },
       }}
       DownloadRowAction={DownloadLeadsBtn}
-      DeleteRowsAction={DeleteLead}
+      deleteRowsAction={isAdmin ? deleteSelectedRows : undefined}
     />
   );
 };

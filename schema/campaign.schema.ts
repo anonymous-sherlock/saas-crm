@@ -79,4 +79,4 @@ export const campaignFormSchema = z.object({
 });
 
 export type CampaignFormPayload = z.infer<typeof campaignFormSchema>;
-export type CampaignFormType = z.infer<typeof campaignFormSchema>;
+export type CampaignFormSchemaType = z.infer<typeof campaignFormSchema>;

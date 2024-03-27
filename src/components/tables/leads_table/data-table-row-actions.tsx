@@ -21,6 +21,8 @@ import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { toast as hotToast } from "react-hot-toast";
 import { LeadSchema } from "./schema";
+import { CustomModal } from "@/components/global/custom-modal";
+import { UpdateLeadForm } from "@/components/leads/update-leads-form";
 
 interface DataTableRowActionsProps<TData> {
   row: Row<TData>;
@@ -92,7 +94,17 @@ export function DataTableRowActions<TData>({ row }: DataTableRowActionsProps<TDa
           <PopoverContent>
             <Listbox variant="faded" aria-label="lead quick actions menu">
               <ListboxSection title="Quick actions" aria-label="Quick actions">
-                <ListboxItem key="edit" startContent={<Icons.EditIcon className={iconClasses} />} href={`${pages.leads}/${lead.id}/edit`}>
+                <ListboxItem
+                  key="edit"
+                  startContent={<Icons.EditIcon className={iconClasses} />}
+                  onClick={() => {
+                    setModalOpen(
+                      <CustomModal size="5xl" title="Update Lead Details ">
+                        <UpdateLeadForm leadId={lead.id} />
+                      </CustomModal>,
+                    );
+                  }}
+                >
                   Edit Lead
                 </ListboxItem>
                 <ListboxItem
@@ -108,9 +120,9 @@ export function DataTableRowActions<TData>({ row }: DataTableRowActionsProps<TDa
                 </ListboxItem>
               </ListboxSection>
             </Listbox>
-            <Separator className="my-1" />
             {isAdmin ? (
               <>
+                <Separator className="my-1" />
                 <Popover isOpen={statusOpen} onOpenChange={() => setStatusOpen(false)} placement="left-start">
                   <PopoverTrigger className="aria-expanded:scale-[1]">
                     <Listbox variant="faded" aria-label="lead status dropdown menu">
@@ -145,38 +157,34 @@ export function DataTableRowActions<TData>({ row }: DataTableRowActionsProps<TDa
                     </Listbox>
                   </PopoverContent>
                 </Popover>
-
                 <Separator className="my-1" />
-              </>
-            ) : null}
-
-            {isAdmin ? (
-              <Listbox variant="faded" aria-label="Leads Danger zone menu">
-                <ListboxSection title="Danger zone" aria-label="Danger zone">
-                  <ListboxItem
-                    key="delete"
-                    className="text-danger"
-                    color="danger"
-                    aria-label="Permanently delete Lead"
-                    description="Permanently delete Lead"
-                    onClick={() => {
-                      setModalOpen(
-                        <CustomDeleteAlertDailog
-                          title="Are you absolutely sure?"
-                          description="This action cannot be undone. This will permanently delete this
+                <Listbox variant="faded" aria-label="Leads Danger zone menu">
+                  <ListboxSection title="Danger zone" aria-label="Danger zone">
+                    <ListboxItem
+                      key="delete"
+                      className="text-danger"
+                      color="danger"
+                      aria-label="Permanently delete Lead"
+                      description="Permanently delete Lead"
+                      onClick={() => {
+                        setModalOpen(
+                          <CustomDeleteAlertDailog
+                            title="Are you absolutely sure?"
+                            description="This action cannot be undone. This will permanently delete this
                         lead from our servers."
-                          isDeleting={isDeletingLead}
-                          onDelete={handleDeleteLead}
-                          actionText="Delete User"
-                        />,
-                      );
-                    }}
-                    startContent={isDeletingLead ? <Loader2 className="h-4 w-4 animate-spin" /> : <Icons.DeleteIcon className={cn(iconClasses, "text-danger")} />}
-                  >
-                    Delete
-                  </ListboxItem>
-                </ListboxSection>
-              </Listbox>
+                            isDeleting={isDeletingLead}
+                            onDelete={handleDeleteLead}
+                            actionText="Delete User"
+                          />,
+                        );
+                      }}
+                      startContent={isDeletingLead ? <Loader2 className="h-4 w-4 animate-spin" /> : <Icons.DeleteIcon className={cn(iconClasses, "text-danger")} />}
+                    >
+                      Delete
+                    </ListboxItem>
+                  </ListboxSection>
+                </Listbox>
+              </>
             ) : null}
           </PopoverContent>
         </Popover>

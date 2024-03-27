@@ -1,5 +1,4 @@
 import { db } from "@/db";
-
 type LeadApiArgs = {};
 type LeadsGetAllArgs = {
   userId: string;
@@ -43,7 +42,6 @@ export class LeadApi {
       return [];
     }
   }
-
   async getAllUsersLeads({ date }: GetAllUsersLeadsArgs) {
     try {
       const leads = await db.lead.findMany({
