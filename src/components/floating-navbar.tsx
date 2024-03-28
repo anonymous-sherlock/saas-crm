@@ -1,6 +1,6 @@
 "use client";
-import { Avatar, Dropdown, DropdownItem, DropdownMenu, DropdownSection, DropdownTrigger } from "@nextui-org/react";
-import { User } from "@prisma/client";
+import { Avatar, Dropdown, DropdownItem, DropdownMenu, DropdownSection, DropdownTrigger, User } from "@nextui-org/react";
+import { User as UserType } from "@prisma/client";
 import { motion, useDragControls } from "framer-motion";
 import Link from "next/link";
 import { CSSProperties, useRef } from "react";
@@ -13,7 +13,7 @@ interface FloatingNavProps {
     icon?: IconKey;
     divider?: boolean;
   }[];
-  user: User | null;
+  user: UserType | null;
   className?: string;
 }
 
@@ -36,12 +36,6 @@ export const FloatingNav = ({ navItems, className, user }: FloatingNavProps) => 
         whileHover={{ scale: 1.1 }}
         dragControls={controls}
         dragMomentum={true}
-        // dragConstraints={{
-        //   top: 0,
-        //   left: -300,
-        //   right: Math.max(0, window.innerWidth - 40 - 510),
-        //   bottom: Math.max(0, window.innerHeight - 40 - 100),
-        // }}
         dragConstraints={constraintsRef}
         drag
         dragElastic={0.1}
@@ -65,11 +59,18 @@ export const FloatingNav = ({ navItems, className, user }: FloatingNavProps) => 
                 textValue="Profile menu"
               >
                 <div className="flex justify-start items-center gap-2 w-full ">
-                  <Avatar isBordered size="sm" className="shrink-0" src={user?.image ? user.image : "https://i.pravatar.cc/150?u=a042581f4e29026704d"} />
-                  <div className="flex-1 flex flex-col">
-                    <span className="font-semibold leading-[1.2]">{user?.name}</span>
-                    <span className="font-semibold leading-[1.2]">{user?.email}</span>
-                  </div>
+                  <User
+                    as="button"
+                    name={user?.name}
+                    description={user?.email}
+                    avatarProps={{
+                      size: "sm",
+                      isBordered: true,
+                      src: user?.image ?? "",
+                      className: "shrink-0",
+                      fallback: <Icons.user className="h-4 w-4 text-zinc-900" />,
+                    }}
+                  />
                 </div>
               </DropdownItem>
             </DropdownSection>

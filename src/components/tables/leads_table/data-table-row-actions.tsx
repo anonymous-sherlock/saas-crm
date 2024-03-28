@@ -1,10 +1,10 @@
 "use client";
 
-import { DotsHorizontalIcon } from "@radix-ui/react-icons";
-import { Row } from "@tanstack/react-table";
 import { trpc } from "@/app/_trpc/client";
 import { Icons } from "@/components/Icons";
 import { CustomDeleteAlertDailog } from "@/components/global/custom-delete-alert-dailog";
+import { CustomModal } from "@/components/global/custom-modal";
+import { UpdateLeadForm } from "@/components/leads/update-leads-form";
 import { Separator } from "@/components/ui/separator";
 import { LEADS_STATUS } from "@/constants/index";
 import { deleteLeads } from "@/lib/actions/lead.action";
@@ -14,15 +14,14 @@ import { useModal } from "@/providers/modal-provider";
 import { Button } from "@/ui/button";
 import { Listbox, ListboxItem, ListboxSection, Popover, PopoverContent, PopoverTrigger, Spinner, type Selection } from "@nextui-org/react";
 import { LeadStatus } from "@prisma/client";
-import { pages } from "@routes";
+import { DotsHorizontalIcon } from "@radix-ui/react-icons";
+import { Row } from "@tanstack/react-table";
 import { ChevronRightIcon, Loader2 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { toast as hotToast } from "react-hot-toast";
-import { LeadSchema } from "./schema";
-import { CustomModal } from "@/components/global/custom-modal";
-import { UpdateLeadForm } from "@/components/leads/update-leads-form";
+import { DataLeadSchema } from "./schema";
 
 interface DataTableRowActionsProps<TData> {
   row: Row<TData>;
@@ -34,7 +33,7 @@ export function DataTableRowActions<TData>({ row }: DataTableRowActionsProps<TDa
   const [statusOpen, setStatusOpen] = useState<boolean>(false);
   const { data: session, status } = useSession();
   const isAdmin = allowedAdminRoles.some((role) => role === session?.user.role);
-  const lead = LeadSchema.parse(row.original);
+  const lead = DataLeadSchema.parse(row.original);
   const [leadStatus, setLeadStatus] = useState<LeadStatus>(lead.status);
   const [isDeletingLead, startDeleteTransition] = useTransition();
 

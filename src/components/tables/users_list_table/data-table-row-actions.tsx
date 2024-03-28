@@ -34,7 +34,7 @@ export function DataTableRowActions<TData>({ row }: DataTableRowActionsProps<TDa
   const user = parsedUser.data;
 
   const handleUserUpdate = () => {
-    if (status === "authenticated" && session.user.role === "ADMIN") {
+    if (status === "authenticated" && isAdmin) {
       const updatedSession: Session = {
         ...session,
         user: {
@@ -61,6 +61,8 @@ export function DataTableRowActions<TData>({ row }: DataTableRowActionsProps<TDa
           error: "Could not impersonate this user.",
         },
       );
+    }else{
+      hotToast.error("You don't have access to impersonate other users.")
     }
   };
 

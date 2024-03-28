@@ -12,32 +12,16 @@ type handleAuthorizationPromise = {
 }
 
 export async function handleAuthorization({ apiKey = "", bearerToken = "" }: HandleAutorizationType): Promise<handleAuthorizationPromise> {
-  if (!apiKey) {
-    throw new AuthorizationError("Unauthorized access", { success: false, error: "unauthorized", message: "Api key missing" });
-  }
-  const validApiKey = await db.apiKey.findFirst({
-    where: {
-      key: apiKey,
-      active: true,
-    },
-  });
-  if (!validApiKey) {
-    throw new AuthorizationError("Unauthorized access", { success: false, error: "unauthorized", message: "Invalid Api key" });
-  }
-  if (!bearerToken) {
-    throw new AuthorizationError("Unauthorized access", { success: false, error: "unauthorized", message: "Authorization header missing" });
-  }
-  const validBearerToken = await db.bearerToken.findFirst({
-    where: {
-      key: bearerToken,
-      active: true,
-    },
-  });
-  if (!validBearerToken) {
-    throw new AuthorizationError("Unauthorized access", { success: false, error: "unauthorized", message: "Authorization header invalid" });
-  }
+  if (!apiKey) throw new AuthorizationError("Unauthorized access", { success: false, error: "unauthorized", message: "Api key missing" });
+  if (!bearerToken) throw new AuthorizationError("Unauthorized access", { success: false, error: "unauthorized", message: "Authorization header missing" });
 
-  return {
-    userId: validApiKey.userId || validBearerToken.userId
-  }
+  const validApiKey = await db.apiKey.findFirst({ where: { key: apiKey, active: true, }, });
+  if (!validApiKey) throw new AuthorizationError("Unauthorized access", { success: false, error: "unauthorized", message: "Invalid Api key" });
+
+
+  const validBearerToken = await db.bearerToken.findFirst({ where: { key: bearerToken, active: true, }, });
+  if (!validBearerToken) throw new AuthorizationError("Unauthorized access", { success: false, error: "unauthorized", message: "Authorization header invalid" });
+
+
+  return { userId: validApiKey.userId || validBearerToken.userId }
 }

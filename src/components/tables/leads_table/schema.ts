@@ -6,15 +6,15 @@ export type LeadColumnDef = Pick<Lead, "id" | "name" | "ip" | "phone" | "address
   campaign: Pick<Campaign, "id" | "name" | "code">;
 };
 
-export const LeadSchema = z.object({
+export const DataLeadSchema = z.object({
   userId: z.string(),
   id: z.string(),
   ip: z.string().optional().nullable(),
   name: z.string().optional(),
   phone: z.string().optional(),
   address: z.string().optional(),
-  country: z.string().optional(),
-  region: z.string().optional(),
+  country: z.string().optional().nullable(),
+  region: z.string().optional().nullable(),
   city: z.string().optional().nullable(),
   zipcode: z.string().optional().nullable(),
   status: z.nativeEnum(LeadStatus),
@@ -27,6 +27,6 @@ export const LeadSchema = z.object({
   updatedAt: z.date().optional(),
 });
 
-export type LeadColumnType = z.infer<typeof LeadSchema>;
+export type LeadColumnType = z.infer<typeof DataLeadSchema>;
 
 export type AdminLeadColumnDef = GetAllUsersLeads[number];

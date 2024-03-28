@@ -1,5 +1,10 @@
 "use client";
+import { revalidatePage } from "@/lib/actions/revalidate.action";
+import { cn } from "@/lib/utils";
+import { Avatar, Dropdown, DropdownItem, DropdownMenu, DropdownSection, DropdownTrigger, User } from "@nextui-org/react";
+import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
 import { motion, useDragControls } from "framer-motion";
+import { LogOut } from "lucide-react";
 import { Session } from "next-auth";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
@@ -7,11 +12,7 @@ import { useRouter } from "next/navigation";
 import { CSSProperties, FC, useRef } from "react";
 import { toast as hotToast } from "react-hot-toast";
 import { IconComponent, IconKey, Icons } from "./Icons";
-import { Avatar, Dropdown, DropdownItem, DropdownMenu, DropdownSection, DropdownTrigger } from "@nextui-org/react";
-import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
-import { cn } from "@/lib/utils";
-import { LogOut } from "lucide-react";
-import { revalidatePage } from "@/lib/actions/revalidate.action";
+import { allowedAdminRoles } from "@/lib/auth.permission";
 
 interface ImpersonatingUserProps {}
 
@@ -34,14 +35,14 @@ const ImpersonatingUser: FC<ImpersonatingUserProps> = ({}) => {
   const constraintsRef = useRef(null);
   const iconClasses = "text-xl text-default-500 pointer-events-none flex-shrink-0";
   const user = session?.user;
-  const actor = session?.user.actor;
+  const isAdmin = allowedAdminRoles.some((role) => role === session?.user.role);
 
   if (!session?.user.isImpersonating || !session.user.actor) {
     return null;
   }
 
   async function discardImpersonation() {
-    if (status === "authenticated" && session.user.role === "ADMIN") {
+    if (status === "authenticated" && isAdmin) {
       const updatedSession: Session = {
         ...session,
         user: {
@@ -59,7 +60,9 @@ const ImpersonatingUser: FC<ImpersonatingUserProps> = ({}) => {
           router.refresh();
         }),
           hotToast.custom((t) => (
-            <div className={`${t.visible ? "animate-enter" : "animate-leave"} max-w-md w-full bg-white shadow-lg rounded-lg pointer-events-auto flex ring-1 ring-black ring-opacity-5`}>
+            <div
+              className={`${t.visible ? "animate-enter" : "animate-leave"} max-w-md w-full bg-white shadow-lg rounded-lg pointer-events-auto flex ring-1 ring-black ring-opacity-5`}
+            >
               <div className="flex-1 w-0 p-4">
                 <div className="flex items-start">
                   <div className="flex-shrink-0 pt-0.5">
@@ -105,7 +108,7 @@ const ImpersonatingUser: FC<ImpersonatingUserProps> = ({}) => {
         dragElastic={0.1}
         className="fixed rounded-full size-10 z-[999999999]"
       >
-        <Dropdown placement="bottom-end">
+        <Dropdown placement="bottom-end" backdrop="opaque">
           <DropdownTrigger>
             <Avatar isBordered as="button" className="transition-transform bg-red-600 text-white" fallback={<ExclamationTriangleIcon className="h-6 w-6" />} />
           </DropdownTrigger>
@@ -123,11 +126,18 @@ const ImpersonatingUser: FC<ImpersonatingUserProps> = ({}) => {
                 textValue="Profile menu"
               >
                 <div className="flex justify-start items-center gap-2 w-full ">
-                  <Avatar isBordered size="sm" className="shrink-0" src={actor ? actor.image ?? "" : "https://i.pravatar.cc/150?u=a042581f4e29026704d"} />
-                  <div className="flex-1 flex flex-col">
-                    <span className="font-semibold leading-[1.2]">{actor?.actorName}</span>
-                    <span className="font-semibold leading-[1.2]">{actor?.actorName}</span>
-                  </div>
+                  <User
+                    as="button"
+                    name={user?.name}
+                    description={user?.email}
+                    avatarProps={{
+                      size: "sm",
+                      isBordered: true,
+                      src: user?.image ?? "",
+                      className: "shrink-0",
+                      fallback: <Icons.user className="h-4 w-4 text-zinc-900" />,
+                    }}
+                  />
                 </div>
               </DropdownItem>
             </DropdownSection>
@@ -148,7 +158,13 @@ const ImpersonatingUser: FC<ImpersonatingUserProps> = ({}) => {
               })}
             </DropdownSection>
             <DropdownSection title="Danger zone">
-              <DropdownItem key="delete" onClick={discardImpersonation} className="text-danger" color="danger" startContent={<LogOut className={cn(iconClasses, "text-danger size-4")} />}>
+              <DropdownItem
+                key="delete"
+                onClick={discardImpersonation}
+                className="text-danger"
+                color="danger"
+                startContent={<LogOut className={cn(iconClasses, "text-danger size-4")} />}
+              >
                 Logout the Session
               </DropdownItem>
             </DropdownSection>

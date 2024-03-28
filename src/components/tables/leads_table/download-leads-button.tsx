@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Table } from "@tanstack/react-table";
 import xlsx, { IJsonSheet } from "json-as-xlsx";
 import { DownloadIcon } from "lucide-react";
-import { LeadColumnType, LeadSchema } from "./schema";
+import { LeadColumnType, DataLeadSchema } from "./schema";
 
 
 interface DownloadLeadsBtnProps<TData> {
@@ -11,13 +11,14 @@ interface DownloadLeadsBtnProps<TData> {
 export function DownloadLeadsBtn<TData>({ table, }: DownloadLeadsBtnProps<TData>) {
   function downloadToExcel() {
     const rows = table.getFilteredSelectedRowModel().rows;
-    const parsedData = LeadSchema.array().safeParse(rows.map(row => row.original))
+    const parsedData = DataLeadSchema.array().safeParse(rows.map(row => row.original))
     if (!parsedData.success) return null
 
     let columns: IJsonSheet[] = [
       {
         sheet: parsedData.data[0].campaign.name,
         columns: [
+          { label: "Lead Id", value: "id" },
           { label: "Person Name", value: "name" },
           { label: "Person Phone", value: "phone" },
           { label: "Country", value: "country" },

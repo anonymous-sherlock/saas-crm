@@ -10,6 +10,8 @@ import { authPages } from "@routes";
 import { redirect } from "next/navigation";
 import React from "react";
 
+export const dynamic = "force-dynamic";
+
 interface LeadsPageProps {
   searchParams: {
     date?: string;

@@ -9,6 +9,8 @@ import { CampaignsFilterValues } from "@/schema/filter.schema";
 import { authPages } from "@routes";
 import { redirect } from "next/navigation";
 
+export const dynamic = 'force-dynamic';
+
 interface CampaignsPageProps {
   searchParams: {
     q?: string;

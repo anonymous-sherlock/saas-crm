@@ -1,17 +1,17 @@
 "use client";
+import { Icons } from "@/components/Icons";
+import { Badge } from "@/components/ui/badge";
 import { USER_ROLE } from "@/constants/index";
 import { cn } from "@/lib/utils";
 import { Checkbox } from "@/ui/checkbox";
+import { User } from "@nextui-org/react";
 import { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
 import React, { FC } from "react";
-import { DataTableColumnHeader } from "../global/data-table-column-header";
 import { DataTable } from "../global/data-table";
+import { DataTableColumnHeader } from "../global/data-table-column-header";
 import { DataTableRowActions } from "./data-table-row-actions";
 import { UserListColumnDef } from "./schema";
-import { Tooltip, User } from "@nextui-org/react";
-import { Icons } from "@/components/Icons";
-import { Badge } from "@/components/ui/badge";
 
 interface UserListTableShellProps {
   data: UserListColumnDef[];

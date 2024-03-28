@@ -54,7 +54,7 @@ export const subMenusList: SubMenuTypes[] = [
       },
       {
         id: "4",
-        label: "Notifications",
+        label: "Assign Notifications",
         url: "/admin/notifications",
         icon: Circle,
       },

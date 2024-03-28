@@ -11,6 +11,8 @@ import { authPages } from "@routes";
 import { notFound, redirect } from "next/navigation";
 import React from "react";
 
+export const dynamic = 'force-dynamic';
+
 interface CampaignLeadsPageProps {
   params: {
     campaignId: string;
@@ -54,7 +56,7 @@ async function CampaignLeadsPage({ params: { campaignId }, searchParams: { date 
             </CardHeader>
             <CardContent>
               <React.Suspense fallback={<DataTableSkeleton columnCount={6} />}>
-                <LeadsTableShell data={leads ?? []} />
+                <LeadsTableShell data={leads ?? []} userId={authUserId} />
               </React.Suspense>
             </CardContent>
           </Card>

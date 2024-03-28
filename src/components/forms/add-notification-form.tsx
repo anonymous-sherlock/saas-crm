@@ -54,6 +54,7 @@ export const AddNotificationForm: FC<AddNotificationFormProps> = ({ users }) => 
         await assingNotificationToUsers(values).then((data) => {
           if (data.success) {
             form.reset();
+            selectedUsersRef.current = [];
             toast.success(data.success);
             utils.notification.getNotifictions.invalidate();
             setSuccess(data.success);

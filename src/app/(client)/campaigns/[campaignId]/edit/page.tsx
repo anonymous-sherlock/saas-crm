@@ -4,6 +4,7 @@ import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { getAuthUser } from "@/lib/auth";
 import { authPages } from "@routes";
 import { notFound, redirect } from "next/navigation";
+export const dynamic = 'force-dynamic';
 
 export default async function CampaginEditPage({ params }: { params: { campaignId: string } }) {
   const { authUserId, authUserName } = await getAuthUser();

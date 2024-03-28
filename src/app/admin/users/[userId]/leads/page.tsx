@@ -47,7 +47,7 @@ async function UserLeadsPage({ params: { userId }, searchParams: { date } }: Use
             </CardHeader>
             <CardContent>
               <React.Suspense fallback={<DataTableSkeleton columnCount={6} />}>
-                <LeadsTableShell data={leads ?? []} />
+                <LeadsTableShell data={leads ?? []} userId={user.id} />
               </React.Suspense>
             </CardContent>
           </Card>

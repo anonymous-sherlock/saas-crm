@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import CampaignForm from "./campaign-form";
+import { CampaignForm } from "./campaign-form";
 import { trpc } from "@/app/_trpc/client";
 import { Spinner } from "@nextui-org/react";
 

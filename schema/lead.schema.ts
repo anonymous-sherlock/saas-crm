@@ -1,22 +1,21 @@
 import { z } from "zod";
 
+
+const phoneSchema = z.string({ required_error: "Phone is required" }).refine(
+  (value) => {
+    // Enhance the phone number validation pattern
+    const phonePattern = /^[\d\+() -]*\d[\d\+() -]*$/;
+    // Ensure the phone number has a minimum length (adjust as needed)
+    const minLength = 9;
+    const maxLength = 15;
+    return phonePattern.test(value?.toString() ?? "") && (value?.toString().replace(/[\D]/g, "").length ?? 0) >= minLength && (value?.toString().replace(/[\D]/g, "").length ?? 0) <= maxLength;
+  },
+  { message: "Phone number is not valid", },
+)
 export const AddLeadFormSchema = z.object({
   campaignId: z.string(),
   name: z.string().min(3, { message: "Name must be atleat 3 characters" }),
-  phone: z.string({ required_error: "Phone is required", invalid_type_error: "Invalid type for phone, should be a string" }).refine(
-    (value) => {
-      // Enhance the phone number validation pattern
-      const phonePattern = /^[\d\+() -]*\d[\d\+() -]*$/;
-
-      // Ensure the phone number has a minimum length (adjust as needed)
-      const minLength = 9;
-      const maxLength = 13;
-      return phonePattern.test(value?.toString() ?? "") && (value?.toString().replace(/[\D]/g, "").length ?? 0) >= minLength && (value?.toString().replace(/[\D]/g, "").length ?? 0) <= maxLength;
-    },
-    {
-      message: "Phone number is not valid",
-    },
-  ),
+  phone: phoneSchema,
   address: z.string().optional(),
 });
 
@@ -30,14 +29,14 @@ export const LeadValidator = z.object({
         invalid_type_error: "Invalid type for name, should be a string",
       })
       .min(1, { message: "Name is required" }),
-    phone: AddLeadFormSchema.shape.phone,
+    phone: phoneSchema,
     address: z.string().optional(),
   }),
 });
 
 export const LeadSchema = z.object({
   name: z.string(),
-  phone: z.string(),
+  phone: phoneSchema,
   address: z.string().optional(),
   email: z.string().optional(),
   description: z.string().optional(),
@@ -66,21 +65,7 @@ export const CSVLeadsColumnMapping: { label: string; value: keyof CustomCSVLeadT
   { label: "Email", value: "email" },
   { label: "Description", value: "description" },
 ];
-{
-  label: "";
-}
-//   "Campaign Code": "campaign_code",
-//   Name: "name",
-//   Phone: "phone",
-//   Address: "address",
-//   Email: "email",
-//   Country: "country",
-//   Region: "region",
-//   City: "city",
-//   Street: "street",
-//   Zipcode: "zipcode",
-//   Website: "website",
-//   Description: "description",
+
 
 export type LeadSchemaType = z.infer<typeof LeadSchema>;
 export type LeadsPayload = z.infer<typeof LeadValidator>;

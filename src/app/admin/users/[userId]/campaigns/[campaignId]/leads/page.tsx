@@ -49,7 +49,7 @@ async function CampaignLeadsPage({ params: { campaignId, userId }, searchParams:
             </CardHeader>
             <CardContent>
               <React.Suspense fallback={<DataTableSkeleton columnCount={6} />}>
-                <LeadsTableShell data={leads ?? []} />
+                <LeadsTableShell data={leads ?? []} userId={campaign.userId} />
               </React.Suspense>
             </CardContent>
           </Card>
