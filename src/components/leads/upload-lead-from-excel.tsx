@@ -1,7 +1,9 @@
 "use client";
-import { CSVLeadsColumnMapping, LeadSchema } from "@/schema/lead.schema";
+import { BulkUploadLeadsSchema, CSVLeadsColumnMapping, CustomCSVLeadType, LeadSchema } from "@/schema/lead.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Modal, ModalBody, ModalContent, ModalHeader, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow, getKeyValue } from "@nextui-org/react";
+import { Modal, ModalBody, ModalContent, ModalHeader } from "@nextui-org/react";
+import { Column, ReactGrid, Row } from "@silevis/reactgrid";
+import "@silevis/reactgrid/styles.css";
 import xlsx, { IJsonSheet } from "json-as-xlsx";
 import { UploadIcon } from "lucide-react";
 import React, { useEffect, useState } from "react";
@@ -16,7 +18,46 @@ import { Button } from "../ui/button";
 import { Form } from "../ui/form";
 import { Separator } from "../ui/separator";
 
+const getPeople = (): z.infer<typeof BulkUploadLeadsSchema>[] => [{ campaign_code: "hi", name: "Thomas", city: "Goldman", address: "", phone: "", country: "" }];
+
+const getColumns = (): Column[] =>
+  CSVLeadsColumnMapping.map((column) => ({
+    columnId: column.value,
+    width: 150,
+    reorderable: false,
+  }));
+
+const headerRow: Row = {
+  rowId: "header",
+  cells: CSVLeadsColumnMapping.map((column) => ({
+    type: "header",
+    text: column.value,
+  })),
+};
+
+const getRows = (people: z.infer<typeof BulkUploadLeadsSchema>[]): Row[] => [
+  headerRow,
+  ...people.map<Row>((person, idx) => ({
+    rowId: idx,
+    cells: [
+      { type: "text", text: person.campaign_code ?? "" },
+      { type: "text", text: person.name ?? "" },
+      { type: "text", text: person.phone ?? "" },
+      { type: "text", text: person.email ?? "" },
+      { type: "text", text: person.address ?? "" },
+      { type: "text", text: person.country ?? "" },
+      { type: "text", text: person.region ?? "" },
+      { type: "text", text: person.street ?? "" },
+      { type: "text", text: person.city ?? "" },
+      { type: "text", text: person.website ?? "" },
+      { type: "text", text: person.zipcode ?? "" },
+      { type: "text", text: person.description ?? "" },
+    ],
+  })),
+];
+
 const formSchema = z.object({ name: z.string().optional() });
+const DEFAULT_REACT_TABLE_COLUMN_WIDTH = 150;
 
 interface ValidationResult {
   validRowsCount: number;
@@ -26,21 +67,33 @@ interface ValidationResult {
 }
 
 const UploadLeadFromExcel = () => {
+  const [people] = React.useState<z.infer<typeof BulkUploadLeadsSchema>[]>(getPeople());
+  const columns = getColumns();
+  const rows = getRows(people);
   const [filterValue, setFilterValue] = React.useState("");
   const [error, setError] = useState<string | undefined>("");
   const [success, setSuccess] = useState<string | undefined>("");
   const [open, setOpen] = useState<boolean>(false);
-  const [rows, setRows] = useState<Record<string, any>[]>([]);
-  const [columns, setColumns] = useState<string[]>([]);
+  const [data, setData] = useState<CustomCSVLeadType[]>([]);
   const [openTableModal, setOpenTableModal] = useState<boolean>(false);
   const [selectedFile, setSelectedFile] = useState<FileWithPath | undefined>();
-
+  const [inValidRows, setInValidRows] = useState<string[]>([]); // State variable to store indices of invalid rows
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: "",
     },
   });
+
+  const mapDataKeys = (data: any[]) => {
+    return data.map((row) => {
+      const mappedRow: Record<string, any> = {};
+      CSVLeadsColumnMapping.forEach(({ label, value }) => {
+        mappedRow[value] = row[label];
+      });
+      return mappedRow;
+    });
+  };
 
   const ValidateFile = async () => {
     setError("");
@@ -58,13 +111,33 @@ const UploadLeadFromExcel = () => {
         const workbook = xlsxSheetToJson.read(arrayBuffer, { type: "buffer" });
         const sheetName = workbook.SheetNames[0];
         const sheet = workbook.Sheets[sheetName];
-        const data = xlsxSheetToJson.utils.sheet_to_json(sheet, { defval: "" });
-        const datacolumns = data.length > 0 ? Object.keys(data[0] as Record<string, unknown>) : []; // Use Record<string, unknown> to ensure type safety
+        const data: { [key: string]: string | number }[] = xlsxSheetToJson.utils.sheet_to_json(sheet, { defval: "" });
+        const keys = Object.keys(data[0] as any);
 
-        console.log("data", data);
-        setRows(data as Record<string, any>[]);
-        setColumns(datacolumns);
-        const parsedData = data.filter((val) => {
+        // Converting data array into the format of dataDum
+        const newData = data.map((obj: { [key: string]: string | number }) => {
+          return keys.map((key) => {
+            return { value: obj[key] ? obj[key].toString() : "" };
+          });
+        });
+
+        const mappedData = mapDataKeys(data);
+        const dataMapedArray = mappedData.map((item: Record<string, any>) => ({
+          campaign_code: item.campaign_code ?? "",
+          name: item.name || "",
+          phone: String(item.phone) || "",
+          address: item.address || "",
+          email: item.email || "",
+          description: item.description || "",
+          country: item.country || "",
+          region: item.region || "",
+          city: item.city || "",
+          street: item.street || "",
+          zipcode: item.zipcode || "",
+          website: item.website || "",
+        }));
+        setData(dataMapedArray);
+        const parsedData = dataMapedArray.filter((val, index) => {
           const parsed = LeadSchema.safeParse(val);
           if (parsed.success) {
             validRowsCount++;
@@ -74,6 +147,7 @@ const UploadLeadFromExcel = () => {
             invalidRowsCount++;
             errors.push(parsed.error);
             console.error("Parsing problem with row:", val);
+            setInValidRows((prev) => [...prev, index.toString() ?? ""]);
             return false;
           }
         });
@@ -84,10 +158,12 @@ const UploadLeadFromExcel = () => {
       };
     });
     const response = await promise;
+    console.log(response.errors);
     if (response.invalidRowsCount > 0) {
       setError(`There are ${response.invalidRowsCount} rows which are invalid. Please fix them before uploading, otherwise they won't be processed.`);
     }
   };
+
   useEffect(() => {
     ValidateFile();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -108,6 +184,7 @@ const UploadLeadFromExcel = () => {
     };
     xlsx(columns, settings);
   };
+
   return (
     <>
       <Button onClick={() => setOpen(true)}>
@@ -145,12 +222,12 @@ const UploadLeadFromExcel = () => {
                     <Button type="submit" disabled={!selectedFile}>
                       Upload File
                     </Button>
-                    {rows?.length > 0 && (
+                    {data?.length > 0 && (
                       <Button
                         onClick={() => {
                           setOpenTableModal(true);
                         }}
-                        variant="secondary"
+                        variant="outline"
                       >
                         Edit Data
                       </Button>
@@ -182,20 +259,9 @@ const UploadLeadFromExcel = () => {
                 <Separator className="mt-4" />
               </ModalHeader>
               <ModalBody>
-                {rows.length > 0 && (
-                  <Table aria-label="Example table with dynamic content" selectionMode="multiple" defaultSelectedKeys={["1"]} color="danger">
-                    <TableHeader>
-                      {columns.map((column) => (
-                        <TableColumn key={column}>{column}</TableColumn>
-                      ))}
-                    </TableHeader>
-                    <TableBody>
-                      {rows.map((row, index) => (
-                        <TableRow key={index}>{(columnKey) => <TableCell>{getKeyValue(row, columnKey)}</TableCell>}</TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                )}
+                <ReactGrid rows={rows} columns={columns} />
+
+                <Button ></Button>
               </ModalBody>
             </>
           )}

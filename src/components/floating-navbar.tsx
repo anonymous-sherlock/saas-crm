@@ -43,7 +43,7 @@ export const FloatingNav = ({ navItems, className, user }: FloatingNavProps) => 
       >
         <Dropdown placement="bottom-end">
           <DropdownTrigger>
-            <Avatar isBordered as="button" className="transition-transform " src={user?.image ? user.image : "https://i.pravatar.cc/150?u=a042581f4e29026704d"} />
+            <Avatar isBordered as="button" className="transition-transform " src={user?.image ? user.image : ""} fallback={<Icons.user className="h-4 w-4 text-zinc-900" />} />
           </DropdownTrigger>
           <DropdownMenu aria-label="Profile Actions" items={navItems} variant="faded">
             <DropdownSection title="Profile" showDivider>

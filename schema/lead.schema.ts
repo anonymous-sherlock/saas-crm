@@ -1,17 +1,20 @@
 import { z } from "zod";
 
+const numberSchema = z.number().transform((val) => val ? val.toString() : "")
 
-const phoneSchema = z.string({ required_error: "Phone is required" }).refine(
+const phoneSchema = z.string({ required_error: "Phone is required" }).or(numberSchema).refine(
   (value) => {
     // Enhance the phone number validation pattern
     const phonePattern = /^[\d\+() -]*\d[\d\+() -]*$/;
     // Ensure the phone number has a minimum length (adjust as needed)
     const minLength = 9;
     const maxLength = 15;
-    return phonePattern.test(value?.toString() ?? "") && (value?.toString().replace(/[\D]/g, "").length ?? 0) >= minLength && (value?.toString().replace(/[\D]/g, "").length ?? 0) <= maxLength;
+    const stringValue = value?.toString() ?? ""; // Convert value to string
+    return phonePattern.test(stringValue) && stringValue.replace(/[\D]/g, "").length >= minLength && stringValue.replace(/[\D]/g, "").length <= maxLength;
   },
-  { message: "Phone number is not valid", },
-)
+  { message: "Phone number is not valid" },
+);
+
 export const AddLeadFormSchema = z.object({
   campaignId: z.string(),
   name: z.string().min(3, { message: "Name must be atleat 3 characters" }),
@@ -44,13 +47,17 @@ export const LeadSchema = z.object({
   region: z.string().optional(),
   city: z.string().optional(),
   street: z.string().optional(),
-  zipcode: z.string().optional(),
+  zipcode: z.string().or(numberSchema).optional(),
   website: z.string().optional(),
 });
 
-type CustomCSVLeadType = LeadSchemaType & {
+export type CustomCSVLeadType = LeadSchemaType & {
   campaign_code: string;
 };
+
+export const BulkUploadLeadsSchema = LeadSchema.extend({
+  campaign_code: z.string()
+})
 export const CSVLeadsColumnMapping: { label: string; value: keyof CustomCSVLeadType }[] = [
   { label: "Campaign Code", value: "campaign_code" },
   { label: "Name", value: "name" },

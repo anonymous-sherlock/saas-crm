@@ -34,7 +34,7 @@ const ImpersonatingUser: FC<ImpersonatingUserProps> = ({}) => {
   const controls = useDragControls();
   const constraintsRef = useRef(null);
   const iconClasses = "text-xl text-default-500 pointer-events-none flex-shrink-0";
-  const user = session?.user;
+  const actor = session?.user.actor;
   const isAdmin = allowedAdminRoles.some((role) => role === session?.user.role);
 
   if (!session?.user.isImpersonating || !session.user.actor) {
@@ -66,7 +66,7 @@ const ImpersonatingUser: FC<ImpersonatingUserProps> = ({}) => {
               <div className="flex-1 w-0 p-4">
                 <div className="flex items-start">
                   <div className="flex-shrink-0 pt-0.5">
-                    <Avatar isBordered as="button" className="transition-transform " src={user?.image ? user.image : "https://i.pravatar.cc/150?u=a042581f4e29026704d"} />
+                    <Avatar isBordered as="button" className="transition-transform " src={actor ? actor.image ?? "" : ""} />
                   </div>
                   <div className="ml-3 flex-1">
                     <p className="text-sm font-medium text-gray-900">Removed impersonated session successfully!</p>
@@ -128,12 +128,12 @@ const ImpersonatingUser: FC<ImpersonatingUserProps> = ({}) => {
                 <div className="flex justify-start items-center gap-2 w-full ">
                   <User
                     as="button"
-                    name={user?.name}
-                    description={user?.email}
+                    name={actor && actor?.actorName}
+                    description={actor && actor?.actorEmail}
                     avatarProps={{
                       size: "sm",
                       isBordered: true,
-                      src: user?.image ?? "",
+                      src: actor ? actor.image ?? "" : "",
                       className: "shrink-0",
                       fallback: <Icons.user className="h-4 w-4 text-zinc-900" />,
                     }}

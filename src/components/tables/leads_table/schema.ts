@@ -12,7 +12,7 @@ export const DataLeadSchema = z.object({
   ip: z.string().optional().nullable(),
   name: z.string().optional(),
   phone: z.string().optional(),
-  address: z.string().optional(),
+  address: z.string().optional().nullable(),
   country: z.string().optional().nullable(),
   region: z.string().optional().nullable(),
   city: z.string().optional().nullable(),

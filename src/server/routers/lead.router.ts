@@ -56,12 +56,12 @@ export const leadRouter = router({
     const userIp = req.headers.get("x-forwarded-for") || req.headers.get("x-real-ip");
     const ipInfo = await getIpInfo(userIp);
 
-    const existingLead = await db.lead.findFirst({ where: { OR: [{ phone: phone }], }, });
+    const existingLead = await db.lead.findFirst({ where: { OR: [{ phone: phone.toString() }], }, });
 
     const newLead = await db.lead.create({
       data: {
         name,
-        phone,
+        phone: phone.toString(),
         address: address || "",
         country: ipInfo.country || "",
         ip: ipInfo.ip,
@@ -81,7 +81,7 @@ export const leadRouter = router({
       lead: newLead,
     };
   }),
-  getLeadDetails: privateProcedure.input(z.object({ leadId: z.string() })).query(async ({ ctx, input }) => { 
+  getLeadDetails: privateProcedure.input(z.object({ leadId: z.string() })).query(async ({ ctx, input }) => {
     const { leadId } = input
     try {
       const lead = await db.lead.findFirst({

@@ -75,9 +75,7 @@ export const ProductDropdown = ({ user }: ProductDropdownProps) => {
 
   return (
     <>
-      {/* product dropdown */}
-
-      <Popover isOpen={isPopupOpen} onOpenChange={setIsPopupOpen} placement="bottom" showArrow>
+      <Popover isOpen={isPopupOpen} onOpenChange={setIsPopupOpen} placement="bottom" showArrow style={{ zIndex: 200 }}>
         <PopoverTrigger onClick={handlePopupTrigger} className="aria-expanded:scale-[1]">
           <div
             className={cn(
@@ -235,7 +233,6 @@ export const ProductDropdown = ({ user }: ProductDropdownProps) => {
           </Command>
         </PopoverContent>
       </Popover>
-
       <div className="grid grid-cols-2 gap-4 mt-0 sm:mt-2">
         {selectedProduct &&
           products &&

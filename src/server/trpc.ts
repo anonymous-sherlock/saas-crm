@@ -56,7 +56,6 @@ const isAdminAuth = middleware(async (opts) => {
   });
 });
 export const router = t.router;
-export const createCallerFactory = t.createCallerFactory;
 export const publicProcedure = t.procedure;
 export const privateProcedure = t.procedure.use(isAuth);
-export const adminProcedure = t.procedure.use(isAuth);
+export const adminProcedure = t.procedure.use(isAdminAuth);

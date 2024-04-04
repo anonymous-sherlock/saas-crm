@@ -9,12 +9,6 @@ interface UserAvatarProps extends React.HTMLAttributes<HTMLDivElement> {
 
 export const UserAvatar = async ({ user, className }: UserAvatarProps) => {
   return (
-    <Avatar
-      isBordered
-      as="button"
-      className="transition-transform shrink-0"
-      src={user?.image ? user.image : "https://i.pravatar.cc/150?u=a042581f4e29026704d"}
-      fallback={<Icons.user className="h-4 w-4 text-zinc-900" />}
-    />
+    <Avatar isBordered as="button" className="transition-transform shrink-0" src={user?.image ? user.image : ""} fallback={<Icons.user className="h-4 w-4 text-zinc-900" />} />
   );
 };

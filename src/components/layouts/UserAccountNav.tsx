@@ -23,7 +23,7 @@ const UserAccountNav = ({ email, imageUrl, name, user }: UserAccountNavProps) =>
           as="button"
           size="sm"
           className="transition-transform shrink-0"
-          src={user?.image ? user.image : "https://i.pravatar.cc/150?u=a042581f4e29026704d"}
+          src={user?.image ? user.image : ""}
           fallback={<Icons.user className="h-4 w-4 text-zinc-900" />}
         />
       </DropdownMenuTrigger>

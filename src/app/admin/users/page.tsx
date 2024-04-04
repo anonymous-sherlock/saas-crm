@@ -5,6 +5,7 @@ import UserListTableShell from "@/components/tables/users_list_table/user-list-t
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { db } from "@/db";
 import { getCurrentUser } from "@/lib/auth";
+import { allowedAdminRoles } from "@/lib/auth.permission";
 import { getDateFromParams } from "@/lib/helpers/date";
 import { authPages } from "@routes";
 import { redirect } from "next/navigation";
@@ -32,7 +33,7 @@ export default async function UserListPage({ searchParams: { date } }: UserListP
     orderBy: { createdAt: "desc" },
   });
 
-  const isAdmin = user.role === "ADMIN";
+  const isAdmin = allowedAdminRoles.some((role) => role === user.role);
   return (
     <div className="flex flex-col gap-4">
       <PageHeader className="" separated>

@@ -52,7 +52,7 @@ export const AddLeadsForm: FC<LeadsFormProps> = ({ campaignId }) => {
   return (
     <Dialog open={leadModelOpen} onOpenChange={setLeadModelOpen}>
       <DialogTrigger asChild>
-        <Button >Add a Lead</Button>
+        <Button>Add a Lead</Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <Form {...form}>
