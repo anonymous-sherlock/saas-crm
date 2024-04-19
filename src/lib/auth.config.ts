@@ -144,9 +144,9 @@ export const authOptions: NextAuthOptions = {
   },
   events: {
     async linkAccount({ user }) {
-      await db.user.update({
+      const dbUser = await db.user.update({
         where: { id: user.id },
-        data: { emailVerified: new Date(), active: true },
+        data: { emailVerified: new Date(), active: true, wallet: { create: { balance: 0 } } },
       });
     },
   },

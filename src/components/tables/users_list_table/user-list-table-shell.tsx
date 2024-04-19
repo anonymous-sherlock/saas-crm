@@ -12,12 +12,16 @@ import { DataTable } from "../global/data-table";
 import { DataTableColumnHeader } from "../global/data-table-column-header";
 import { DataTableRowActions } from "./data-table-row-actions";
 import { UserListColumnDef } from "./schema";
+import { ExternalLink } from "lucide-react";
+import Link from "next/link";
+import { useSession } from "next-auth/react";
 
 interface UserListTableShellProps {
   data: UserListColumnDef[];
 }
 
 const UserListTableShell: FC<UserListTableShellProps> = ({ data }) => {
+  const { data: session, status } = useSession();
   const UsersColumnDef = React.useMemo<ColumnDef<UserListColumnDef>[]>(
     () => [
       {
@@ -31,7 +35,12 @@ const UserListTableShell: FC<UserListTableShellProps> = ({ data }) => {
           />
         ),
         cell: ({ row }) => (
-          <Checkbox checked={row.getIsSelected()} onCheckedChange={(value) => row.toggleSelected(!!value)} aria-label="Select row" className="translate-y-[2px]" />
+          <Checkbox
+            checked={row.getIsSelected()}
+            onCheckedChange={(value) => row.toggleSelected(!!value)}
+            aria-label="Select row"
+            className="translate-y-[2px]"
+          />
         ),
         enableSorting: false,
         enableHiding: false,
@@ -51,7 +60,14 @@ const UserListTableShell: FC<UserListTableShellProps> = ({ data }) => {
           <div>
             <User
               as="button"
-              name={row.original.name}
+              name={
+                <>
+                  {row.original.name}
+                  {session?.user.id === row.original.id ? (
+                    <Badge className={cn("pointer-events-none ml-2 rounded-sm px-1 font-semibold", "border-green-600/20 bg-green-100 text-green-700")}>You</Badge>
+                  ) : null}
+                </>
+              }
               description={row.original?.email}
               avatarProps={{
                 size: "sm",
@@ -86,6 +102,34 @@ const UserListTableShell: FC<UserListTableShellProps> = ({ data }) => {
         enableSorting: false,
       },
       {
+        id: "Total Campaigns",
+        accessorFn: (row) => row._count.campaigns,
+        header: ({ column }) => <DataTableColumnHeader column={column} title="Campaigns" />,
+        cell: ({ row }) => (
+          <div className="truncate flex gap-2 items-center justify-center mx-auto">
+            <span className="">{row.original._count.campaigns}</span>
+            <Link href={`/admin/users/${row.original.id}/campaigns`}>
+              <ExternalLink className="size-4 text-primary" />
+            </Link>
+          </div>
+        ),
+        enableSorting: false,
+      },
+      {
+        id: "Total Leads",
+        accessorFn: (row) => row._count.leads,
+        header: ({ column }) => <DataTableColumnHeader column={column} title="Leads" />,
+        cell: ({ row }) => (
+          <div className="truncate flex gap-2 items-center justify-center mx-auto">
+            <span className="">{row.original._count.leads}</span>
+            <Link href={`/admin/users/${row.original.id}/leads`}>
+              <ExternalLink className="size-4 text-primary" />
+            </Link>
+          </div>
+        ),
+        enableSorting: false,
+      },
+      {
         id: "Account Active",
         accessorKey: "active",
         header: ({ column }) => <DataTableColumnHeader column={column} title="Account Active" />,
@@ -116,7 +160,7 @@ const UserListTableShell: FC<UserListTableShellProps> = ({ data }) => {
         size: 50,
       },
     ],
-    [],
+    [data],
   );
   return (
     <DataTable

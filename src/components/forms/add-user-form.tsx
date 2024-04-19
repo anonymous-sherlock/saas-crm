@@ -19,7 +19,7 @@ import { z } from "zod";
 
 interface AddUserFormProps {}
 
-const AddUserForm: FC<AddUserFormProps> = () => {
+export const AddUserForm: FC<AddUserFormProps> = () => {
   const { setOpen } = useModal();
 
   return (
@@ -141,7 +141,12 @@ const FormContainer = () => {
                     }}
                     {...field}
                   >
-                    {USER_ROLE.filter((role) => !((session?.user.role === "ADMIN" && role.value === "SUPER_ADMIN") || role.value === "ADMIN")).map((role) => (
+                    {USER_ROLE.filter((role) => {
+                      if (session?.user.role === "ADMIN" && role.value === "SUPER_ADMIN") {
+                        return false;
+                      }
+                      return true;
+                    }).map((role) => (
                       <SelectItem key={role.value} value={role.value}>
                         {role.label}
                       </SelectItem>
@@ -160,7 +165,13 @@ const FormContainer = () => {
               <FormItem className="items-center gap-x-4 gap-y-2 w-full">
                 <FormLabel className="text-right">Password</FormLabel>
                 <FormControl className="col-span-3">
-                  <Input placeholder="Enter Password" {...field} type="text" size="sm" classNames={{ inputWrapper: "border data-[hover=true]:bg-default-100" }} />
+                  <Input
+                    placeholder="Enter Password"
+                    {...field}
+                    type="text"
+                    size="sm"
+                    classNames={{ inputWrapper: "border data-[hover=true]:bg-default-100" }}
+                  />
                 </FormControl>
                 <FormMessage className="col-span-4 col-start-2 mt-0" />
               </FormItem>
@@ -204,5 +215,3 @@ const FormContainer = () => {
     </Form>
   );
 };
-
-export default AddUserForm;

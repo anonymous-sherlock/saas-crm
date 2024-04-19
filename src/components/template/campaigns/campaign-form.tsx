@@ -9,19 +9,20 @@ import { useModal } from "@/providers/modal-provider";
 import { campaignFormSchema } from "@/schema/campaign.schema";
 import { Button } from "@/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/ui/form";
-import Spinner from "@/ui/spinner";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Input as NextInput, Select as NextSelect, SelectItem as NextSelectItem, Textarea as NextTextarea } from "@nextui-org/react";
+import { Input as NextInput, Select as NextSelect, SelectItem as NextSelectItem, Textarea as NextTextarea, Spinner } from "@nextui-org/react";
 import { Campaign, Gender, Product, TargetRegion, TrafficSource } from "@prisma/client";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast as hotToast } from "react-hot-toast";
 import { z } from "zod";
-import { AgeFields } from "./AgeFields";
+import { AgeFields } from "./age-fields";
 import { CountryRegion } from "./country-region";
 import { ProductDropdown } from "./product-dropdown";
-import WorkingHours from "./WorkingHours";
+import { WorkingHours } from "./working-hours";
+import { allowedAdminRoles } from "@/lib/auth.permission";
+import { useSession } from "next-auth/react";
 
 interface CampaignFormProps {
   data?: Partial<
@@ -44,6 +45,9 @@ export const CampaignForm = ({ data, type, user }: CampaignFormProps) => {
   const router = useRouter();
   const utils = trpc.useUtils();
   const [isPending, startTransition] = React.useTransition();
+  const { data: session } = useSession();
+  const isVisible = allowedAdminRoles.some((role) => role === session?.user?.role);
+
   // Default Form details
   const defaultTrafficSource = data?.trafficSource ? data.trafficSource : TrafficSource.Social;
   const defaultTargetRegion = data?.targetRegion ? data?.targetRegion.map((reg) => reg.regionName) : [];
@@ -69,6 +73,7 @@ export const CampaignForm = ({ data, type, user }: CampaignFormProps) => {
     },
     targetRegion: defaultTargetRegion,
     targetGender: data?.targetGender || "Both",
+    pricePerLead: data?.pricePerLead?.toString() || "",
   };
   const form = useForm<z.infer<typeof campaignFormSchema>>({
     resolver: zodResolver(campaignFormSchema),
@@ -126,7 +131,11 @@ export const CampaignForm = ({ data, type, user }: CampaignFormProps) => {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} method="post" className="flex flex-col md:grid sm:grid-cols-1 lg:grid-cols-5 items-start md:gap-8 space-y-4 ">
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        method="post"
+        className="flex flex-col md:grid sm:grid-cols-1 lg:grid-cols-5 items-start md:gap-8 space-y-4 "
+      >
         <div className="md:col-span-3 flex w-full flex-col gap-6">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 gap-y-6">
             <FormField
@@ -263,6 +272,22 @@ export const CampaignForm = ({ data, type, user }: CampaignFormProps) => {
         <div className="w-full md:col-span-3 lg:col-span-2 md:!mt-0 flex flex-col gap-4 gap-y-6">
           {/* Working Hours */}
           <WorkingHours />
+
+          {isVisible ? (
+            <FormField
+              control={form.control}
+              name="pricePerLead"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Price Per Lead</FormLabel>
+                  <FormControl>
+                    <NextInput type="text" aria-label="Price Per Lead" size="sm" placeholder="120" variant="faded" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          ) : null}
           <FormField
             control={form.control}
             name="productId"
@@ -280,18 +305,11 @@ export const CampaignForm = ({ data, type, user }: CampaignFormProps) => {
 
         <FormSuccess message={success} classname="col-span-3 !mt-0" />
         <FormError message={error} classname="col-span-3 !mt-0" />
+
         <Button type="submit" disabled={isFormUnchanged || isPending} className={cn("w-full col-span-3 !mt-0")}>
           {isPending ? (
             <React.Fragment>
-              {type === "create" ? (
-                <>
-                  <Spinner /> Creating...
-                </>
-              ) : (
-                <>
-                  <Spinner /> Updating...
-                </>
-              )}
+              <Spinner size="sm" color="default" />
             </React.Fragment>
           ) : (
             <>{type === "create" ? "Create Campaign" : "Update Campaign"}</>
@@ -301,4 +319,3 @@ export const CampaignForm = ({ data, type, user }: CampaignFormProps) => {
     </Form>
   );
 };
-

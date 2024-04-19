@@ -34,13 +34,28 @@ export async function upsertCampaignDetails({ data, campaignId, type, userId }: 
   const user = await getUserByUserId(userId);
   if (!user) return { error: "User not found" };
   try {
-    if (type === "create") {
-      const createCampaignParsedData = campaignFormSchema.safeParse(data);
-      if (!createCampaignParsedData.success) return { error: "Invalid data passed. Please check the provided information." };
-      const { campaignName, campaignDescription, callCenterTeamSize, leadsRequirements, targetCountry, targetAge, targetGender, trafficSource, workingDays, workingHours, targetRegion, productId } =
-        createCampaignParsedData.data;
-      const newCampaign = await db.campaign.create({
-        data: {
+    const parsedCampaignData = campaignFormSchema.safeParse(data);
+    if (!parsedCampaignData.success) return { error: "Invalid data passed. Please check the provided information." };
+    const {
+      campaignName,
+      campaignDescription,
+      callCenterTeamSize,
+      leadsRequirements,
+      targetCountry,
+      targetAge,
+      targetGender,
+      trafficSource,
+      workingDays,
+      workingHours,
+      targetRegion,
+      productId,
+      pricePerLead,
+    } = parsedCampaignData.data;
+
+    const { campaign } = await db.$transaction(async (tx) => {
+      const campaign = await tx.campaign.upsert({
+        where: { id: campaignId ?? "", userId: user.id },
+        create: {
           code: generateCampaignCodeID(),
           name: campaignName,
           description: campaignDescription,
@@ -62,51 +77,43 @@ export async function upsertCampaignDetails({ data, campaignId, type, userId }: 
           user: { connect: { id: user.id } },
           product: { connect: { id: productId } },
         },
+        update: {
+          name: campaignName,
+          description: campaignDescription,
+          callCenterTeamSize,
+          leadsRequirements,
+          targetCountry,
+          targetAge,
+          targetGender,
+          trafficSource,
+          workingDays,
+          workingHours,
+          product: { connect: { id: productId } },
+          pricePerLead: pricePerLead ? parseFloat(pricePerLead) : undefined,
+        },
       });
-      return { success: `New campaign '${newCampaign.name}' has been successfully created.`, campaign: newCampaign };
-    }
-    if (type === "update") {
-      if (!campaignId) return { error: "Campaign id not provide" };
-      const existingCampaign = await db.campaign.findFirst({ where: { id: campaignId } });
-      if (!existingCampaign) return { error: "No campaign found" };
 
-      const updateCampaignParsedData = campaignFormSchema.partial().safeParse(data);
-      if (!updateCampaignParsedData.success) return { error: "Invalid data passed. Please check the provided information." };
-      const { campaignName, campaignDescription, callCenterTeamSize, leadsRequirements, targetCountry, targetAge, targetGender, trafficSource, workingDays, workingHours, targetRegion, productId } =
-        updateCampaignParsedData.data;
-
-      const updatedCampaignDetails = await db.$transaction(async (tx) => {
+      if (type === "update") {
         await tx.targetRegion.deleteMany({
           where: { campaignId: campaignId },
         });
         if (targetRegion && targetRegion?.length > 0) {
-          // Assuming targetGender is an array of strings
           await tx.targetRegion.createMany({
             data: targetRegion.map((reg) => ({
-              campaignId,
+              campaignId: campaign.id,
               regionName: reg,
             })),
           });
         }
-        const result = await tx.campaign.update({
-          where: { id: campaignId, userId: user.id },
-          data: {
-            name: campaignName,
-            description: campaignDescription,
-            callCenterTeamSize,
-            leadsRequirements,
-            targetCountry,
-            targetAge,
-            targetGender,
-            trafficSource,
-            workingDays,
-            workingHours,
-            product: { connect: { id: productId } },
-          },
-        });
-        return result;
-      });
-      return { success: `${updatedCampaignDetails.name}'s details have been successfully updated.`, campaign: updatedCampaignDetails };
+      }
+      return { campaign };
+    });
+
+    switch (type) {
+      case "update":
+        return { success: `${campaign.name}'s details have been successfully updated.`, campaign: campaign };
+      default:
+        return { success: `New campaign '${campaign.name}' has been successfully created.`, campaign: campaign };
     }
   } catch (error) {
     return { error: "Uh oh! Something went wrong." };
@@ -131,8 +138,8 @@ export async function getAllCampaigns({ filterValues, page: searchPage = 1, user
 
   const searchFilter: Prisma.CampaignWhereInput = searchString
     ? {
-      OR: [{ name: { search: searchString } }, { name: { contains: searchString } }, { code: { contains: searchString } }],
-    }
+        OR: [{ name: { search: searchString } }, { name: { contains: searchString } }, { code: { contains: searchString } }],
+      }
     : {};
 
   const where: Prisma.CampaignWhereInput = {
@@ -186,6 +193,5 @@ export async function deleteCampaigns(rawInput: z.infer<typeof campaignDeleteSch
   const deletedCampaigns = await db.campaign.deleteMany({ where: { userId: user.id, id: { in: rawInput.campaignIds } } });
   return { success: `Successfully deleted ${deletedCampaigns.count} campaign${deletedCampaigns.count > 1 ? "s" : ""}` };
 }
-
 
 export type getAllCampaignsType = Awaited<ReturnType<typeof getAllCampaigns>>;

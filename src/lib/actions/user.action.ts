@@ -31,6 +31,7 @@ export async function addNewUser(rawData: NewUserSchemaType) {
         active: active,
         emailVerified: emailVerified ? new Date() : undefined,
         password: hashPassword,
+        wallet: { create: { balance: 0 } },
       },
     });
     revalidatePath("/admin/users");

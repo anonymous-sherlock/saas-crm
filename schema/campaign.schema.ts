@@ -2,7 +2,19 @@ import { isValidDay } from "@/lib/helpers/date";
 import { TrafficSource } from "@prisma/client";
 import { z } from "zod";
 
-
+const priceSchema = z
+  .string({ required_error: "price is required." })
+  .refine(
+    (value) => {
+      // Remove commas (thousands separators) if they exist
+      const sanitizedValue = value?.replace(/,/g, "");
+      // Validate that the sanitized value contains only numeric characters and optional decimal points
+      return !value || /^[\d.]+$/.test(sanitizedValue ?? "");
+    },
+    {
+      message: "Price must be in this format only 1,999 or 1999.",
+    },
+  );
 export const campaignFormSchema = z.object({
   campaignName: z.string().min(1, { message: "Campaign name is required." }).min(3, {
     message: "Campaign name must be at least 3 characters.",
@@ -45,10 +57,9 @@ export const campaignFormSchema = z.object({
     message: "Target country is required.",
   }),
   // target region
-  targetRegion: z.string().array()
-    .nonempty({
-      message: "Target region is required.",
-    }),
+  targetRegion: z.string().array().nonempty({
+    message: "Target region is required.",
+  }),
 
   // Target Age
   targetAge: z.object({
@@ -76,6 +87,7 @@ export const campaignFormSchema = z.object({
   }),
   targetGender: z.enum(["Male", "Female", "Both"], { required_error: "Target gender is required", invalid_type_error: "Target gender can be Male or Female" }),
   trafficSource: z.nativeEnum(TrafficSource),
+  pricePerLead: priceSchema.optional().default("120"),
 });
 
 export type CampaignFormPayload = z.infer<typeof campaignFormSchema>;

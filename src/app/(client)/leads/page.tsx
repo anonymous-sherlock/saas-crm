@@ -3,6 +3,7 @@ import UploadLeadFromExcel from "@/components/leads/upload-lead-from-excel";
 import { DataTableSkeleton } from "@/components/tables/global/data-table-skeleton";
 import LeadsTableShell from "@/components/tables/leads_table/leads-table-shell";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { db } from "@/db";
 import { getAuthUser } from "@/lib/auth";
 import { getDateFromParams } from "@/lib/helpers/date";
 import { lead } from "@/server/api/lead";
@@ -17,12 +18,17 @@ interface LeadsPageProps {
     date?: string;
   };
 }
-async function LeadsPage({ searchParams: { date } }: LeadsPageProps) {
+export default async function LeadsPage({ searchParams: { date } }: LeadsPageProps) {
   const { authUserId } = await getAuthUser();
   if (!authUserId) redirect(authPages.login);
   const { from, to } = getDateFromParams(date);
   const leads = await lead.getAllLeads({ userId: authUserId, date: { from, to } });
 
+  const wallet = await db.wallet.findFirst({ where: { userId: authUserId } });
+
+  if (wallet && wallet?.balance < 50) {
+    return "Low Balance";
+  }
   return (
     <>
       <PageHeader separated>
@@ -56,5 +62,3 @@ async function LeadsPage({ searchParams: { date } }: LeadsPageProps) {
     </>
   );
 }
-
-export default LeadsPage;

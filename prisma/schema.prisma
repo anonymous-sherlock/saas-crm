@@ -8,6 +8,64 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Wallet {
+  id        String    @id @default(cuid())
+  balance   Float     @default(0)
+  user      User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String    @unique
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  payments  Payment[]
+
+  @@index([userId], name: "idx_userId")
+  @@map("wallet")
+}
+
+enum Payment_Type {
+  DEBIT
+  CREDIT
+}
+
+enum Payment_Status {
+  PENDING
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+model Payment {
+  id        String         @id @default(cuid())
+  amount    Float
+  type      Payment_Type
+  status    Payment_Status @default(PENDING)
+  txid      String         @unique @default(cuid())
+  user      User?          @relation(fields: [userId], references: [id])
+  userId    String?
+  wallet    Wallet         @relation(fields: [walletId], references: [id])
+  walletId  String
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+
+  @@index([userId], name: "idx_userId")
+  @@index([walletId], name: "idx_walletId")
+}
+
+model LeadPaymentActivity {
+  id        String         @id @default(cuid())
+  amount    Float
+  status    Payment_Status @default(PENDING)
+  txid      String         @unique @default(cuid())
+  user      User           @relation(fields: [userId], references: [id])
+  userId    String
+  lead      Lead           @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  leadId    String         @unique
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+
+  @@index([userId], name: "idx_userId")
+  @@index([leadId], name: "idx_leadId")
+}
+
 model Account {
   id                 String  @id @default(cuid())
   userId             String
@@ -77,28 +135,31 @@ model Company {
 }
 
 model User {
-  id                  String               @id @default(cuid())
-  name                String
-  email               String               @unique
-  emailVerified       DateTime?
-  image               String?
-  role                Role                 @default(CUSTOMER)
-  password            String?
-  active              Boolean              @default(false)
-  createdAt           DateTime             @default(now())
-  updatedAt           DateTime             @updatedAt
-  company             Company?             @relation(fields: [companyId], references: [id])
-  companyId           String?              @unique
-  accounts            Account[]
-  passwordResetTokens PasswordResetToken[]
-  activateTokens      ActivateToken[]
-  apiKeys             ApiKey[]
-  bearerTokens        BearerToken[]
-  campaigns           Campaign[]
-  leads               Lead[]
-  products            Product[]
-  notification        Notification[]
-  media               Media[]
+  id                    String                @id @default(cuid())
+  name                  String
+  email                 String                @unique
+  emailVerified         DateTime?
+  image                 String?
+  role                  Role                  @default(CUSTOMER)
+  password              String?
+  active                Boolean               @default(false)
+  createdAt             DateTime              @default(now())
+  updatedAt             DateTime              @updatedAt
+  company               Company?              @relation(fields: [companyId], references: [id])
+  companyId             String?               @unique
+  accounts              Account[]
+  passwordResetTokens   PasswordResetToken[]
+  activateTokens        ActivateToken[]
+  apiKeys               ApiKey[]
+  bearerTokens          BearerToken[]
+  campaigns             Campaign[]
+  leads                 Lead[]
+  products              Product[]
+  notification          Notification[]
+  media                 Media[]
+  payments              Payment[]
+  wallet                Wallet?
+  leadsPaymentsActivity LeadPaymentActivity[]
 
   @@fulltext([name, email])
 }
@@ -240,6 +301,7 @@ model Campaign {
   product            Product?       @relation(fields: [productId], references: [id], onDelete: Cascade)
   user               User           @relation(fields: [userId], references: [id])
   leads              Lead[]
+  pricePerLead       Float          @default(120)
 
   @@index([name], name: "unique_campaign_name_idx")
   @@index([description], name: "campaign_description_idx")
@@ -261,28 +323,29 @@ model TargetRegion {
 }
 
 model Lead {
-  id           String     @id @default(cuid())
-  name         String
-  phone        String
-  country      String?
-  region       String?
-  country_code String?    @db.VarChar(5)
-  region_code  String?    @db.VarChar(5)
-  city         String?
-  zipcode      String?
-  street       String?
-  address      String?
-  email        String?
-  website      String?
-  description  String?
-  ip           String?
-  status       LeadStatus @default(OnHold)
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
-  campaign     Campaign   @relation(fields: [campaignId], references: [id], onDelete: Cascade)
-  campaignId   String
-  user         User?      @relation(fields: [userId], references: [id])
-  userId       String?
+  id                  String               @id @default(cuid())
+  name                String
+  phone               String
+  country             String?
+  region              String?
+  country_code        String?              @db.VarChar(5)
+  region_code         String?              @db.VarChar(5)
+  city                String?
+  zipcode             String?
+  street              String?
+  address             String?
+  email               String?
+  website             String?
+  description         String?
+  ip                  String?
+  status              LeadStatus           @default(OnHold)
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+  campaign            Campaign             @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  campaignId          String
+  user                User?                @relation(fields: [userId], references: [id])
+  userId              String?
+  leadPaymentActivity LeadPaymentActivity?
 
   @@index([campaignId], map: "Lead_leadCampaingId_fkey")
   @@index([userId], map: "Lead_userId_fkey")

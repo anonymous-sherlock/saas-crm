@@ -1,5 +1,6 @@
-import { CampaignStatus, Icon, LeadStatus, Role } from "@prisma/client";
+import { CampaignStatus, Icon, LeadStatus, Payment_Status, Role } from "@prisma/client";
 import { CheckCircledIcon, CrossCircledIcon, ExclamationTriangleIcon, StopwatchIcon } from "@radix-ui/react-icons";
+import { subDays } from "date-fns";
 import { CheckCircle, CircleIcon, Info } from "lucide-react";
 
 type ProductCategory = {
@@ -67,7 +68,7 @@ export const PRODUCT_CATEGORIES: ProductCategory[] = [
 
 export type StatusType = {
   label: string;
-  value: CampaignStatus | LeadStatus | Role;
+  value: CampaignStatus | LeadStatus | Role | Payment_Status;
   icon?: React.ComponentType<{ className?: string }>;
   color?: {
     textColor: string;
@@ -168,7 +169,52 @@ export const LEADS_STATUS: LeadStatusProp[] = [
     },
   },
 ];
+export type PaymentStatusProps = StatusType & {
+  value: Payment_Status;
+};
+export const PAYMENT_STATUS: PaymentStatusProps[] = [
+  {
+    value: "PENDING",
+    label: "Pending",
+    icon: CircleIcon,
+    color: {
+      textColor: "text-yellow-700",
+      bgColor: "!bg-yellow-50",
+      ringColor: "ring-yellow-600/20",
+    },
+  },
 
+  {
+    value: "COMPLETED",
+    label: "Completed",
+    icon: CheckCircledIcon,
+    color: {
+      textColor: "text-green-700",
+      bgColor: "!bg-green-50",
+      ringColor: "ring-green-600/20",
+    },
+  },
+  {
+    value: "FAILED",
+    label: "Failed",
+    icon: CrossCircledIcon,
+    color: {
+      textColor: "text-red-700",
+      bgColor: "!bg-red-50",
+      ringColor: "ring-red-600/20",
+    },
+  },
+  {
+    value: "CANCELLED",
+    label: "Cancelled",
+    icon: CrossCircledIcon,
+    color: {
+      textColor: "text-red-700",
+      bgColor: "!bg-red-50",
+      ringColor: "ring-red-600/20",
+    },
+  },
+];
 export type UserRoleType = StatusType & {
   value: Role;
 };
@@ -253,7 +299,10 @@ export const NOTIFICATION_ICON: NotificationIconTypt[] = [
       ringColor: "ring-blue-100",
     },
   },
-]
+];
 
 export const RESET_PASSWORD_STEP2_LINK: string = "/reset-password/step2";
 export const RESET_PASSWORD_TOKEN_EXPIRE_TIME: number = 4 * 60 * 60 * 1000;
+export const DEFAULT_PRICE_PER_LEAD: number = 120;
+export const DEFAULT_LEAD_CHARGE_DAYS: number = 7 * 24 * 60 * 60 * 1000; // 7 days
+export const DEFAULT_MAX_TRASHED_LEAD_COUNT: number = 1; //1 trashlead

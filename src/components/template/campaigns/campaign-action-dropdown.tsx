@@ -18,6 +18,7 @@ import { usePathname, useRouter } from "next/navigation";
 import React, { useState, useTransition } from "react";
 import { toast as hotToast } from "react-hot-toast";
 import { UpdateCampaignForm } from "./update-campaign-form";
+import { allowedAdminRoles } from "@/lib/auth.permission";
 
 interface CampaignActionDropDownProps {
   campaign: {
@@ -37,7 +38,7 @@ export const CampaignActionDropDown = ({ campaign, children, type = "default" }:
   const [selectedStatus, setSelectedStatus] = React.useState<CampaignStatus>(campaign.status);
   const [statusOpen, setStatusOpen] = useState<boolean>(false);
   const pathname = usePathname();
-  const isAdmin = session?.user?.role === "ADMIN";
+  const isAdmin = allowedAdminRoles.some((role)=>session?.user.role);
   const viewLeadsRoute = pathname.startsWith(pages.admin) ? `${pages.admin}/users/${campaign.userId}/${campaign.id}/leads` : `${pages.campaign}/${campaign.id}/leads`;
   const router = useRouter();
   const utils = trpc.useUtils();

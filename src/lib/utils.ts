@@ -12,12 +12,31 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+export function formatPrice(
+  price: number | string,
+  options: {
+    currency?: "INR" | "USD" | "EUR" | "GBP" | "BDT";
+    notation?: Intl.NumberFormatOptions["notation"];
+    decimal?: boolean | number;
+  } = {},
+) {
+  const { currency = "INR", notation = "standard", decimal = false } = options; // Change here
+
+  const numericPrice = typeof price === "string" ? parseFloat(price) : price;
+
+  return new Intl.NumberFormat("en-IN", {
+    style: "currency",
+    currency,
+    notation,
+    maximumFractionDigits: !decimal ? 0 : Number(decimal),
+  }).format(numericPrice);
+}
+
 // generate inticials from name
 export function generateInitialFromName(fullName: string) {
   if (!fullName) {
     return "N/A";
   }
-
   // Check if the fullName is not empty and is a string
   if (typeof fullName === "string" && fullName.trim().length > 0) {
     // Split the fullName into an array of words
@@ -35,14 +54,15 @@ export function generateInitialFromName(fullName: string) {
     const firstTwoInitials = initials.slice(0, 2);
 
     if (firstTwoInitials.length > 0) {
-      return firstTwoInitials.join(""); // Join the initials together
+      return firstTwoInitials.join("");
     }
   }
-  // Handle invalid input
-  return "N/A"; // You can return a default value like 'N/A' for invalid input
+  return "N/A";
 }
 export function toSentenceCase(str: string) {
-  return str.replace(/([A-Z])/g, " $1").replace(/^./, (str) => str.toUpperCase());
+  return str
+    .replace(/([A-Z])/g, " $1")
+    .replace(/^./, (str) => str.toUpperCase())
 }
 
 export function isMacOs() {
@@ -58,29 +78,9 @@ export function absoluteUrl(path: string) {
 }
 
 export function generateCampaignCodeID() {
-  // Generate a UUID and use the first 8 characters as the alias
   const uuid = randomUUID();
   const alias = uuid.substring(0, 8);
   return alias;
-}
-
-export function formatPrice(
-  price: number | string,
-  options: {
-    currency?: "INR" | "USD" | "EUR" | "GBP" | "BDT";
-    notation?: Intl.NumberFormatOptions["notation"];
-  } = {},
-) {
-  const { currency = "INR", notation = "standard" } = options; // Change here
-
-  const numericPrice = typeof price === "string" ? parseFloat(price) : price;
-
-  return new Intl.NumberFormat("en-IN", {
-    style: "currency",
-    currency,
-    notation,
-    maximumFractionDigits: 2,
-  }).format(numericPrice);
 }
 
 export function constructMetadata({
@@ -88,6 +88,7 @@ export function constructMetadata({
   description = "Adscrush CRM is an open-source software to easily manage your hot leads.",
   image = "/favicon.png",
   noIndex = true,
+  icons = favicon.src,
 }: {
   title?: string;
   description?: string;
@@ -114,8 +115,8 @@ export function constructMetadata({
       images: [image],
       creator: "@adscrush",
     },
-    icons: favicon.src,
-    metadataBase: new URL("http://localhost:300"),
+    icons: icons ?? favicon.src,
+    metadataBase: new URL(env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"),
     ...(noIndex && {
       robots: {
         index: false,
@@ -127,7 +128,6 @@ export function constructMetadata({
 
 export function calculatePercentage(previousValue: number, currentValue: number): number {
   if (previousValue === 0) {
-    // Handle division by zero or initial value being zero
     return currentValue === 0 ? 0 : 100;
   }
   return ((currentValue - previousValue) / previousValue) * 100;
@@ -137,7 +137,6 @@ export function generateSecurePasswordResetCode() {
   const partLength = 5;
   const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
   let resetCode = "";
-
   for (let i = 0; i < 4; i++) {
     if (i > 0) {
       resetCode += "-";
@@ -148,7 +147,6 @@ export function generateSecurePasswordResetCode() {
       resetCode += characters.charAt(randomIndex);
     }
   }
-
   return resetCode;
 }
 

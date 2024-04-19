@@ -19,12 +19,17 @@ const AdminUserHeaderSection: FC<AdminUserHeaderSectionProps> = ({}) => {
       title: "User Profile",
       description: "Manage user profile",
       href: `/admin/users/${userId}`,
-      isActive: segment === null,
+      isActive: segment === null || segment === "wallet",
       nav: [
         {
           title: "Overview",
           href: `/admin/users/${userId}`,
           isActive: segment === null,
+        },
+        {
+          title: "Wallet",
+          href: `/admin/users/${userId}/wallet`,
+          isActive: activeSubTab === "wallet",
         },
       ],
     },

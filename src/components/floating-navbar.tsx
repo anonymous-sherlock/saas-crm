@@ -5,6 +5,9 @@ import { motion, useDragControls } from "framer-motion";
 import Link from "next/link";
 import { CSSProperties, useRef } from "react";
 import { IconComponent, IconKey, Icons } from "./Icons";
+import { Badge } from "./ui/badge";
+import { useSession } from "next-auth/react";
+import { cn } from "@/lib/utils";
 
 interface FloatingNavProps {
   navItems: {
@@ -18,6 +21,7 @@ interface FloatingNavProps {
 }
 
 export const FloatingNav = ({ navItems, className, user }: FloatingNavProps) => {
+  const { data: session, status } = useSession();
   const controls = useDragControls();
   const floatingNavRef = useRef<HTMLDivElement | null>(null);
   const constraintsRef = useRef(null);
@@ -43,7 +47,13 @@ export const FloatingNav = ({ navItems, className, user }: FloatingNavProps) => 
       >
         <Dropdown placement="bottom-end">
           <DropdownTrigger>
-            <Avatar isBordered as="button" className="transition-transform " src={user?.image ? user.image : ""} fallback={<Icons.user className="h-4 w-4 text-zinc-900" />} />
+            <Avatar
+              isBordered
+              as="button"
+              className="transition-transform "
+              src={user?.image ? user.image : ""}
+              fallback={<Icons.user className="h-4 w-4 text-zinc-900" />}
+            />
           </DropdownTrigger>
           <DropdownMenu aria-label="Profile Actions" items={navItems} variant="faded">
             <DropdownSection title="Profile" showDivider>
@@ -61,7 +71,16 @@ export const FloatingNav = ({ navItems, className, user }: FloatingNavProps) => 
                 <div className="flex justify-start items-center gap-2 w-full ">
                   <User
                     as="button"
-                    name={user?.name}
+                    name={
+                      <>
+                        {user?.name}
+                        {session?.user.id === user?.id ? (
+                          <Badge className={cn("pointer-events-none ml-2 rounded-sm px-1 font-semibold", "border-green-600/20 bg-green-100 text-green-700")}>
+                            You
+                          </Badge>
+                        ) : null}
+                      </>
+                    }
                     description={user?.email}
                     avatarProps={{
                       size: "sm",

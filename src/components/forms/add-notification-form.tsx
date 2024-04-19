@@ -270,7 +270,7 @@ export const AddNotificationForm: FC<AddNotificationFormProps> = ({ users }) => 
                 />
               </div>
             </div>
-            <ScrollArea className="md:col-span-2 flex flex-col justify-start">
+            <ScrollArea className="md:col-span-2 h-[235px] flex flex-col justify-start row-span-1">
               <div className="flex flex-col gap-3">
                 {users
                   .filter((u) => selectedUsersRef.current.includes(u.id))

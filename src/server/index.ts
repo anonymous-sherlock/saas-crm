@@ -9,6 +9,7 @@ import { notificationRouter } from "./routers/notification.router";
 import { searchRouter } from "./routers/search.router";
 import { userRouter } from "./routers/user.router";
 import { router } from "./trpc";
+import { walletRouter } from "./routers/wallet.router";
 
 export const appRouter = router({
   auth: authRouter,
@@ -19,6 +20,7 @@ export const appRouter = router({
   notification: notificationRouter,
   media: mediaRouter,
   search: searchRouter,
+  wallet: walletRouter,
 });
 
 export type AppRouter = typeof appRouter;

@@ -1,4 +1,4 @@
-import AddUserForm from "@/components/admin/user/add-user-form";
+import { AddUserForm } from "@/components/forms/add-user-form";
 import { PageHeader, PageHeaderDescription, PageHeaderHeading } from "@/components/global/page-header";
 import { DataTableSkeleton } from "@/components/tables/global/data-table-skeleton";
 import UserListTableShell from "@/components/tables/users_list_table/user-list-table-shell";
@@ -23,16 +23,24 @@ export default async function UserListPage({ searchParams: { date } }: UserListP
 
   const users = await db.user.findMany({
     where: {
-      id: { not: user.id },
       createdAt: {
         gte: from,
         lte: to,
       },
     },
-    include: { company: { select: { id: true, name: true, address: true } } },
+    include: {
+      company: { select: { id: true, name: true, address: true } },
+      _count: {
+        select: {
+          campaigns: true,
+          leads: true,
+        },
+      },
+    },
     orderBy: { createdAt: "desc" },
   });
 
+  users[0]._count.campaigns;
   const isAdmin = allowedAdminRoles.some((role) => role === user.role);
   return (
     <div className="flex flex-col gap-4">

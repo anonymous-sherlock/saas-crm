@@ -15,7 +15,7 @@ import {
 
 interface WorkingHoursProps { }
 
-const WorkingHours: FC<WorkingHoursProps> = ({ }) => {
+export const WorkingHours: FC<WorkingHoursProps> = ({ }) => {
   const { control, getValues, watch, setValue, setError, clearErrors } = useFormContext<CampaignFormSchemaType>();
   const selectedWorkingDaysRef = useRef<Array<string>>(getValues("workingDays"));
 
@@ -129,5 +129,3 @@ const WorkingHours: FC<WorkingHoursProps> = ({ }) => {
     </>
   );
 };
-
-export default WorkingHours;

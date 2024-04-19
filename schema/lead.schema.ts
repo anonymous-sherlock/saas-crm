@@ -1,3 +1,4 @@
+import { findCampaignByCode } from "@/lib/actions/campaign.action";
 import { z } from "zod";
 
 const numberSchema = z.number().transform((val) => val ? val.toString() : "")
@@ -41,7 +42,7 @@ export const LeadSchema = z.object({
   name: z.string(),
   phone: phoneSchema,
   address: z.string().optional(),
-  email: z.string().optional(),
+  email: z.string().email().optional(),
   description: z.string().optional(),
   country: z.string().optional(),
   region: z.string().optional(),
@@ -51,14 +52,17 @@ export const LeadSchema = z.object({
   website: z.string().optional(),
 });
 
-export type CustomCSVLeadType = LeadSchemaType & {
-  campaign_code: string;
-};
+
 
 export const BulkUploadLeadsSchema = LeadSchema.extend({
-  campaign_code: z.string()
+  campaign_code: z.string().refine(async (code) => {
+    const campaign = await findCampaignByCode({ campaignCode: code })
+    return campaign ? true : false;
+  })
 })
-export const CSVLeadsColumnMapping: { label: string; value: keyof CustomCSVLeadType }[] = [
+
+export type BulkCSVLeadType = z.infer<typeof BulkUploadLeadsSchema>;
+export const CSVLeadsColumnMapping: { label: string; value: keyof BulkCSVLeadType }[] = [
   { label: "Campaign Code", value: "campaign_code" },
   { label: "Name", value: "name" },
   { label: "Phone", value: "phone" },
