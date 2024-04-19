@@ -4,6 +4,7 @@ import { getUserProfile, getUserSecretKeys } from "@/lib/actions/user.action";
 import { getActorUser, getCurrentUser } from "@/lib/auth";
 import { authPages } from "@routes";
 import { notFound, redirect } from "next/navigation";
+export const dynamic = 'force-dynamic';
 
 export default async function UserProfilePage() {
   const authUser = await getCurrentUser();

@@ -3,7 +3,6 @@ import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { getAuthUser } from "@/lib/auth";
 import { authPages } from "@routes";
 import { redirect } from "next/navigation";
-
 export const dynamic = "force-dynamic";
 
 export default async function CampaignCreate() {

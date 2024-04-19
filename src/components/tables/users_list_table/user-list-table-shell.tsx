@@ -64,7 +64,9 @@ const UserListTableShell: FC<UserListTableShellProps> = ({ data }) => {
                 <>
                   {row.original.name}
                   {session?.user.id === row.original.id ? (
-                    <Badge className={cn("pointer-events-none ml-2 rounded-sm px-1 font-semibold", "border-green-600/20 bg-green-100 text-green-700")}>You</Badge>
+                    <Badge className={cn("pointer-events-none ml-2 rounded-sm px-1 font-semibold", "border-green-600/20 bg-green-100 text-green-700")}>
+                      You
+                    </Badge>
                   ) : null}
                 </>
               }
@@ -160,6 +162,7 @@ const UserListTableShell: FC<UserListTableShellProps> = ({ data }) => {
         size: 50,
       },
     ],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [data],
   );
   return (

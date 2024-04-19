@@ -10,7 +10,6 @@ import { lead } from "@/server/api/lead";
 import { authPages } from "@routes";
 import { redirect } from "next/navigation";
 import React from "react";
-
 export const dynamic = "force-dynamic";
 
 interface LeadsPageProps {

@@ -8,11 +8,13 @@ import { type Metadata } from "next";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import Skeleton from "react-loading-skeleton";
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Adscrush | Dashboard",
   description: "",
 };
+
 export default async function DashboardPage() {
   const [isOnboarded, authUser] = await Promise.all([getCurrentIsOnboarded(), getAuthUser()]);
   if (!isOnboarded || !authUser.authUserId) redirect(ONBOARDING_REDIRECT);
