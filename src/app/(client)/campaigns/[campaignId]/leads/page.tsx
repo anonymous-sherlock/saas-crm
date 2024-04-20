@@ -1,3 +1,4 @@
+import LowBalanceCard from "@/components/global/cards/low-balance-card";
 import { PageHeader, PageHeaderDescription, PageHeaderHeading } from "@/components/global/page-header";
 import { AddLeadsForm } from "@/components/leads/add-lead-form";
 import { DataTableSkeleton } from "@/components/tables/global/data-table-skeleton";
@@ -10,7 +11,9 @@ import { lead } from "@/server/api/lead";
 import { authPages } from "@routes";
 import { notFound, redirect } from "next/navigation";
 import React from "react";
-export const dynamic = 'force-dynamic';
+import { Card as NextUiCard } from "@nextui-org/card";
+import { LowBalanceAlert } from "@/components/global/alerts/low-balance-alert";
+export const dynamic = "force-dynamic";
 
 interface CampaignLeadsPageProps {
   params: {
@@ -23,11 +26,19 @@ interface CampaignLeadsPageProps {
 async function CampaignLeadsPage({ params: { campaignId }, searchParams: { date } }: CampaignLeadsPageProps) {
   const { authUserId } = await getAuthUser();
   if (!authUserId) redirect(authPages.login);
+  const { from, to } = getDateFromParams(date);
 
   const campaign = await db.campaign.findFirst({ where: { userId: authUserId, OR: [{ code: campaignId }, { id: campaignId }] } });
   if (!campaign) notFound();
 
-  const { from, to } = getDateFromParams(date);
+  const wallet = await db.wallet.findFirst({ where: { userId: authUserId } });
+  if (wallet && wallet?.balance < 50) {
+    return (
+      <NextUiCard className="w-max mx-auto p-4">
+        <LowBalanceCard />
+      </NextUiCard>
+    );
+  }
 
   const leads = await lead.getCampaignLeads({ date: { from, to }, campaignId: campaign.id, userId: campaign.userId });
 
@@ -61,6 +72,7 @@ async function CampaignLeadsPage({ params: { campaignId }, searchParams: { date 
           </Card>
         </React.Suspense>
       </div>
+      <LowBalanceAlert balance={wallet?.balance ?? 0} />
     </>
   );
 }

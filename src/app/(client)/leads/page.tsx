@@ -1,3 +1,5 @@
+import { LowBalanceAlert } from "@/components/global/alerts/low-balance-alert";
+import LowBalanceCard from "@/components/global/cards/low-balance-card";
 import { PageHeader, PageHeaderDescription, PageHeaderHeading } from "@/components/global/page-header";
 import UploadLeadFromExcel from "@/components/leads/upload-lead-from-excel";
 import { DataTableSkeleton } from "@/components/tables/global/data-table-skeleton";
@@ -9,6 +11,7 @@ import { getDateFromParams } from "@/lib/helpers/date";
 import { lead } from "@/server/api/lead";
 import { authPages } from "@routes";
 import { redirect } from "next/navigation";
+import { Card as NextUiCard } from "@nextui-org/card";
 import React from "react";
 export const dynamic = "force-dynamic";
 
@@ -21,13 +24,18 @@ export default async function LeadsPage({ searchParams: { date } }: LeadsPagePro
   const { authUserId } = await getAuthUser();
   if (!authUserId) redirect(authPages.login);
   const { from, to } = getDateFromParams(date);
-  const leads = await lead.getAllLeads({ userId: authUserId, date: { from, to } });
 
   const wallet = await db.wallet.findFirst({ where: { userId: authUserId } });
 
   if (wallet && wallet?.balance < 50) {
-    return "Low Balance";
+    return (
+      <NextUiCard className="w-max mx-auto p-4">
+        <LowBalanceCard />
+      </NextUiCard>
+    );
   }
+
+  const leads = await lead.getAllLeads({ userId: authUserId, date: { from, to } });
   return (
     <>
       <PageHeader separated>
@@ -58,6 +66,7 @@ export default async function LeadsPage({ searchParams: { date } }: LeadsPagePro
           </Card>
         </React.Suspense>
       </div>
+      <LowBalanceAlert balance={wallet?.balance ?? 0} />
     </>
   );
 }

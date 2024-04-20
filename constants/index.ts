@@ -306,3 +306,4 @@ export const RESET_PASSWORD_TOKEN_EXPIRE_TIME: number = 4 * 60 * 60 * 1000;
 export const DEFAULT_PRICE_PER_LEAD: number = 120;
 export const DEFAULT_LEAD_CHARGE_DAYS: number = 7 * 24 * 60 * 60 * 1000; // 7 days
 export const DEFAULT_MAX_TRASHED_LEAD_COUNT: number = 1; //1 trashlead
+export const DEFAULT_LOW_BALANCE_THRESHOLD: number = 1000;

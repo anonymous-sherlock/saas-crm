@@ -17,6 +17,7 @@ export const CustomModal = ({ children, defaultOpen, subheading, title, size, pl
   return (
     <Modal
       {...props}
+      defaultOpen={defaultOpen}
       isOpen={isOpen}
       placement={placement || "auto"}
       onOpenChange={setOpen}
